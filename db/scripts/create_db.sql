@@ -1,3 +1,5 @@
+CREATE DATABASE ARKGL;
+
 drop table if exists ARKGL.attachment;
 drop table if exists ARKGL.journal_entry;
 drop table if exists ARKGL.ledger;
