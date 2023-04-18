@@ -1,14 +1,16 @@
 CREATE DATABASE ARKGL;
 
+drop table if exists ARKGL.line_item;
+drop table if exists ARKGL.account;
+drop table if exists ARKGL.account_attribute;
+drop table if exists ARKGL.account_type;
+
 drop table if exists ARKGL.attachment;
 drop table if exists ARKGL.journal_entry;
 drop table if exists ARKGL.ledger;
 drop table if exists ARKGL.fund_entity;
 
-drop table if exists ARKGL.line_item;
-drop table if exists ARKGL.account;
-drop table if exists ARKGL.account_attribute;
-drop table if exists ARKGL.account_type;
+
 
 CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 	id INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,6 +86,8 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 	parent_id INT,
 	name VARCHAR(255),
 	description VARCHAR(255),
+	fs_mapping_id VARCHAR(255),
+    fs_name VARCHAR(255),
 	state VARCHAR(30),
 	is_hidden bool,
 	is_taxable bool,
