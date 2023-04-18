@@ -13,3 +13,12 @@ def get_shared_layer(context):
         compatible_runtimes=[cdk.aws_lambda.Runtime.PYTHON_3_9],
         description="Lambda layer with code responses, logging, and error handling"
     )
+
+def get_pymysql_layer(context):
+    dir = str(PurePath(LAYERS_DIR, 'pymysql'))
+
+    return cdk.aws_lambda.LayerVersion(context, "pymysql",
+        code=cdk.aws_lambda.Code.from_asset(dir),
+        compatible_runtimes=[cdk.aws_lambda.Runtime.PYTHON_3_9],
+        description="Lambda layer with pymysql connector"
+    )

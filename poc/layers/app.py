@@ -9,6 +9,7 @@ from app.accounts.infrastructure import (
 
 app = cdk.App()
 
-runtime = AccountsGetStack(app, "ark-gl-accounts-get-stack")
+
+accounts = AccountsGetStack(app, "ark-gl-accounts-get-stack")
 
 app.synth()
