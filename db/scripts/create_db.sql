@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 	`uuid` VARCHAR(30),
 	fund_entity_id INT NOT NULL,
 	account_attribute_id INT,
-	parent_id INT DEFAULT 0,
+	parent_id INT,
 	name VARCHAR(255),
 	description VARCHAR(255),
 	state VARCHAR(30),
