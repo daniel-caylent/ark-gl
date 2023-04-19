@@ -135,6 +135,7 @@ package-lock.json
 yarn.lock
 .cdk.staging
 cdk.out
-
+# editor
+.vscode
 # App
 pymysql/python/*

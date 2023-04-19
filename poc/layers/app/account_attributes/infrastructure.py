@@ -9,7 +9,7 @@ THIS_DIRECTORY = Path(__file__).parent.absolute()
 RUNTIME_DIR = str(PurePath(THIS_DIRECTORY, 'runtime'))
 GET_DIR = str(PurePath(RUNTIME_DIR, 'get'))
 
-class AccountsGetStack(cdk.Stack):
+class AccountAttributesGetStack(cdk.Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -25,6 +25,7 @@ class AccountsGetStack(cdk.Stack):
             layers=[shared_layer, pymysql_layer, models_layer],
             description="accounts get"
         )
+
 
 def get_models_layer(context):
     dir = str(PurePath(RUNTIME_DIR, 'models'))

@@ -7,9 +7,13 @@ from app.accounts.infrastructure import (
     AccountsGetStack,
 )
 
+from app.account_attributes.infrastructure import (
+    AccountAttributesGetStack
+)
+
 app = cdk.App()
 
-
+account_attributes = AccountAttributesGetStack(app, "ark-gl-account-attributes-get-stack")
 accounts = AccountsGetStack(app, "ark-gl-accounts-get-stack")
 
 app.synth()

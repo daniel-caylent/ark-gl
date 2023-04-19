@@ -1,13 +1,21 @@
 import json
 
-def response(code, context, data=None, **kwargs):
+from .json_encoder import EnhancedJSONEncoder
+
+def response(code: int, id: str, data=None, **kwargs):
+    """
+    Generate json encodable and consistent responses for lambda functions
+
+    code: 
+    """
+
     response_ = {
         'statusCode': str(code),
-        'eventId': context.aws_request_id,
+        'eventId': id,
         **kwargs
     }
 
     if data is not None:
-        response_['body'] = data
-    
+        response_['body'] = json.dumps(data, cls=EnhancedJSONEncoder)
+
     return response_
