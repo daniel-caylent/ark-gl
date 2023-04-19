@@ -14,7 +14,7 @@ drop table if exists ARKGL.fund_entity;
 
 CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	client_id VARCHAR(30),
 	fund_id VARCHAR(30),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 
 CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	fund_entity_id INT NOT NULL,
 	name VARCHAR(255),
 	description VARCHAR(255),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 
 CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	ledger_id INT NOT NULL,
 	`date` TIMESTAMP,
 	reference VARCHAR(255),
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 
 CREATE TABLE IF NOT EXISTS ARKGL.account_type (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	name VARCHAR(255),
 	description VARCHAR(255),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account_type (
 
 CREATE TABLE IF NOT EXISTS ARKGL.account_attribute (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	fund_entity_id INT NOT NULL,
 	account_type_id INT NOT NULL,
 	detail_type VARCHAR(255),
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account_attribute (
 
 CREATE TABLE IF NOT EXISTS ARKGL.account (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	fund_entity_id INT NOT NULL,
 	account_attribute_id INT NOT NULL,
 	parent_id INT,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 
 CREATE TABLE IF NOT EXISTS ARKGL.line_item (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	account_id INT NOT NULL,
 	journal_entry_id INT NOT NULL,
 	line_number INT,
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.line_item (
 
 CREATE TABLE IF NOT EXISTS ARKGL.attachment (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` VARCHAR(30),
+	`uuid` CHAR(36),
 	journal_entry_id INT NOT NULL,
 	location VARCHAR(255),
 	memo VARCHAR(255),
