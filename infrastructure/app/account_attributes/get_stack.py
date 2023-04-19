@@ -7,7 +7,7 @@ from ..get_cdk import get_lambda_function
 from ..layers import get_shared_layer, get_pymysql_layer
 from ..utils import ACCOUNTS_ATTR_DIR
 
-GET_DIR = str(PurePath(ACCOUNTS_ATTR_DIR, 'get'))
+CODE_DIR = str(PurePath(ACCOUNTS_ATTR_DIR, 'get'))
 
 class AccountAttributesGetStack(cdk.Stack):
 
@@ -18,7 +18,7 @@ class AccountAttributesGetStack(cdk.Stack):
         pymysql_layer = get_pymysql_layer(self)
 
         func = get_lambda_function(
-            self, GET_DIR, "get.handler",
+            self, CODE_DIR, "get.handler",
             layers=[shared_layer, pymysql_layer],
             description="account attributes get"
         )
