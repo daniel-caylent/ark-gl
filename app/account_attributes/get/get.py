@@ -1,4 +1,4 @@
-from shared import endpoint, response
+from shared import endpoint
 
 from models import Attribute
 

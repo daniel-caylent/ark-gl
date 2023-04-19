@@ -10,13 +10,17 @@ def handler(event, context):
     if fund_id is None:
         return 400, {'detail': "No fund specified."}
 
-    body = json.loads(event.body)
+    try:
+        body = json.loads(event['body'])
+    except:
+        return 400, {'detail': "Body does not contain valid json."}
 
     # validate the POST body
     try:
         post = AccountPost(**body)
     except:
         return 400, {'detail': "Body does not contain valid data."}
+
     
     # attribute must belong to client & fund
     # no inactive attributes ??? does this refer to /account-attributes? Those should be global...
