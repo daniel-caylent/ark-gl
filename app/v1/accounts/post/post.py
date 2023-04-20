@@ -21,7 +21,7 @@ def handler(event, context):
     except:
         return 400, {'detail': "Body does not contain valid data."}
 
-    
+
     # attribute must belong to client & fund
     # no inactive attributes ??? does this refer to /account-attributes? Those should be global...
 
@@ -33,3 +33,17 @@ def handler(event, context):
         return 400, {'detail': f"Failed to insert account due to: {str(e)}"}
 
     return 200, {'accountId': result}
+
+def check_active_attribute(attribute_id):
+    # results = db.get_attribute_by_id(attribute_id)
+    # attribute = AccountAttribute(**results)
+    # status = attribute.status
+    status = 'ACTIVE'
+    return status == 'ACTIVE'
+
+def check_unique_account_name(fundId, name):
+    # results = db.get_accounts_by_name(fundId, name)
+    results = []
+
+    return len(results) == 0
+    

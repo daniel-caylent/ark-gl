@@ -20,7 +20,9 @@ def handler(event, context):
             'isTaxable': True,
             'isVendorCustomerPartnerRequired': False,
             'parrentAccountNo': -1,
-            'attributeNo': 1
+            'attributeNo': 1,
+            'fsName': 'fsName',
+            'fsMappingId': 'fsMapping'
         },
         {
             'accountNo': 5,
@@ -32,7 +34,9 @@ def handler(event, context):
             'isTaxable': True,
             'isVendorCustomerPartnerRequired': False,
             'parrentAccountNo': -1,
-            'attributeNo': 1
+            'attributeNo': 1,
+            'fsName': 'fsName',
+            'fsMappingId': 'fsMapping'
         }
     ]
 

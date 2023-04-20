@@ -6,14 +6,16 @@ from dataclasses import dataclass
 class Account:
     accountNo: int
     accountName: str
-    accountId: str
-    accountDescription: str
     state: Literal["USED", "UNUSED", "ACTIVE"]
+    accountDescription: str
+    fsMappingId: str
+    fsName: str
     isHidden: bool
     isTaxable: bool
     isVendorCustomerPartnerRequired: bool
     parrentAccountNo: int
     attributeNo: int
+    accountId: str
 
 #post
 class AccountPost:
@@ -28,3 +30,10 @@ class AccountPost:
     isDryRun: bool
     parentAccountNo: int
     attributeNo: int
+
+    def __post_init__(self):
+        self.accountNo = int(self.accountNo)
+        self.attributeNo = int(self.attributeNo)
+        self.parrentAccountNo = int(self.parrentAccountNo)
+        self.accountName = self.accountName.strip(' ')
+

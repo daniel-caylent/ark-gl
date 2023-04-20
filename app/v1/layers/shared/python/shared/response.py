@@ -10,7 +10,7 @@ def response(code: int, id: str, data=None, **kwargs):
     """
 
     response_ = {
-        'statusCode': str(code),
+        'statusCode': code,
         'eventId': id,
         **kwargs
     }
