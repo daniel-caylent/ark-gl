@@ -14,13 +14,13 @@ The infrastructure is located in the `infrastructure` folder.
 
 Personal environments:
 
-To have your own provisioned architecture (represented as a prefix in the CloudFormation stack name), consider setting up the following environment variable: DEPLOYMENT_ENV
+To have your own provisioned architecture (represented as a prefix in the CloudFormation stack name), consider setting up the following environment variable:
 
 ```bash
 DEPLOYMENT_ENV=my-account-name
 ```
 
-To deploy the CDK:
+### CDK:
 
 For provisioning the resources before the deploy:
 ```bash
