@@ -1,8 +1,8 @@
 from pathlib import PurePath
 
 from constructs import Construct
-import aws_cdk as cdk
 
+from ..base_stack import BaseStack
 from ..get_cdk import get_lambda_function
 from ..layers import get_models_layer, get_pymysql_layer, get_shared_layer
 from ..utils import ACCOUNTS_DIR
@@ -11,7 +11,7 @@ from ..utils import ACCOUNTS_DIR
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
 MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
-class AccountsGetStack(cdk.Stack):
+class AccountsGetStack(BaseStack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
