@@ -138,4 +138,4 @@ cdk.out
 # editor
 .vscode
 # App
-pymysql/python/*
+infrastructure/app/layers/pymysql/python/
