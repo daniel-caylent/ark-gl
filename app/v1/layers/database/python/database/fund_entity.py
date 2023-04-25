@@ -1,5 +1,5 @@
-import db_main
-import connection
+from . import db_main
+from . import connection
 
 # app_to_db = {
 #     'fundId': 'uuid',

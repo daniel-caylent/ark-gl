@@ -1,7 +1,7 @@
-import db_main
-import connection
-import account_attribute
-import fund_entity
+from . import db_main
+from . import connection
+from . import account_attribute
+from . import fund_entity
 
 app_to_db = {
     'accountId': 'uuid',

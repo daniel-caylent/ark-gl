@@ -1,5 +1,5 @@
-import db_main
-import connection
+from . import db_main
+from . import connection
 
 def get_all(db:str) -> tuple:
     query = """

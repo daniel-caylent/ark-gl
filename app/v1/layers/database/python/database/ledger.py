@@ -1,7 +1,7 @@
 """This module provides the Aurora MySQL serverless capabilities for ledgers"""
-import db_main
-import connection
-import fund_entity
+from . import db_main
+from . import connection
+from . import fund_entity
 
 app_to_db = {
     "fundId": "fund_entity_id",
