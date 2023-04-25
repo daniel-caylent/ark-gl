@@ -1,3 +1,4 @@
+
 from arkdb import accounts
 from shared import endpoint
 from models import Account
@@ -9,10 +10,9 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "No account specified."}
 
     result = accounts.select_by_id(account_id)
-
     if result is None:
         return 400, {'detail': "No account found."}
 
-    account = result #Account(**result)
+    account = Account(**result)
 
     return 200, {'data': account}
