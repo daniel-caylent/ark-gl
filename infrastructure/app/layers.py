@@ -6,10 +6,20 @@ from .utils import LAYERS_DIR
 
 def get_shared_layer(context):
     dir = str(PurePath(LAYERS_DIR, 'shared'))
-    
+
     return get_lambda_layer(context, dir, "shared",
         description="Lambda layer with code responses, logging, and error handling"
     )
+
+
+
+def get_database_layer(context):
+    dir = str(PurePath(LAYERS_DIR, 'database'))
+
+    return get_lambda_layer(context, dir, "database",
+        description="Lambda layer with database integrations"
+    )
+    
 
 def get_pymysql_layer(context):
     dir = str(PurePath(LAYERS_DIR, 'pymysql'))

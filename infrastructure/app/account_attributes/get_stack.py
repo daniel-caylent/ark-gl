@@ -4,7 +4,7 @@ from constructs import Construct
 
 from ..base_stack import BaseStack
 from ..get_cdk import get_lambda_function
-from ..layers import get_shared_layer, get_pymysql_layer
+from ..layers import get_shared_layer, get_pymysql_layer, get_database_layer
 from ..utils import ACCOUNTS_ATTR_DIR
 
 CODE_DIR = str(PurePath(ACCOUNTS_ATTR_DIR, 'get'))
@@ -16,9 +16,10 @@ class AccountAttributesGetStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
+        db_layer = get_database_layer(self)
 
         func = get_lambda_function(
             self, CODE_DIR, "get.handler",
-            layers=[shared_layer, pymysql_layer],
+            layers=[shared_layer, pymysql_layer, db_layer],
             description="account attributes get"
         )
