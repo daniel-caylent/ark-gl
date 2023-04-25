@@ -52,11 +52,6 @@ class PipelineStack(BaseStack):
             )
         )
 
-        # Define the CodeDeploy ECS application
-        #ecs_application = ecs.EcsApplication(self, 'MyEcsApplication',
-        #    application_name='my-ecs-app'
-        #)
-
         # Define the pipeline
         pipeline = codepipeline.Pipeline(self, 'ark-code-pipeline',
             pipeline_name='ark-code-pipeline',
@@ -90,22 +85,3 @@ class PipelineStack(BaseStack):
             stage_name='Build',
             actions=[build_action]
         )
-
-        # Add the CodeDeploy deploy action to the pipeline
-        #deploy_action = codepipeline_actions.EcsDeployAction(
-        #    action_name='Deploy',
-        #    service=ecs_application.default_service,
-        #    image_file=codepipeline.ArtifactPath(
-        #        build_action.output,
-        #        'imagedefinitions.json'
-        #    ),
-        #    deployment_timeout=core.Duration.minutes(30),
-        #    app_spec_template_file=codepipeline.ArtifactPath(
-        #        build_action.output,
-        #        'appspec.yml'
-        #    )
-        #)
-        #pipeline.add_stage(
-        #    stage_name='Deploy',
-        #    actions=[deploy_action]
-        #)
