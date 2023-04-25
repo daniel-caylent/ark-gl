@@ -28,15 +28,15 @@ vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=env)
 
 AccountAttributesGetStack(
     app, "ark-gl-account-attributes-get-stack", env=env
-).add_dependency(vpc_stack)
+)
 
 AccountsGetStack(
     app, "ark-gl-accounts-get-stack", env=env
-).add_dependency(vpc_stack)
+)
 
 AccountsPostStack(
     app, "ark-gl-accounts-post-stack", env=env
-).add_dependency(vpc_stack)
+)
 
 
 PipelineStack(app, "ark-gl-pipeline-stack")
