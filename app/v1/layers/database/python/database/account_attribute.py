@@ -7,7 +7,7 @@ def get_all(db:str) -> tuple:
         FROM """+db+""".account_attribute accatt
         INNER JOIN """+db+""".account_type acctyp ON (accatt.account_type_id = acctyp.id);"""
 
-    return (query,)
+    return (query, None)
 
 def get_query_select_by_uuid(db:str, uuid:str) -> tuple:
     query = "SELECT * FROM "+db+".account_attribute where uuid = %s;"
