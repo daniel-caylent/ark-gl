@@ -19,6 +19,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", **kwa
             **kwargs
         )
 
+
 def get_lambda_layer(context, code_dir, name="layer", **kwargs):
 
     return cdk.aws_lambda.LayerVersion(
@@ -29,7 +30,7 @@ def get_lambda_layer(context, code_dir, name="layer", **kwargs):
     )
 
 def get_vpc(context):
-  
+
     return cdk.aws_ec2.Vpc.from_lookup(
         context, 'ark-ledger-vpc', is_default=False, vpc_id=ENV['vpc']
     )
