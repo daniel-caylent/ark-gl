@@ -12,17 +12,30 @@ from app.accounts import (
     AccountsPostStack
 )
 
+from app.vpc_stack import VpcStack
+
 
 env=cdk.Environment(                             # Caylent env:
-    account = os.environ["CDK_DEFAULT_ACCOUNT"], # '131578276461'
-    region = os.environ["CDK_DEFAULT_REGION"]    # 'us-east-2'
+    account = '131578276461', # '131578276461'
+    region = 'us-east-2'    # 
 )
 
 app = cdk.App()
 
-AccountAttributesGetStack(app, "ark-gl-account-attributes-get-stack", env=env)
-AccountsGetStack(app, "ark-gl-accounts-get-stack", env=env)
-AccountsPostStack(app, "ark-gl-accounts-post-stack", env=env)
+vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=env)
+
+AccountAttributesGetStack(
+    app, "ark-gl-account-attributes-get-stack", env=env
+).add_dependency(vpc_stack)
+
+AccountsGetStack(
+    app, "ark-gl-accounts-get-stack", env=env
+).add_dependency(vpc_stack)
+
+AccountsPostStack(
+    app, "ark-gl-accounts-post-stack", env=env
+).add_dependency(vpc_stack)
+
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 app.synth()

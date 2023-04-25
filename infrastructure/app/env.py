@@ -7,7 +7,7 @@ customer_dev = {}
 
 dev = {
     'vpc': "vpc-0fee1c501ecae446b",
-    'subnets': ["subnet-0727e6789f058348b"]
+    'subnets': ["subnet-0727e6789f058348b", "subnet-007ede16f0c16022f"]
 }
 
 env_name = os.getenv('DEPLOYMENT_TYPE')
