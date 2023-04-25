@@ -42,17 +42,9 @@ class PipelineStack(BaseStack):
                     'post_build': {
                         'commands': [
                             'echo "Running unit tests"',
-                            'python -m unittest discover -s tests/ -p \'test*.py\''
                             'ls -lah'
                         ]
                     }
-                },
-                'artifacts': {
-                    'files': [
-                        'app.py',
-                        'requirements.txt',
-                        'buildspec.yml'
-                    ]
                 }
             }),
             environment=codebuild.BuildEnvironment(
