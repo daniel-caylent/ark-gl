@@ -1,23 +1,12 @@
-from shared import endpoint
+import boto3
 
-from models import Attribute
+from arkdb import account_attributes
+from shared import endpoint
+from .models import Attribute
 
 @endpoint
 def handler(event, context):
-    #response = db.get_account_attributes()
-    response = [
-        {
-            'attributeNo': 1,
-            'accountType': "Assets",
-            'detailType': "Balance Sheet"
-        },
-        {
-            'attributeNo': 2,
-            'accountType': "Assets",
-            'detailType': "Balance Sheet"
-        }
-    ]
-
+    response = account_attributes.get_all()
     attributes = [Attribute(**attr) for attr in response]
 
     return 200, {'data': attributes}

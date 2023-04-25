@@ -3,7 +3,7 @@ import aws_cdk as cdk
 from .env import ENV
 
 
-def get_lambda_function(context, code_dir: str, handler: str, name="main", **kwargs):
+def get_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
     """
     Returns a Lambda Function with default configs + any customizations
     passed in as parameters. Call from a CDK Stack to add a lambda function
@@ -30,6 +30,10 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", **kwa
             vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),
             runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
             security_groups=[security_group],
+            environment={
+                **ENV['deploy'],
+                **env
+            },
             **kwargs
         )
     
