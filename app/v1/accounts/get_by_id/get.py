@@ -1,4 +1,3 @@
-
 from arkdb import accounts
 from shared import endpoint
 from models import Account
