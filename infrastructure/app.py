@@ -17,9 +17,9 @@ from app.vpc_stack import VpcStack
 from pipeline import PipelineStack
 
 
-env=cdk.Environment(                             # Caylent env:
-    account = '131578276461', # '131578276461'
-    region = 'us-east-2'    #
+env=cdk.Environment(                     # Caylent env:
+    account = os.getenv('AWS_ACCOUNT'),  # '131578276461'
+    region = os.getenv('AWS_REGION')     # 'us-east-2'
 )
 
 app = cdk.App()
@@ -37,7 +37,6 @@ AccountsGetStack(
 AccountsPostStack(
     app, "ark-gl-accounts-post-stack", env=env
 )
-
 
 PipelineStack(app, "ark-gl-pipeline-stack")
 
