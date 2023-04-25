@@ -5,20 +5,20 @@ from . import account_attribute
 from . import fund_entity
 
 app_to_db = {
-    "accountId": "uuid",
-    "fundId": "fund_entity_id",
-    "accountNo": "account_no",
-    "state": "state",
-    "parentAccountNo": "parent_id",
-    "accountName": "name",
-    "accountDescription": "description",
-    "attributeId": "account_attribute_id",
-    "isHidden": "is_hidden",
-    "isTaxable": "is_taxable",
-    "isVendorCustomerPartnerRequired": "is_vendor_customer_partner_required",
-    "fsMappingId": "fs_mapping_id",
-    "fsName": "fs_name",
-    "isDryRun": "is_dry_run",
+    'accountId': "uuid",
+    'fundId': "fund_entity_id",
+    'accountNo': "account_no",
+    'state': "state",
+    'parentAccountNo': "parent_id",
+    'accountName': "name",
+    'accountDescription': "description",
+    'attributeId': "account_attribute_id",
+    'isHidden': "is_hidden",
+    'isTaxable': "is_taxable",
+    'isVendorCustomerPartnerRequired': "is_vendor_customer_partner_required",
+    'fsMappingId': "fs_mapping_id",
+    'fsName': "fs_name",
+    'isDryRun': "is_dry_run",
 }
 
 

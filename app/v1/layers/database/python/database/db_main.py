@@ -19,6 +19,9 @@ def translate_to_db(app_to_db: dict, input: dict) -> dict:
     """
     return dict((app_to_db[key], value) for (key, value) in input.items())
 
+def translate_to_app(app_to_db: dict, input:dict) -> dict:
+    db_to_app = {v: k for k, v in app_to_db.items()}
+    return dict((db_to_app.get(key,f'missing-{key}'), value) for (key, value) in input.items())
 
 def translate_to_app(app_to_db: dict, input: dict) -> dict:
     """
