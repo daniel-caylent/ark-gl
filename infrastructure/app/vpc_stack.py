@@ -37,7 +37,7 @@ class VpcStack(BaseStack):
         )
 
         cdk.CfnOutput(
-            self, "lambdaSecurityGroupId",
+            self, "lambdaSecurityGroup",
             value=security_group.security_group_id,
-            export_name= "lambdaSecurityGroupId"
+            export_name= "lambdaSecurityGroup"
         )

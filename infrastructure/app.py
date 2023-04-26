@@ -9,7 +9,8 @@ from app.account_attributes import (
 
 from app.accounts import (
     AccountsGetStack,
-    AccountsPostStack
+    AccountsPostStack,
+    AccountsGetByIdStack
 )
 
 from app.vpc_stack import VpcStack
@@ -28,15 +29,19 @@ vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=env)
 
 AccountAttributesGetStack(
     app, "ark-gl-account-attributes-get-stack", env=env
-)
+).add_dependency(vpc_stack)
 
 AccountsGetStack(
     app, "ark-gl-accounts-get-stack", env=env
-)
+).add_dependency(vpc_stack)
 
 AccountsPostStack(
     app, "ark-gl-accounts-post-stack", env=env
-)
+).add_dependency(vpc_stack)
+
+AccountsGetByIdStack(
+    app, "ark-gl-accounts-get-by-id-stack", env=env
+).add_dependency(vpc_stack)
 
 PipelineStack(app, "ark-gl-pipeline-stack")
 

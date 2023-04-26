@@ -10,8 +10,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
     to the stack
     """
     vpc = get_vpc(context)
-
-    security_group_id = cdk.Fn.import_value('lambdaSecurityGroupId')
+    security_group_id = cdk.Fn.import_value('lambdaSecurityGroup')
 
     security_group = cdk.aws_ec2.SecurityGroup.from_security_group_id(
         context, 'ark-lambda-security-group', security_group_id
@@ -24,18 +23,19 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
     )
 
     function = cdk.aws_lambda.Function(context, name,
-            code=cdk.aws_lambda.Code.from_asset(code_dir),
-            handler=handler,
-            vpc=vpc,
-            vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),
-            runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
-            security_groups=[security_group],
-            environment={
-                **ENV['deploy'],
-                **env
-            },
-            **kwargs
-        )
+        code=cdk.aws_lambda.Code.from_asset(code_dir),
+        handler=handler,
+        vpc=vpc,
+        vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),
+        runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
+        security_groups=[security_group],
+        memory_size=512,
+        environment={
+            **ENV['deploy'],
+            **env
+        },
+        **kwargs
+    )
     
     # Secrets Manager permission    
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
@@ -51,7 +51,8 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
             context,
             f'{name}-ark-db-secret-policy',
             policy_name = f'{name}-ark-db-secret-policy',
-            statements = [secret_policy])
+            statements = [secret_policy]
+        )
     )
 
     return function

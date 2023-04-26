@@ -3,7 +3,6 @@ from pathlib import PurePath
 from constructs import Construct
 
 from ..base_stack import BaseStack
-
 from ..get_cdk import get_lambda_function
 from ..layers import (
     get_models_layer,
@@ -15,10 +14,10 @@ from ..layers import (
 from ..utils import ACCOUNTS_DIR
 
 
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'post'))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get_by_id'))
 MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
-class AccountsPostStack(BaseStack):
+class AccountsGetByIdStack(BaseStack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -30,7 +29,7 @@ class AccountsPostStack(BaseStack):
         arkdb_layer = get_arkdb_layer(self)
 
         func = get_lambda_function(self, CODE_DIR,
-            handler="post.handler",
+            handler="get.handler",
             layers=[shared_layer, pymysql_layer, models_layer, db_layer, arkdb_layer],
-            description="accounts post"
+            description="accounts get by id"
         )

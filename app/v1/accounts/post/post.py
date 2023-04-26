@@ -1,19 +1,22 @@
 import json
 
+from arkdb import accounts
 from models import AccountPost
 from shared import endpoint
 
 
 @endpoint
-def handler(event, context):
-    fund_id = event['queryStringParameters'].get('fundId', None)
-    if fund_id is None:
-        return 400, {'detail': "No fund specified."}
-
+def handler(event, context) -> tuple[int, dict]:
     try:
         body = json.loads(event['body'])
     except:
         return 400, {'detail': "Body does not contain valid json."}
+
+    # check fund and attribute id to return specific messages
+    if body.get('fundId') is None:
+        return 400, {'detail': "No fund specified."}
+    if body.get('attributeId') is None:
+        return 400, {'detail': "No attribute specified."}
 
     # validate the POST body
     try:
@@ -21,25 +24,19 @@ def handler(event, context):
     except:
         return 400, {'detail': "Body does not contain valid data."}
 
-
-    # attribute must belong to client & fund
-    # no inactive attributes ??? does this refer to /account-attributes? Those should be global...
+    # get accounts with the same name
+    accts = accounts.select_by_name(post.accountName)
+    if len(accts) > 0:
+        return 400, {'detail': "Account name already exists in this fund."}
 
     # try to insert the account
     try:
-        # result = account_post(post.__dict__)
-        result = 'a-unique-account-id'
+        result = accounts.create_new(post.__dict__)
     except Exception as e:
         return 400, {'detail': f"Failed to insert account due to: {str(e)}"}
 
-    return 200, {'accountId': result}
+    return 201, {'accountId': result}
 
-def check_active_attribute(attribute_id):
-    # results = db.get_attribute_by_id(attribute_id)
-    # attribute = AccountAttribute(**results)
-    # status = attribute.status
-    status = 'ACTIVE'
-    return status == 'ACTIVE'
 
 def check_unique_account_name(fundId, name):
     # results = db.get_accounts_by_name(fundId, name)

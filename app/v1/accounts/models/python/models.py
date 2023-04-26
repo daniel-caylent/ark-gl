@@ -13,27 +13,32 @@ class Account:
     isHidden: bool
     isTaxable: bool
     isVendorCustomerPartnerRequired: bool
-    parrentAccountNo: int
+    parentAccountNo: int
     attributeNo: int
     accountId: str
+    fundId: int
 
 #post
+@dataclass
 class AccountPost:
     accountNo: int
     accountName: str
-    state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
     accountDescription: str
     fsMappingId: str
     fsName: str
-    isTaxable: bool
-    isVendorCustomerPartnerRequired: bool
     isDryRun: bool
     parentAccountNo: int
-    attributeNo: int
+    attributeId: int
+    fundId: int
+    isVendorCustomerPartnerRequired: bool
+    isHidden: bool = False
+    isTaxable: bool = True
+    state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
 
     def __post_init__(self):
         self.accountNo = int(self.accountNo)
-        self.attributeNo = int(self.attributeNo)
-        self.parrentAccountNo = int(self.parrentAccountNo)
+        self.attributeId = int(self.attributeId)
+        self.parentAccountNo = int(self.parentAccountNo)
+        self.fundId = int(self.fundId)
         self.accountName = self.accountName.strip(' ')
 

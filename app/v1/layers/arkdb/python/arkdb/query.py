@@ -4,7 +4,7 @@ from database.db_main import (
     execute_single_record_select
 )
 
-def run_query(query, multi=False):
+def run_query(query: str, multi=False) -> dict or list[dict]:
     conn = get_db()
 
     if multi is False:

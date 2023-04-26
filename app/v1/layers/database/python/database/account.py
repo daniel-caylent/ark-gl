@@ -7,15 +7,16 @@ app_to_db = {
     'accountId': 'uuid',
     'fundId': 'fund_entity_id',
     'accountNo': 'account_no',
+    'state': 'state',
     'parentAccountNo': 'parent_id',
     'accountName': 'name',
     'accountDescription': 'description',
-    'attributeNo': 'account_attribute_id',
+    'attributeId': 'account_attribute_id',
     'isHidden': 'is_hidden',
     'isTaxable': 'is_taxable',
     'isVendorCustomerPartnerRequired': 'is_vendor_customer_partner_required',
-    'FSMappingId': 'fs_mapping_id',
-    'FSName': 'fs_name',
+    'fsMappingId': 'fs_mapping_id',
+    'fsName': 'fs_name',
     'isDryRun': 'is_dry_run'
 }
 
