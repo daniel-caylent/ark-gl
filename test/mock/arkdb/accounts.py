@@ -1,4 +1,4 @@
-def select_by_fund_id(fund_id):
+def select_by_fund_id(fundId):
     return [
         {
             'accountNo': 5,
@@ -32,3 +32,6 @@ def select_by_fund_id(fund_id):
 
 def select_by_name(name):
     return []
+
+def create_new(account):
+    return 'a-unique-account-id'

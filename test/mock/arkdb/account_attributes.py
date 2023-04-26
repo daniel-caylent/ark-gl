@@ -1,4 +1,4 @@
-def get_all():
+def select_all():
     return [
         {
             'attributeNo': 1,

@@ -8,4 +8,8 @@ ORIGINAL_PATH = sys.path
 
 def add_to_path(paths):
   for path in paths:
-      sys.path.append(path)
+      sys.path.insert(0, path)
+
+def remove_from_path(paths):
+   for path in paths:
+      sys.path.remove(path)
