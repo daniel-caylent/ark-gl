@@ -30,14 +30,15 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
         memory_size=512,
+        tracing=cdk.aws_lambda.Tracing.ACTIVE, # Enabling X-Ray Tracing
         environment={
             **ENV['deploy'],
             **env
         },
         **kwargs
     )
-    
-    # Secrets Manager permission    
+
+    # Secrets Manager permission
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
         context, "db-secret", 'ark/db-password-??????'
     )
@@ -87,4 +88,4 @@ def get_subnets(context):
         )
 
     return subnets
-    
+

@@ -11,7 +11,7 @@ class VpcStack(BaseStack):
 
 
         vpc = get_vpc(self)
-  
+
         security_group = cdk.aws_ec2.SecurityGroup(
             self, "ark-lambda-security-group",
             vpc=vpc,

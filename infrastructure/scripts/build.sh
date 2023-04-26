@@ -1,2 +1,2 @@
 #! /bin/sh
-pip3 install -r ./app/layers/pymysql/requirements.txt -t ./app/layers/pymysql/python
+pip3 install -r ./infrastructure/app/layers/pymysql/requirements.txt -t ./infrastructure/app/layers/pymysql/python
