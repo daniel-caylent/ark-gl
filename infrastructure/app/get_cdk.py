@@ -38,7 +38,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
         **kwargs
     )
 
-    # Secrets Manager permission
+    # Secrets Manager permission    
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
         context, "db-secret", 'ark/db-password-??????'
     )

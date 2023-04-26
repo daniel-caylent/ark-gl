@@ -21,8 +21,8 @@ app_to_db = {
     'isDryRun': "is_dry_run",
 }
 
-
 def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
+
     """
     This function creates the insert query with its parameters.
 
