@@ -1,6 +1,6 @@
 import json
 
-from arkdb import accounts
+from arkdb import accounts, funds
 from models import AccountPost
 from shared import endpoint
 
@@ -12,7 +12,7 @@ def handler(event, context) -> tuple[int, dict]:
     except:
         return 400, {'detail': "Body does not contain valid json."}
 
-    # check fund and attribute id to return specific messages
+    # return specific messages for missing details
     if body.get('fundId') is None:
         return 400, {'detail': "No fund specified."}
     if body.get('attributeId') is None:
@@ -24,12 +24,18 @@ def handler(event, context) -> tuple[int, dict]:
     except:
         return 400, {'detail': "Body does not contain valid data."}
 
-    # get accounts with the same name
-    accts = accounts.select_by_name(post.accountName)
-    if len(accts) > 0:
-        return 400, {'detail': "Account name already exists in this fund."}
+    # validate that the fund exists and client has access to it
+    fund = funds.select_by_uuid(post.fundId)
+    if fund is None:
+        return 400, {'detail': "Specified fund does not exist."}
 
-    # try to insert the account
+    # get accounts with the same name
+    accts = accounts.select_by_fund_id(post.fundId)
+    unique = validate_unique_account(post, accts)
+    if unique is False:
+        return 409, {'detail': "Account number or name already exists in this fund."}
+
+    # insert the new account
     try:
         result = accounts.create_new(post.__dict__)
     except Exception as e:
@@ -37,10 +43,9 @@ def handler(event, context) -> tuple[int, dict]:
 
     return 201, {'accountId': result}
 
-
-def check_unique_account_name(fundId, name):
-    # results = db.get_accounts_by_name(fundId, name)
-    results = []
-
-    return len(results) == 0
-    
+def validate_unique_account(account: AccountPost, existing_accounts):
+    for acct in existing_accounts:
+        if acct['accountName'] == account.accountName or acct['accountNo'] == account.accountNo:
+            return False
+        
+    return True

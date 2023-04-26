@@ -1,5 +1,4 @@
 from shared import endpoint
-
 from arkdb import accounts
 from models import Account
 
