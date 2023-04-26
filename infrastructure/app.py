@@ -37,7 +37,7 @@ AccountsGetStack(
 
 AccountsPostStack(
     app, "ark-gl-accounts-post-stack", env=env
-).add_dependency(vpc_stack)
+)
 
 AccountsGetByIdStack(
     app, "ark-gl-accounts-get-by-id-stack", env=env
