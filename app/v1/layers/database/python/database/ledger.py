@@ -15,7 +15,9 @@ app_to_db = {
 }
 
 
-def get_insert_query(db_: str, input_: dict, region_name: str, secret_name: str) -> tuple:
+def get_insert_query(
+    db_: str, input_: dict, region_name: str, secret_name: str
+) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -140,6 +142,27 @@ def get_delete_query(db_: str, id_: str) -> tuple:
     )
 
     params = (id_,)
+
+    return (query, params)
+
+
+def get_by_uuid_query(db: str, id: str) -> tuple:
+    """
+    This function creates the select by uuid query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    id: string
+    This parameter specifies the uuid that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = "SELECT * FROM " + db + ".ledger where uuid = %s;"
+
+    params = (id,)
 
     return (query, params)
 
@@ -289,9 +312,6 @@ def delete(
     This parameter when set with 'ro' value is used to point the
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
-
-    return
-    A string specifying the recently added ledger's uuid
     """
 
     params = get_delete_query(db_, id_)
@@ -335,9 +355,6 @@ def update(
     This parameter when set with 'ro' value is used to point the
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
-
-    return
-    A string specifying the recently added ledger's uuid
     """
     params = get_update_query(db_, id_, input_)
 
@@ -346,3 +363,57 @@ def update(
     query_list = [(params[0], params[1])]
 
     db_main.execute_dml(conn, query_list)
+
+
+def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> dict:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the ledger that matches with the upcoming uuid
+    """
+    params = get_by_uuid_query(db, uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
+
+
+def get_id(db: str, uuid: str, region_name: str, secret_name: str) -> str:
+    """
+    This function returns the id from a ledger with a specified uuid.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A string representing the id of that Ledger record with uuid equals to the input
+    """
+    record = select_by_uuid(db, uuid, region_name, secret_name)
+
+    return record.get("id")

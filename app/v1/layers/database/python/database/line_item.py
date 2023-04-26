@@ -1,28 +1,28 @@
-"""This module provides the Aurora MySQL serverless capabilities for accounts"""
+"""This module provides the Aurora MySQL serverless capabilities for line items"""
 from . import db_main
 from . import connection
-from . import account_attribute
-from . import fund_entity
+from . import account
 
 app_to_db = {
-    "accountId": "uuid",
-    "fundId": "fund_entity_id",
-    "accountNo": "account_no",
+    "lineItemNo": "line_number",
+    "accountNo": "account_number",
+    "entryMemo": "memo",
+    "amount": "amount",
+    "txMemo": "memo",
+    "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
-    "parentAccountNo": "parent_id",
-    "accountName": "name",
-    "accountDescription": "description",
-    "attributeId": "account_attribute_id",
-    "isHidden": "is_hidden",
-    "isTaxable": "is_taxable",
-    "isVendorCustomerPartnerRequired": "is_vendor_customer_partner_required",
-    "fsMappingId": "fs_mapping_id",
-    "fsName": "fs_name",
-    "isDryRun": "is_dry_run",
+    "VendorCustomerPartner": "vendor_customer_partner",
 }
 
 
-def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
+def get_insert_query(
+    db: str,
+    input: dict,
+    journal_entry_id: str,
+    posting_type: str,
+    region_name: str,
+    secret_name: str,
+) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -48,22 +48,18 @@ def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -
         """
         INSERT INTO """
         + db
-        + """.account
-            (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_vendor_customer_partner_required)
+        + """.line_item
+            (uuid, account_id, journal_entry_id, line_number, memo, posting_type,
+            state, is_hidden, vendor_customer_partner_type, vendor_customer_partner_id)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s,
+            (%s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
-    fund_entity_uuid = translated_input.get("fund_entity_id")
-    fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
-    account_attribute_uuid = translated_input.get("account_attribute_id")
-    account_attribute_id = account_attribute.get_id(
-        db, account_attribute_uuid, region_name, secret_name
-    )
+    account_number = translated_input.get("account_number")
+    account_id = account.get_id(db, account_number, region_name, secret_name)
 
     # Getting new uuid from the db to return it in insertion
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
@@ -71,19 +67,18 @@ def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -
 
     params = (
         uuid,
-        translated_input.get("account_no"),
-        fund_entity_id,
-        account_attribute_id,
-        translated_input.get("parent_id"),
-        translated_input.get("name"),
-        translated_input.get("description"),
+        account_id,
+        journal_entry_id,
+        translated_input.get("line_number"),
+        translated_input.get("memo"),
         translated_input.get("state"),
+        posting_type,
         translated_input.get("is_hidden"),
-        translated_input.get("is_taxable"),
-        translated_input.get("is_vendor_customer_partner_required"),
+        translated_input.get("vendor_customer_partner").get("VCPtype"),
+        translated_input.get("vendor_customer_partner").get("VCPId"),
     )
 
-    return (query, params, uuid)
+    return (query, params)
 
 
 def get_update_query(db: str, id: str, input: dict) -> tuple:
@@ -94,7 +89,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     This parameter specifies the db name where the query will be executed
 
     id: string
-    This parameter specifies the uuid for identifying the ledger
+    This parameter specifies the uuid for identifying the line item
     that will be updated
 
     input: dictionary
@@ -109,7 +104,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
         """
         UPDATE """
         + db
-        + """.account
+        + """.line_item
         SET """
     )
     where_clause = "WHERE uuid = %s;"
@@ -134,6 +129,126 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     return (query, params)
 
 
+def get_by_number_journal_query(
+    db: str, line_number: str, journal_entry_id: str
+) -> tuple:
+    """
+    This function creates the select by line_number and journal_entry_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    line_number: string
+    This parameter specifies the line_number that will be used for this query
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        "SELECT * FROM "
+        + db
+        + ".line_item where line_number = %s and journal_entry_id = %s;"
+    )
+
+    params = (line_number, journal_entry_id)
+
+    return (query, params)
+
+
+def select_by_number_journal(
+    db: str, line_number: str, journal_entry_id: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by number journal" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    line_number: string
+    This parameter specifies the line_number that will be used for this query
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the line item that matches with the upcoming line_number and journal_entry_id
+    """
+    params = get_by_number_journal_query(db, line_number, journal_entry_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
+
+
+def get_numbers_by_journal_query(db: str, journal_entry_id: str) -> tuple:
+    """
+    This function creates the select line_number, uuid by journal_entry_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+    
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        "SELECT line_number, uuid FROM "
+        + db
+        + ".line_item where journal_entry_id = %s;"
+    )
+
+    params = (journal_entry_id,)
+
+    return (query, params)
+
+
+def select_numbers_by_journal(
+    db: str, journal_entry_id: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select numbers by journal" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the line item's number and uuid that matches with the upcoming journal_entry_id
+    """
+    params = get_numbers_by_journal_query(db, journal_entry_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
 def get_delete_query(db: str, id: str) -> tuple:
     """
     This function creates the delete query with its parameters.
@@ -152,7 +267,7 @@ def get_delete_query(db: str, id: str) -> tuple:
         """
         DELETE FROM """
         + db
-        + """.account
+        + """.line_item
         WHERE uuid = %s;"""
     )
 
@@ -161,36 +276,15 @@ def get_delete_query(db: str, id: str) -> tuple:
     return (query, params)
 
 
-def get_select_by_uuid_query(db: str, uuid: str) -> tuple:
+def get_delete_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     """
-    This function creates the select by uuid query with its parameters.
+    This function creates the delete by journal_entry_id query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    uuid: string
-    This parameter specifies the uuid that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = "SELECT * FROM " + db + ".account where uuid = %s;"
-
-    params = (uuid,)
-
-    return (query, params)
-
-
-def get_select_by_fund_query(db: str, fund_id: str) -> tuple:
-    """
-    This function creates the select by fund_entity uuid query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    fund_id: string
-    This parameter specifies the fund_entity uuid that will be used for this query
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id for the element/s to be deleted
 
     return
     A tuple containing the query on the first element, and the params on the second
@@ -198,51 +292,18 @@ def get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     """
     query = (
         """
-        SELECT acc.*
-        FROM """
+        DELETE FROM """
         + db
-        + """.account acc
-        INNER JOIN """
-        + db
-        + """.fund_entity fe ON (acc.fund_entity_id = fe.id)
-        where fe.uuid = %s;"""
+        + """.line_item
+        WHERE journal_entry_id = %s;"""
     )
 
-    params = (fund_id,)
+    params = (id,)
 
     return (query, params)
 
 
-def get_select_by_name_query(db: str, account_name: str) -> tuple:
-    """
-    This function creates the select by name query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_name: string
-    This parameter specifies the account_name that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    account_name = account_name.lower().strip()
-    query = (
-        """
-        SELECT *
-        FROM """
-        + db
-        + """.account
-        where TRIM(LOWER(name)) = %s;"""
-    )
-
-    params = (account_name,)
-
-    return (query, params)
-
-
-def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
+def insert(db: str, input: dict, region_name: str, secret_name: str) -> None:
     """
     This function executes the insert query with its parameters.
 
@@ -266,12 +327,11 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     be optimized for this type of operations
 
     return
-    A string specifying the recently added account's uuid
+    A string specifying the recently added journal entry's uuid
     """
     params = get_insert_query(db, input, region_name, secret_name)
 
     query_params = [params[0], params[1]]
-    uuid = params[2]
 
     conn = connection.get_connection(db, region_name, secret_name)
 
@@ -279,7 +339,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
 
     db_main.execute_dml(conn, query_list)
 
-    return uuid
+    return
 
 
 def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
@@ -290,7 +350,7 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     This parameter specifies the db name where the query will be executed
 
     id: string
-    This parameter contains the uuid of the ledger that will be deleted
+    This parameter contains the uuid of the line item that will be deleted
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -313,6 +373,39 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     db_main.execute_dml(conn, query_list)
 
 
+def delete_by_journal(
+    db: str, journal_entry_id: str, region_name: str, secret_name: str
+) -> None:
+    """
+    This function executes the delete by journal_entry_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    journal_entry_id: string
+    This parameter contains the journal_entry_id of the element/s that will be deleted
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    db_type: string (Optional)
+    This parameter when set with 'ro' value is used to point the
+    read only queries to a specific read only endpoint that will
+    be optimized for this type of operations
+    """
+    params = get_delete_by_journal_query(db, journal_entry_id)
+
+    conn = connection.get_connection(db, region_name, secret_name)
+
+    query_list = [(params[0], params[1])]
+
+    db_main.execute_dml(conn, query_list)
+
+
 def update(db: str, id: str, input: dict, region_name: str, secret_name: str) -> None:
     """
     This function executes the update query with its parameters.
@@ -320,8 +413,8 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
-    This parameter specifies the uuid of the account that will be updated
+    uuid: string
+    This parameter specifies the uuid of the line_item that will be updated
 
     input: dictionary
     This parameter contains all the parameters inside a dictionary that
@@ -346,80 +439,3 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     query_list = [(params[0], params[1])]
 
     db_main.execute_dml(conn, query_list)
-
-
-def get_by_number_query(db: str, account_number: str) -> tuple:
-    """
-    This function creates the select by account_no query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = "SELECT * FROM " + db + ".account where account_no = %s;"
-
-    params = (account_number,)
-
-    return (query, params)
-
-
-def select_by_number(
-    db: str, account_number: str, region_name: str, secret_name: str
-) -> dict:
-    """
-    This function returns the record from the result of the "select by number" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A dict containing the account that matches with the upcoming account_number
-    """
-    params = get_by_number_query(db, account_number)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    record = db_main.execute_single_record_select(conn, params)
-
-    return record
-
-
-def get_id(db: str, account_number: str, region_name: str, secret_name: str) -> str:
-    """
-    This function returns the id from an account with a specified account_number.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A string representing the id of that Account record with account_no equals to the input
-    """
-    record = select_by_number(db, account_number, region_name, secret_name)
-
-    return record.get("id")
