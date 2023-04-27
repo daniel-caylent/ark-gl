@@ -3,7 +3,7 @@ from unittest import mock
 import sys
 
 # setting path
-sys.path.append('../')
+sys.path.append('../../')
 
 import app.v1.layers.database.python.database.connection as connection
 
