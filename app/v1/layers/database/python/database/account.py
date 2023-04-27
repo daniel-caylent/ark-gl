@@ -22,7 +22,7 @@ app_to_db = {
 }
 
 
-def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
+def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -86,7 +86,7 @@ def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -
     return (query, params, uuid)
 
 
-def get_update_query(db: str, id: str, input: dict) -> tuple:
+def __get_update_query(db: str, id: str, input: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -161,7 +161,7 @@ def get_delete_query(db: str, id: str) -> tuple:
     return (query, params)
 
 
-def get_select_by_uuid_query(db: str, uuid: str) -> tuple:
+def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     """
     This function creates the select by uuid query with its parameters.
 
@@ -182,7 +182,7 @@ def get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     return (query, params)
 
 
-def get_select_by_fund_query(db: str, fund_id: str) -> tuple:
+def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     """
     This function creates the select by fund_entity uuid query with its parameters.
 
@@ -213,7 +213,7 @@ def get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     return (query, params)
 
 
-def get_select_by_name_query(db: str, account_name: str) -> tuple:
+def __get_select_by_name_query(db: str, account_name: str) -> tuple:
     """
     This function creates the select by name query with its parameters.
 
@@ -268,7 +268,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return
     A string specifying the recently added account's uuid
     """
-    params = get_insert_query(db, input, region_name, secret_name)
+    params = __get_insert_query(db, input, region_name, secret_name)
 
     query_params = [params[0], params[1]]
     uuid = params[2]
@@ -339,7 +339,7 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = get_update_query(db, id, input)
+    params = __get_update_query(db, id, input)
 
     conn = connection.get_connection(db, region_name, secret_name)
 
@@ -348,7 +348,7 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     db_main.execute_dml(conn, query_list)
 
 
-def get_by_number_query(db: str, account_number: str) -> tuple:
+def __get_by_number_query(db: str, account_number: str) -> tuple:
     """
     This function creates the select by account_no query with its parameters.
 
@@ -391,7 +391,7 @@ def select_by_number(
     return
     A dict containing the account that matches with the upcoming account_number
     """
-    params = get_by_number_query(db, account_number)
+    params = __get_by_number_query(db, account_number)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -423,3 +423,34 @@ def get_id(db: str, account_number: str, region_name: str, secret_name: str) -> 
     record = select_by_number(db, account_number, region_name, secret_name)
 
     return record.get("id")
+
+
+def select_by_uuid(
+    db: str, uuid: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the account that matches with the upcoming account_number
+    """
+    params = __get_select_by_uuid_query(db, uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
