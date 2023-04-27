@@ -16,7 +16,7 @@ class Account:
     parentAccountNo: int
     attributeNo: int
     accountId: str
-    fundId: int
+    fundId: str
 
 #post
 @dataclass
@@ -29,7 +29,7 @@ class AccountPost:
     isDryRun: bool
     parentAccountNo: int
     attributeId: int
-    fundId: int
+    fundId: str
     isVendorCustomerPartnerRequired: bool
     isHidden: bool = False
     isTaxable: bool = True
@@ -39,6 +39,5 @@ class AccountPost:
         self.accountNo = int(self.accountNo)
         self.attributeId = int(self.attributeId)
         self.parentAccountNo = int(self.parentAccountNo)
-        self.fundId = int(self.fundId)
         self.accountName = self.accountName.strip(' ')
 
