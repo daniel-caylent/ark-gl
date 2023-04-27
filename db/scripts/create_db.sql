@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account_attribute (
 
 CREATE TABLE IF NOT EXISTS ARKGL.account (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	account_no INT,
+	account_no VARCHAR(10),
 	`uuid` CHAR(36),
 	fund_entity_id INT NOT NULL,
 	account_attribute_id INT NOT NULL,
