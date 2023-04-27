@@ -12,13 +12,13 @@ app_to_db = {
     'parentAccountNo': "parent_id",
     'accountName': "name",
     'accountDescription': "description",
-    'attributeId': "account_attribute_id",
+    'attributeNo': "account_attribute_no",
     'isHidden': "is_hidden",
     'isTaxable': "is_taxable",
     'isVendorCustomerPartnerRequired': "is_vendor_customer_partner_required",
-    'fsMappingId': "fs_mapping_id",
-    'fsName': "fs_name",
-    'isDryRun': "is_dry_run",
+    'FSMappingId': "fs_mapping_id",
+    'FSName': "fs_name",
+    'isDryRun': "is_dry_run"
 }
 
 def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
@@ -134,7 +134,7 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
     return (query, params)
 
 
-def get_delete_query(db: str, id: str) -> tuple:
+def __get_delete_query(db: str, id: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -304,7 +304,7 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = get_delete_query(db, id)
+    params = __get_delete_query(db, id)
 
     conn = connection.get_connection(db, region_name, secret_name)
 
