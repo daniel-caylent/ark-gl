@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from .accounts_base import AccountsTestBase
@@ -21,6 +22,13 @@ class TestAccountsGet(AccountsTestBase):
         result = get(get_without_fund_id, lc)
 
         self.assertEqual(result['statusCode'], 400)
+
+
+    def test_isJsonEncodable(self):
+        from accounts import get
+        result = get(get_with_fund_id, LambdaContext())
+
+        json.dumps(result)
 
 if __name__ == "__main__":
     unittest.main()

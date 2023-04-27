@@ -1,6 +1,4 @@
-import json
-
-from .json_encoder import EnhancedJSONEncoder
+from .dataclass_encoder import encode
 
 def response(code: int, id: str, data=None, **kwargs):
     """
@@ -16,6 +14,6 @@ def response(code: int, id: str, data=None, **kwargs):
     }
 
     if data is not None:
-        response_['body'] = json.dumps(data, cls=EnhancedJSONEncoder)
+        response_['body'] = encode(data)
 
     return response_

@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from ...data import LambdaContext
@@ -9,6 +10,12 @@ class TestAccountAttributesGet(AccountAttributesTestBase):
         from account_attributes import get
         result = get({}, LambdaContext())
         self.assertEqual(200, result['statusCode'])
+
+    def test_isJsonEncodable(self):
+        from account_attributes import get
+        result = get({}, LambdaContext())
+
+        json.dumps(result)
 
 if __name__ == "__main__":
     unittest.main()
