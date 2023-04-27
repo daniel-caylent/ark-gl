@@ -445,9 +445,71 @@ def select_by_uuid(
     the information for the connection including the credentials
 
     return
-    A dict containing the account that matches with the upcoming account_number
+    A dict containing the account that matches with the upcoming uuid
     """
     params = __get_select_by_uuid_query(db, uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
+
+
+def select_by_fund(
+    db: str, fund_uuid: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by fund" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_id: string
+    This parameter specifies the fund_entity's uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the accounts that match with the upcoming fund's uuid
+    """
+    params = __get_select_by_fund_query(db, fund_uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_multiple_record_select(conn, params)
+
+    return record
+
+
+def select_by_name(
+    db: str, account_name: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by name" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_name: string
+    This parameter specifies the account_name that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the account that matches with the upcoming name
+    """
+    params = __get_select_by_name_query(db, account_name)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
