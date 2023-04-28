@@ -11,3 +11,10 @@ def select_all():
             'detailType': "Balance Sheet"
         }
     ]
+
+def get_by_id(id):
+    return {
+            'attributeNo': 1,
+            'accountType': "Assets",
+            'detailType': "Balance Sheet"
+        }
