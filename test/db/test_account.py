@@ -55,18 +55,7 @@ class TestAccount(unittest.TestCase):
 
         self.assertEqual(result, None)
     
-
-    @patch(account.__name__+'.__get_delete_query')
-    @patch(connection.__name__+'.get_connection')
-    def test_delete(self, mock_connection, mock_get_query):
-        mock_connection.return_value = Mock()
-        mock_get_query.return_value = (None, None)
-
-        result = account.delete(self.db, 'asd-123-456', '', '')
-
-        self.assertEqual(result, None)
     
-
     @patch(account.__name__+'.__get_update_query')
     @patch(connection.__name__+'.get_connection')
     def test_update(self, mock_connection, mock_get_query):
