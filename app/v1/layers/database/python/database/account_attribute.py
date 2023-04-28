@@ -28,7 +28,7 @@ def get_all(db: str) -> tuple:
     return (query, None)
 
 
-def get_query_select_by_uuid(db: str, uuid: str) -> tuple:
+def __get_query_select_by_uuid(db: str, uuid: str) -> tuple:
     """
     This function creates the query that gets an account_attribute by uuid.
 
@@ -69,7 +69,7 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return
     A dict containing the account_attribute that matches with the upcoming uuid
     """
-    params = get_query_select_by_uuid(db, uuid)
+    params = __get_query_select_by_uuid(db, uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
