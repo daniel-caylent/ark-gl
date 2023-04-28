@@ -16,7 +16,7 @@ def __get_all_query(db: str) -> tuple:
     """
     query = (
         """
-        SELECT accatt.id as attributeNo, acctyp.name as accountType, accatt.detail_type as detailType
+        SELECT accatt.uuid as attributeId, acctyp.name as accountType, accatt.detail_type as detailType
         FROM """
         + db
         + """.account_attribute accatt

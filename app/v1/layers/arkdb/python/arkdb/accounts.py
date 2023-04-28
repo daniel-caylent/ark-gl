@@ -1,17 +1,16 @@
 from database.account import (
     app_to_db,
-    __get_select_by_fund_query,
+    select_by_fund,
     select_by_uuid,
     insert,
     delete
 )
 from database.db_main import translate_to_app
-from .query import run_query
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 def select_by_fund_id(fund_id: int) -> list:
-    query = __get_select_by_fund_query(DB_NAME, fund_id)
-    results = run_query(query, multi=True)
+    results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)
+
 
     translated = [translate_to_app(app_to_db, result) for result in results]
     filtered = [{k: each[k] for k in each if not k.startswith('missing')} for each in translated]

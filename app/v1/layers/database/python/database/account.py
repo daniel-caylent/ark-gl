@@ -16,8 +16,8 @@ app_to_db = {
     'isHidden': "is_hidden",
     'isTaxable': "is_taxable",
     'isVendorCustomerPartnerRequired': "is_vendor_customer_partner_required",
-    'FSMappingId': "fs_mapping_id",
-    'FSName': "fs_name",
+    'fsMappingId': "fs_mapping_id",
+    'fsName': "fs_name",
     'isDryRun': "is_dry_run"
 }
 
