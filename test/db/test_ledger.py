@@ -29,6 +29,37 @@ class TestLedger(unittest.TestCase):
 
         self.db = "ARKGL"
     
+    @patch(ledger.__name__+'.__get_insert_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_insert(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None, 'asd-123-456')
+
+        result = ledger.insert(self.db, self.insert_input, '', '')
+
+        self.assertEqual(result, 'asd-123-456')
+    
+
+    @patch(ledger.__name__+'.__get_delete_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_delete(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None)
+
+        result = ledger.delete(self.db, 'asd-123-456', '', '')
+
+        self.assertEqual(result, None)
+    
+
+    @patch(ledger.__name__+'.__get_update_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_update(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None)
+
+        result = ledger.update(self.db, 'asd-123-456', self.update_input, '', '')
+
+        self.assertEqual(result, None)
 
     @patch(ledger.__name__+'.select_by_uuid', Mock(return_value={'uuid':'abcde', 'id':123, 'name':'ledger'}))
     def test_get_id(self):
