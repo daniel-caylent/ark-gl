@@ -9,10 +9,10 @@ app_to_db = {
     'fundId': "fund_entity_id",
     'accountNo': "account_no",
     'state': "state",
-    'parentAccountNo': "parent_id",
+    'parentAccountId': "parent_id",
     'accountName': "name",
     'accountDescription': "description",
-    'attributeNo': "account_attribute_no",
+    'attributeId': "account_attribute_id",
     'isHidden': "is_hidden",
     'isTaxable': "is_taxable",
     'isVendorCustomerPartnerRequired': "is_vendor_customer_partner_required",
@@ -50,7 +50,7 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
         + db
         + """.account
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_vendor_customer_partner_required)
+            state, is_hidden, is_taxable, is_vendor_customer_partner_required, fs_mapping_id, fs_name)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s);"""
@@ -60,10 +60,17 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
 
     fund_entity_uuid = translated_input.get("fund_entity_id")
     fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
+
     account_attribute_uuid = translated_input.get("account_attribute_id")
     account_attribute_id = account_attribute.get_id(
         db, account_attribute_uuid, region_name, secret_name
     )
+
+    parent_uuid = translated_input.get("parent_id")
+    if parent_uuid:
+        parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
+    else:
+        parent_id = None
 
     # Getting new uuid from the db to return it in insertion
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
@@ -74,13 +81,15 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
         translated_input.get("account_no"),
         fund_entity_id,
         account_attribute_id,
-        translated_input.get("parent_id"),
+        parent_id,
         translated_input.get("name"),
         translated_input.get("description"),
         translated_input.get("state"),
         translated_input.get("is_hidden"),
         translated_input.get("is_taxable"),
         translated_input.get("is_vendor_customer_partner_required"),
+        translated_input.get("fs_mapping_id"),
+        translated_input.get("fs_name")
     )
 
     return (query, params, uuid)
@@ -175,7 +184,24 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".account where uuid = %s;"
+    query = ("""
+        SELECT acc.id, acc.account_no, acc.uuid,
+        fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
+        acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
+        acc.is_taxable, acc.is_vendor_customer_partner_required, acc.created_at
+        FROM """
+        + db
+        + """.account acc
+        INNER JOIN """
+        + db
+        + """.fund_entity fe ON (acc.fund_entity_id = fe.id)
+        inner join """
+        + db
+        + """. account_attribute attr on (acc.account_attribute_id = attr.id)
+        left join """
+        + db
+        + """. account acc2 on (acc.parent_id = acc2.id)
+        where acc.uuid = %s;""")
 
     params = (uuid,)
 
@@ -198,13 +224,22 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     """
     query = (
         """
-        SELECT acc.*
+        SELECT acc.id, acc.account_no, acc.uuid,
+        fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
+        acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
+        acc.is_taxable, acc.is_vendor_customer_partner_required, acc.created_at
         FROM """
         + db
         + """.account acc
         INNER JOIN """
         + db
         + """.fund_entity fe ON (acc.fund_entity_id = fe.id)
+        inner join """
+        + db
+        + """. account_attribute attr on (acc.account_attribute_id = attr.id)
+        left join """
+        + db
+        + """. account acc2 on (acc.parent_id = acc2.id)
         where fe.uuid = %s;"""
     )
 
@@ -400,7 +435,7 @@ def select_by_number(
     return record
 
 
-def get_id(db: str, account_number: str, region_name: str, secret_name: str) -> str:
+def get_id_by_number(db: str, account_number: str, region_name: str, secret_name: str) -> str:
     """
     This function returns the id from an account with a specified account_number.
 
@@ -454,6 +489,31 @@ def select_by_uuid(
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def get_id_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> str:
+    """
+    This function returns the id from an account with a specified account_number.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A string representing the id of that Account record with uuid equals to the input
+    """
+    record = select_by_uuid(db, uuid, region_name, secret_name)
+
+    return record.get("id")
 
 
 def select_by_fund(

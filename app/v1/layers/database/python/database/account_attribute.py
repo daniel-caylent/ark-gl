@@ -3,7 +3,7 @@ from . import db_main
 from . import connection
 
 
-def get_all(db: str) -> tuple:
+def __get_all_query(db: str) -> tuple:
     """
     This function creates the query that returns all account_attributes.
 
@@ -26,6 +26,33 @@ def get_all(db: str) -> tuple:
     )
 
     return (query, None)
+
+
+def select_all(db: str, region_name: str, secret_name: str) -> list:
+    """
+    This function returns the record from the result of the "get all" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing all the account_attributes
+    """
+
+    params = __get_all_query(db)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record_list = db_main.execute_multiple_record_select(conn, params)
+
+    return record_list
 
 
 def __get_query_select_by_uuid(db: str, uuid: str) -> tuple:
