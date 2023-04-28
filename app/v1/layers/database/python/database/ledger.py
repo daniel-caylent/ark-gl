@@ -15,7 +15,7 @@ app_to_db = {
 }
 
 
-def get_insert_query(
+def __get_insert_query(
     db_: str, input_: dict, region_name: str, secret_name: str
 ) -> tuple:
     """
@@ -71,7 +71,7 @@ def get_insert_query(
     return (query, params, uuid)
 
 
-def get_update_query(db_: str, id_: str, input_: dict) -> tuple:
+def __get_update_query(db_: str, id_: str, input_: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -119,7 +119,7 @@ def get_update_query(db_: str, id_: str, input_: dict) -> tuple:
     return (query, params)
 
 
-def get_delete_query(db_: str, id_: str) -> tuple:
+def __get_delete_query(db_: str, id_: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -146,7 +146,7 @@ def get_delete_query(db_: str, id_: str) -> tuple:
     return (query, params)
 
 
-def get_by_uuid_query(db: str, id: str) -> tuple:
+def __get_by_uuid_query(db: str, id: str) -> tuple:
     """
     This function creates the select by uuid query with its parameters.
 
@@ -167,7 +167,7 @@ def get_by_uuid_query(db: str, id: str) -> tuple:
     return (query, params)
 
 
-def get_by_id(db_: str, id_: str) -> tuple:
+def __get_by_id(db_: str, id_: str) -> tuple:
     """
     This function creates the select by id query with its parameters.
 
@@ -188,7 +188,7 @@ def get_by_id(db_: str, id_: str) -> tuple:
     return (query, params)
 
 
-def get_by_fund(db_: str, fund_id: str) -> tuple:
+def __get_by_fund(db_: str, fund_id: str) -> tuple:
     """
     This function creates the select by fund id query with its parameters.
 
@@ -219,7 +219,7 @@ def get_by_fund(db_: str, fund_id: str) -> tuple:
     return (query, params)
 
 
-def get_by_name(db_: str, ledger_name: str) -> tuple:
+def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
     """
     This function creates the select by name query with its parameters.
 
@@ -277,7 +277,7 @@ def insert(
     return
     A string specifying the recently added ledger's uuid
     """
-    params = get_insert_query(db_, input_, region_name, secret_name)
+    params = __get_insert_query(db_, input_, region_name, secret_name)
 
     conn = connection.get_connection(db_, region_name, secret_name, db_type)
     query_params = [params[0], params[1]]
@@ -314,7 +314,7 @@ def delete(
     be optimized for this type of operations
     """
 
-    params = get_delete_query(db_, id_)
+    params = __get_delete_query(db_, id_)
 
     conn = connection.get_connection(db_, region_name, secret_name, db_type)
 
@@ -356,7 +356,7 @@ def update(
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = get_update_query(db_, id_, input_)
+    params = __get_update_query(db_, id_, input_)
 
     conn = connection.get_connection(db_, region_name, secret_name, db_type)
 
@@ -385,7 +385,7 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return
     A dict containing the ledger that matches with the upcoming uuid
     """
-    params = get_by_uuid_query(db, uuid)
+    params = __get_by_uuid_query(db, uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
