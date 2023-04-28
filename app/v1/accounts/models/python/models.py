@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Account:
+    id: int
     accountNo: int
     accountName: str
     state: Literal["USED", "UNUSED", "ACTIVE"]
@@ -14,11 +15,11 @@ class Account:
     isTaxable: bool
     isVendorCustomerPartnerRequired: bool
     parentAccountNo: int
-    attributeNo: int
+    attributeId: str
     accountId: str
     fundId: str
 
-#post
+
 @dataclass
 class AccountPost:
     accountNo: int
@@ -28,7 +29,7 @@ class AccountPost:
     fsName: str
     isDryRun: bool
     parentAccountNo: int
-    attributeId: int
+    attributeId: str
     fundId: str
     isVendorCustomerPartnerRequired: bool
     isHidden: bool = False
@@ -36,8 +37,6 @@ class AccountPost:
     state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
 
     def __post_init__(self):
-        self.accountNo = int(self.accountNo)
-        self.attributeId = int(self.attributeId)
-        self.parentAccountNo = int(self.parentAccountNo)
         self.accountName = self.accountName.strip(' ')
+        self.isVendorCustomerPartnerRequired = bool(self.isVendorCustomerPartnerRequired)
 

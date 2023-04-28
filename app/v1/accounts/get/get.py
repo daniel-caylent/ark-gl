@@ -9,6 +9,6 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "No fund specified."}
 
     results = accounts.select_by_fund_id(fund_id)
-    acct = results ##Account(result)
+    accts = [Account(**account) for account in results]
 
-    return 200, {'data': acct}
+    return 200, {'data': accts}
