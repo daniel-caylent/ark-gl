@@ -11,7 +11,6 @@ from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 def select_by_fund_id(fund_id: int) -> list:
     results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)
 
-
     translated = [translate_to_app(app_to_db, result) for result in results]
     filtered = [{k: each[k] for k in each if not k.startswith('missing')} for each in translated]
 

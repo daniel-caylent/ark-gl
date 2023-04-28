@@ -43,7 +43,7 @@ def handler(event, context) -> tuple[int, dict]:
             return 400, {'detail': "Parent account does not exist in this fund."}
 
     # validate the attribute exists
-    attribute = account_attributes.get_by_id(post.attributeId)
+    attribute = account_attributes.select_by_id(post.attributeId)
     if attribute is None:
         return 400, {'detail': "Specified account attribute does not exist."}
 

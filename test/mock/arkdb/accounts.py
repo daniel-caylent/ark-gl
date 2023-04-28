@@ -3,7 +3,7 @@ def select_by_fund_id(fundId):
         {
             'accountNo': 5,
             'accountName': 'account name',
-            'accountId': 'account id',
+            'accountId': 'account-id',
             'accountDescription': 'account description',
             'state': 'ACTIVE',
             'isHidden': False,
@@ -12,12 +12,13 @@ def select_by_fund_id(fundId):
             'parentAccountId': -1,
             'attributeId': 1,
             'fsName': 'fsName',
-            'fsMappingId': 'fsMapping'
+            'fsMappingId': 'fsMapping',
+            'fundId': 'a-unique-fund-id'
         },
         {
             'accountNo': 6,
             'accountName': 'account name',
-            'accountId': 'account id',
+            'accountId': 'account-id',
             'accountDescription': 'account description',
             'state': 'ACTIVE',
             'isHidden': False,
@@ -26,7 +27,8 @@ def select_by_fund_id(fundId):
             'parentAccountId': -1,
             'attributeId': 1,
             'fsName': 'fsName',
-            'fsMappingId': 'fsMapping'
+            'fsMappingId': 'fsMapping',
+            'fundId': 'a-unique-fund-id'
         }
     ]
 

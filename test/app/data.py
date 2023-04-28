@@ -71,7 +71,7 @@ post_with_bad_body = {
 
 
 good_post = {
-  "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\", \"accountNo\": 10,\"accountName\": \"unique\",\"accountDescription\": \"account description\",\"state\": \"ACTIVE\",\"isTaxable\": true,\"isVendorCustomerPartnerRequired\": false,\"parentAccountId\": 1,\"attributeId\": 1,\"fsName\": \"fsName\",\"fsMappingId\": \"fsMapping\", \"isDryRun\": false}",
+  "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\", \"accountNo\": 10,\"accountName\": \"unique\",\"accountDescription\": \"account description\",\"state\": \"ACTIVE\",\"isTaxable\": true,\"isVendorCustomerPartnerRequired\": false,\"parentAccountId\": \"account-id\",\"attributeId\": 1,\"fsName\": \"fsName\",\"fsMappingId\": \"fsMapping\", \"isDryRun\": false}",
   "resource": "/{proxy+}",
   "path": "/path/to/resource",
   "httpMethod": "POST",

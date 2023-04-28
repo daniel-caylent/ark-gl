@@ -12,7 +12,7 @@ def select_all():
         }
     ]
 
-def get_by_id(id):
+def select_by_id(id):
     return {
             'attributeId': 'unique-uuid',
             'accountType': "Assets",
