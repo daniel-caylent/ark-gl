@@ -28,7 +28,7 @@ def get_connection(
     return
     A pymysql.connect that represents the actual connection
     """
-    secret_dict = json.loads(get_secret(region_name, secret_name))
+    secret_dict = json.loads(__get_secret(region_name, secret_name))
     host = secret_dict["host"]
     user = secret_dict["username"]
     password = secret_dict["password"]
@@ -42,7 +42,7 @@ def get_connection(
     return conn
 
 
-def get_secret(region_name, secret_name):
+def __get_secret(region_name, secret_name):
     """
     This function retrieves the db credentials' secret from Secrets Manager.
 
