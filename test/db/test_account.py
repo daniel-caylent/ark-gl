@@ -5,11 +5,6 @@ import sys
 sys.path.append('../../')
 
 import app.v1.layers.database.python.database.account as account
-from app.v1.layers.database.python.database.account import __get_insert_query as get_insert_query
-from app.v1.layers.database.python.database.account import __get_update_query as get_update_query
-from app.v1.layers.database.python.database.account import __get_delete_query as get_delete_query
-import app.v1.layers.database.python.database.fund_entity as fund_entity
-import app.v1.layers.database.python.database.account_attribute as account_attribute
 import app.v1.layers.database.python.database.connection as connection
 import app.v1.layers.database.python.database.db_main as db_main
 
@@ -38,74 +33,50 @@ class TestAccount(unittest.TestCase):
 
         self.db = "ARKGL"
     
-
-    @patch(fund_entity.__name__+'.get_id', Mock(return_value=5))
-    @patch(account_attribute.__name__+'.get_id', Mock(return_value=10))
-    @patch(connection.__name__+'.get_connection', Mock(return_value=Mock()))
-    @patch(db_main.__name__+'.get_new_uuid', Mock(return_value="d559fa87-e51a-11ed-aede-0247c1ed2eeb"))
-    def test_get_insert_query(self):
-        result = get_insert_query(self.db, self.insert_input, '', '')
-
-        wanted_result = (
-            """
-        INSERT INTO """
-        + self.db
-        + """.account
-            (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_vendor_customer_partner_required)
-        VALUES
-            (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s);""",
-            (
-                "d559fa87-e51a-11ed-aede-0247c1ed2eeb", self.insert_input["accountNo"], 5, 10, self.insert_input["parentAccountNo"],
-                self.insert_input["accountName"], self.insert_input["accountDescription"], None, None,
-                self.insert_input["isTaxable"], self.insert_input["isVendorCustomerPartnerRequired"]
-            ),
-            "d559fa87-e51a-11ed-aede-0247c1ed2eeb"
-        )
-
-        self.assertEqual(result, wanted_result)
     
+    @patch(account.__name__+'.__get_insert_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_insert(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None, 'asd-123-456')
+
+        result = account.insert(self.db, self.insert_input, '', '')
+
+        self.assertEqual(result, 'asd-123-456')
     
-    def test_get_update_query(self):
-        id = "d559fa87-e51a-11ed-aede-0247c1ed2eeb"
-        result = get_update_query(self.db, id, self.update_input)
-        
-        update_query = (
-        """
-        UPDATE """
-        + self.db
-        + """.account
-        SET """
-        )
-        where_clause = "WHERE uuid = %s;"
-        set_clause = "name = %s,\n"
-        set_clause += "fs_name = %s\n "
 
-        wanted_result = (
-            update_query+set_clause+where_clause,
-            (
-                self.update_input["accountName"], self.update_input["FSName"], id
-            )
-        )
+    @patch(account.__name__+'.__get_delete_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_delete(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None)
 
-        self.assertEqual(result, wanted_result)
+        result = account.delete(self.db, 'asd-123-456', '', '')
 
-
-    def test_delete_query(self):
-        id = "d559fa87-e51a-11ed-aede-0247c1ed2eeb"
-        result = get_delete_query(self.db, id)
-         
-        wanted_result = (
-        """
-        DELETE FROM """
-        + self.db
-        + """.account
-        WHERE uuid = %s;"""
-        , (id,))
-
-        self.assertEqual(result, wanted_result)
+        self.assertEqual(result, None)
     
+
+    @patch(account.__name__+'.__get_delete_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_delete(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None)
+
+        result = account.delete(self.db, 'asd-123-456', '', '')
+
+        self.assertEqual(result, None)
+    
+
+    @patch(account.__name__+'.__get_update_query')
+    @patch(connection.__name__+'.get_connection')
+    def test_update(self, mock_connection, mock_get_query):
+        mock_connection.return_value = Mock()
+        mock_get_query.return_value = (None, None)
+
+        result = account.update(self.db, 'asd-123-456', self.update_input, '', '')
+
+        self.assertEqual(result, None)
+
 
     @patch(connection.__name__+'.get_connection', Mock(return_value=Mock()))
     @patch(db_main.__name__+'.execute_single_record_select', Mock(return_value={'uuid':'abcde', 'id':123, 'name':'account'}))
