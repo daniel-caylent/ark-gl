@@ -1,12 +1,12 @@
 def select_all():
     return [
         {
-            'attributeNo': 1,
+            'attributeId': 'unique-uuid',
             'accountType': "Assets",
             'detailType': "Balance Sheet"
         },
         {
-            'attributeNo': 2,
+            'attributeId': 'unique-uuid',
             'accountType': "Assets",
             'detailType': "Balance Sheet"
         }
@@ -14,7 +14,7 @@ def select_all():
 
 def get_by_id(id):
     return {
-            'attributeNo': 1,
+            'attributeId': 'unique-uuid',
             'accountType': "Assets",
             'detailType': "Balance Sheet"
         }

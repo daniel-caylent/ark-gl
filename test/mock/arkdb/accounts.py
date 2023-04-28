@@ -1,7 +1,6 @@
 def select_by_fund_id(fundId):
     return [
         {
-            'id': 1,
             'accountNo': 5,
             'accountName': 'account name',
             'accountId': 'account id',
@@ -10,13 +9,12 @@ def select_by_fund_id(fundId):
             'isHidden': False,
             'isTaxable': True,
             'isVendorCustomerPartnerRequired': False,
-            'parrentAccountId': -1,
-            'attributeNo': 1,
+            'parentAccountId': -1,
+            'attributeId': 1,
             'fsName': 'fsName',
             'fsMappingId': 'fsMapping'
         },
         {
-            'id': 2,
             'accountNo': 6,
             'accountName': 'account name',
             'accountId': 'account id',
@@ -25,7 +23,7 @@ def select_by_fund_id(fundId):
             'isHidden': False,
             'isTaxable': True,
             'isVendorCustomerPartnerRequired': False,
-            'parrentAccountId': -1,
+            'parentAccountId': -1,
             'attributeId': 1,
             'fsName': 'fsName',
             'fsMappingId': 'fsMapping'

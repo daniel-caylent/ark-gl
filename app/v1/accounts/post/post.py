@@ -37,7 +37,7 @@ def handler(event, context) -> tuple[int, dict]:
         return 409, {'detail': "Account number or name already exists in this fund."}
 
     # validate the parent account exists
-    if post.parentAccountNo:
+    if post.parentAccountId:
         parent = validate_parent_account(post, accts)
         if parent is False:
             return 400, {'detail': "Parent account does not exist in this fund."}
@@ -69,7 +69,7 @@ def validate_parent_account(account: AccountPost, existing_accounts):
     """Validate the parent id supplied for this account exists"""
 
     for existing_account in existing_accounts:
-        if account.parentAccountNo == existing_account['id']:
+        if account.parentAccountId == existing_account['accountId']:
             return True
 
     return False

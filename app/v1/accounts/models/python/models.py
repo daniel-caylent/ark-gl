@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 @dataclass
 class Account:
-    id: int
     accountNo: int
     accountName: str
     state: Literal["USED", "UNUSED", "ACTIVE"]
@@ -14,7 +13,7 @@ class Account:
     isHidden: bool
     isTaxable: bool
     isVendorCustomerPartnerRequired: bool
-    parentAccountNo: int
+    parentAccountId: str
     attributeId: str
     accountId: str
     fundId: str
@@ -28,7 +27,7 @@ class AccountPost:
     fsMappingId: str
     fsName: str
     isDryRun: bool
-    parentAccountNo: int
+    parentAccountId: str
     attributeId: str
     fundId: str
     isVendorCustomerPartnerRequired: bool

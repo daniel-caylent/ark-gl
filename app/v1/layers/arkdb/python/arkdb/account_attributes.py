@@ -1,17 +1,15 @@
-from database.account_attribute import get_all, get_query_select_by_uuid
+from database.account_attribute import get_all, select_by_uuid
 from .query import run_query
-from .utils import DB_NAME
+from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
 def select_all() -> list[dict]:
-    query = get_all(DB_NAME)
-    results = run_query(query, multi=True)
+    results = get_all(DB_NAME, REGION_NAME, SECRET_NAME)
 
     return results
 
-def get_by_id(id) -> dict:
-    query = get_query_select_by_uuid(DB_NAME, id)
-    results = run_query(query)
+def select_by_id(id) -> dict:
+    results = select_by_uuid(DB_NAME, id, REGION_NAME, SECRET_NAME)
 
     return results
 
