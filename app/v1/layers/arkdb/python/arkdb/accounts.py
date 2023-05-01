@@ -33,8 +33,11 @@ def create_new(account: dict) -> str:
 
     return result
 
-def delete_by_id(account_uuid):
+def delete_by_id(account_uuid) -> None:
     delete(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
 
-def update_by_id(id: str, account: dict):
+def update_by_id(id: str, account: dict) -> None:
+    if 'isDryRun' in account.keys():
+        account.pop('isDryRun')
+
     update(DB_NAME, id, account, REGION_NAME, SECRET_NAME)

@@ -71,13 +71,16 @@ class AccountPut:
     isTaxable: bool = None
 
     def __post_init__(self):
-        self.accountName = self.accountName.strip(' ')
+        self.accountName = (
+            None if self.accountName is None else 
+            self.accountName.strip(' ')
+        )
         self.isEntityRequired = (
             None if self.isEntityRequired is None
             else bool(self.isEntityRequired)
         )
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)
         self.isTaxable = None if self.isTaxable is None else bool(self.isTaxable)
-        self.attributeId = validate_uuid(self.attributeId)
-        self.parentAccountId = validate_uuid(self.parentAccountId)
-        self.fsMappingId = validate_uuid(self.fsMappingId)
+        self.attributeId = validate_uuid(self.attributeId, throw=True)
+        self.parentAccountId = validate_uuid(self.parentAccountId, throw=True)
+        self.fsMappingId = validate_uuid(self.fsMappingId, throw=True)

@@ -1,7 +1,11 @@
 import json
 
 from arkdb import accounts                  # pylint: disable=import-error
-from shared import endpoint, validate_uuid  # pylint: disable=import-error
+from shared import (                        # pylint: disable=import-error
+    endpoint,
+    validate_uuid,
+    update_dict
+  )
 from models import AccountPut               # pylint: disable=import-error
 
 COMMITED_CHANGEABLE = ['fsName', 'fsMappingId']
@@ -27,8 +31,8 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the PUT contents
     try:
         put = AccountPut(**body)
-    except:
-        return 400, {'detail': "Body does not contain valid data."}
+    except Exception:
+        return 400, {'detail': f"Body does not contain valid data."}
 
     # verify account exists
     result = accounts.select_by_id(account_id)
@@ -40,9 +44,6 @@ def handler(event, context) -> tuple[int, dict]:
             if key not in COMMITED_CHANGEABLE:
                 return 400, {'detail': "Account cannot be modified."}
 
-    try:
-        accounts.update_by_id(account_id, put.__dict__)
-    except Exception as e:
-        return 400, {'detail': f'Unable to update account due to: {str(e)}'}
-
+    type_safe_body = update_dict(body, AccountPut.__dict__)
+    accounts.update_by_id(account_id, type_safe_body)
     return 200, {}

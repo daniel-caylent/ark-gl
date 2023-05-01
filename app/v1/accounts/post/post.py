@@ -22,8 +22,8 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the POST contents
     try:
         post = AccountPost(**body)
-    except Exception as e:
-        return 400, {'detail': f"Body does not contain valid data: {str(e)}"}
+    except Exception:
+        return 400, {'detail': f"Body does not contain valid data."}
 
     # validate that the fund exists and client has access to it
     fund = funds.select_by_uuid(post.fundId)
@@ -48,10 +48,7 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "Specified account attribute does not exist."}
 
     # insert the new account
-    try:
-        result = accounts.create_new(post.__dict__)
-    except Exception as e:
-        return 400, {'detail': f"Failed to insert account due to: {str(e)}"}
+    result = accounts.create_new(post.__dict__)
 
     return 201, {'accountId': result}
 
