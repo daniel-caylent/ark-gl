@@ -53,7 +53,7 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
             state, is_hidden, is_taxable, is_vendor_customer_partner_required, fs_mapping_id, fs_name)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s);"""
+            %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
