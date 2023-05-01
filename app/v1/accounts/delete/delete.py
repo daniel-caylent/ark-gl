@@ -10,7 +10,7 @@ def handler(event, context) -> tuple[int, dict]:
 
     result = accounts.select_by_id(account_id)
     if result is None:
-        return 400, {'detail': "No account found."}
+        return 404, {'detail': "No account found."}
 
     if result['state'] != 'UNUSED':
         return 400, {'detail': "Account cannot be deleted."}

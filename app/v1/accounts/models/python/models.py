@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from typing import Literal
 
-from dataclasses import dataclass
+from shared import validate_uuid
 
 @dataclass
 class Account:
@@ -12,14 +13,14 @@ class Account:
     fsName: str
     isHidden: bool
     isTaxable: bool
-    isVendorCustomerPartnerRequired: bool
+    isEntityRequired: bool
     parentAccountId: str
     attributeId: str
     accountId: str
     fundId: str
 
     def __post_init__(self):
-        self.isVendorCustomerPartnerRequired = bool(self.isVendorCustomerPartnerRequired)
+        self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
         self.isTaxable = bool(self.isTaxable)
 
@@ -31,18 +32,52 @@ class AccountPost:
     accountDescription: str
     fsMappingId: str
     fsName: str
-    isDryRun: bool
-    parentAccountId: str
     attributeId: str
     fundId: str
-    isVendorCustomerPartnerRequired: bool
+    isEntityRequired: bool
+    isTaxable: bool
+    isDryRun: bool = False
+    parentAccountId: str = None
     isHidden: bool = False
-    isTaxable: bool = True
     state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
 
     def __post_init__(self):
         self.accountName = self.accountName.strip(' ')
-        self.isVendorCustomerPartnerRequired = bool(self.isVendorCustomerPartnerRequired)
+        self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
         self.isTaxable = bool(self.isTaxable)
+        self.fundId = validate_uuid(self.fundId, throw=True)
+        self.attributeId = validate_uuid(self.attributeId, throw=True)
+        self.parentAccountId = validate_uuid(self.parentAccountId, throw=True)
+        self.fsMappingId = validate_uuid(self.fsMappingId, throw=True)
 
+        # default values for all new accounts
+        self.state = "UNUSED"
+        self.isHidden = False
+
+
+@dataclass
+class AccountPut:
+    accountNo: int = None
+    accountName: str = None
+    accountDescription: str = None
+    fsMappingId: str = None
+    fsName: str = None
+    isDryRun: bool = None
+    parentAccountId: str = None
+    attributeId: str = None
+    isEntityRequired: bool = None
+    isHidden: bool = None
+    isTaxable: bool = None
+
+    def __post_init__(self):
+        self.accountName = self.accountName.strip(' ')
+        self.isEntityRequired = (
+            None if self.isEntityRequired is None
+            else bool(self.isEntityRequired)
+        )
+        self.isHidden = None if self.isHidden is None else bool(self.isHidden)
+        self.isTaxable = None if self.isTaxable is None else bool(self.isTaxable)
+        self.attributeId = validate_uuid(self.attributeId)
+        self.parentAccountId = validate_uuid(self.parentAccountId)
+        self.fsMappingId = validate_uuid(self.fsMappingId)

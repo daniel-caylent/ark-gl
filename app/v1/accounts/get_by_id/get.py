@@ -1,5 +1,5 @@
 from arkdb import accounts
-from shared import endpoint
+from shared import endpoint, validate_uuid
 from models import Account
 
 @endpoint
@@ -7,6 +7,9 @@ def handler(event, context) -> tuple[int, dict]:
     account_id = event['pathParameters'].get('accountId', None)
     if account_id is None:
         return 400, {'detail': "No account specified."}
+
+    if not validate_uuid(account_id):
+        return 400, {'detail': "Invalid UUID provided."}
 
     result = accounts.select_by_id(account_id)
     if result is None:

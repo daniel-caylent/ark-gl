@@ -2,7 +2,7 @@ import json
 
 from arkdb import accounts, funds, account_attributes
 from models import AccountPost
-from shared import endpoint
+from shared import endpoint, validate_uuid
 
 
 @endpoint
@@ -22,8 +22,8 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the POST contents
     try:
         post = AccountPost(**body)
-    except:
-        return 400, {'detail': "Body does not contain valid data."}
+    except Exception as e:
+        return 400, {'detail': f"Body does not contain valid data: {str(e)}"}
 
     # validate that the fund exists and client has access to it
     fund = funds.select_by_uuid(post.fundId)
