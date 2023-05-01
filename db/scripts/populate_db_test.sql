@@ -2,13 +2,6 @@ INSERT INTO ARKGL.fund_entity (uuid, client_id, fund_id)
 		VALUES
 			('d4b26dc7-e51a-11ed-aede-0247c1ed2eeb',UUID(),'d4b26dc7-e51a-11ed-aede-0247c1ed2eeb');
 
-INSERT INTO ARKGL.account_type  (uuid, name, description)
-		VALUES(UUID(), 'my account type', 'my account type description');
-		
-INSERT INTO ARKGL.account_attribute 
-(uuid, fund_entity_id, account_type_id, detail_type, description, state, is_hidden)
-		VALUES (UUID(),1,1,'account detail type', 'account attribute description', 'OK', False);
-	
 INSERT INTO ARKGL.account 
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
             state, is_hidden, is_taxable, is_vendor_customer_partner_required)
