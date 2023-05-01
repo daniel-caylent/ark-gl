@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from shared import validate_uuid
+from shared import validate_uuid    # pylint: disable=import-error
 
 @dataclass
 class Account:

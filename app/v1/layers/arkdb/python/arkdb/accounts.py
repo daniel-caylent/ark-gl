@@ -3,7 +3,8 @@ from database.account import (
     select_by_fund,
     select_by_uuid,
     insert,
-    delete
+    delete,
+    update
 )
 from database.db_main import translate_to_app
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
@@ -34,3 +35,6 @@ def create_new(account: dict) -> str:
 
 def delete_by_id(account_uuid):
     delete(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
+
+def update_by_id(id: str, account: dict):
+    update(DB_NAME, id, account, REGION_NAME, SECRET_NAME)

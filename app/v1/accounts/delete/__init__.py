@@ -1,0 +1,1 @@
+"""Accounts delete by id"""

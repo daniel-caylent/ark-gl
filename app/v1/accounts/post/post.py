@@ -1,8 +1,8 @@
 import json
 
-from arkdb import accounts, funds, account_attributes
-from models import AccountPost
-from shared import endpoint, validate_uuid
+from arkdb import accounts, funds, account_attributes   # pylint: disable=import-error
+from models import AccountPost                          # pylint: disable=import-error
+from shared import endpoint, validate_uuid              # pylint: disable=import-error
 
 
 @endpoint
@@ -60,9 +60,10 @@ def validate_unique_account(account: AccountPost, existing_accounts):
     """Validate the incoming account has a unique name and number"""
 
     for acct in existing_accounts:
-        if acct['accountName'].lower() == account.accountName.lower() or acct['accountNo'] == account.accountNo:
+        if (acct['accountName'].lower() == account.accountName.lower()
+                or acct['accountNo'] == account.accountNo):
             return False
-        
+
     return True
 
 def validate_parent_account(account: AccountPost, existing_accounts):
