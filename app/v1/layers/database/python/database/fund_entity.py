@@ -3,7 +3,7 @@ from . import db_main
 from . import connection
 
 
-def get_query_select_by_uuid(db: str, uuid: str) -> tuple:
+def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     """
     This function creates the select by uuid query with its parameters.
 
@@ -44,7 +44,7 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return
     A dict containing the fund entity that matches with the upcoming uuid
     """
-    params = get_query_select_by_uuid(db, uuid)
+    params = __get_select_by_uuid_query(db, uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
