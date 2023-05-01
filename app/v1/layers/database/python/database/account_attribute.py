@@ -16,13 +16,10 @@ def __get_all_query(db: str) -> tuple:
     """
     query = (
         """
-        SELECT accatt.uuid as attributeId, acctyp.name as accountType, accatt.detail_type as detailType
+        SELECT accatt.id as attributeNo, accatt.account_type as accountType, accatt.detail_type as detailType
         FROM """
         + db
-        + """.account_attribute accatt
-        INNER JOIN """
-        + db
-        + """.account_type acctyp ON (accatt.account_type_id = acctyp.id);"""
+        + """.account_attribute accatt;"""
     )
 
     return (query, None)
