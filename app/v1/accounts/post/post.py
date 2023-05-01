@@ -39,7 +39,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the parent account exists
     if post.parentAccountId:
         parent = validate_parent_account(post, accts)
-        if parent is False:
+        if not parent:
             return 400, {'detail': "Parent account does not exist in this fund."}
 
     # validate the attribute exists

@@ -32,18 +32,59 @@ def handler(event, context) -> tuple[int, dict]:
     try:
         put = AccountPut(**body)
     except Exception:
-        return 400, {'detail': f"Body does not contain valid data."}
+        return 400, {'detail': "Body does not contain valid data."}
 
     # verify account exists
-    result = accounts.select_by_id(account_id)
-    if result is None:
+    acct = accounts.select_by_id(account_id)
+    if acct is None:
         return 404, {'detail': "No account found."}
 
-    if result['state'] != 'UNUSED':
+    if acct['state'] != 'UNUSED':
         for key in body.keys():
             if key not in COMMITED_CHANGEABLE:
                 return 400, {'detail': "Account cannot be modified."}
 
-    type_safe_body = update_dict(body, AccountPut.__dict__)
+    # validate no other accounts exist with number or name
+    accts = accounts.select_by_fund_id(acct['fundId'])
+    unique = validate_unique_account(account_id, put, accts)
+    if unique is False:
+        return 409, {'detail': "Account number or name already exists in this fund."}
+    
+    # validate parent exists if part of this request
+    if put.parentAccountId:
+        parent = validate_parent_account(put, accts)
+        if not parent:
+            return 400, {'detail': "Parent account does not exist in this fund."}
+
+    # only keep fields present in the initial body, but replace
+    # with type safe values from dataclass
+    type_safe_body = update_dict(body, put.__dict__)
     accounts.update_by_id(account_id, type_safe_body)
     return 200, {}
+
+
+def validate_unique_account(account_id: str, account: AccountPut, existing_accounts):
+    """Validate the incoming account has a unique name and number"""
+
+    for acct in existing_accounts:
+        if acct['accountId'] == account_id:
+            continue
+
+        if account.accountName:
+            if acct['accountName'].lower() == account.accountName.lower():
+                return False
+
+        if account.accountNo:
+            if acct['accountNo'] == account.accountNo:
+                return False
+
+    return True
+
+def validate_parent_account(account: AccountPut, existing_accounts):
+    """Validate the parent id supplied for this account exists"""
+
+    for existing_account in existing_accounts:
+        if account.parentAccountId == existing_account['accountId']:
+            return True
+
+    return False

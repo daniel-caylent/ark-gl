@@ -5,7 +5,7 @@ from shared import validate_uuid    # pylint: disable=import-error
 
 @dataclass
 class Account:
-    accountNo: int
+    accountNo: str
     accountName: str
     state: Literal["USED", "UNUSED", "ACTIVE"]
     accountDescription: str
@@ -27,7 +27,7 @@ class Account:
 
 @dataclass
 class AccountPost:
-    accountNo: int
+    accountNo: str
     accountName: str
     accountDescription: str
     fsMappingId: str
@@ -42,6 +42,7 @@ class AccountPost:
     state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
 
     def __post_init__(self):
+        self.accountNo = str(int(self.accountNo))
         self.accountName = self.accountName.strip(' ')
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
@@ -58,7 +59,7 @@ class AccountPost:
 
 @dataclass
 class AccountPut:
-    accountNo: int = None
+    accountNo: str = None
     accountName: str = None
     accountDescription: str = None
     fsMappingId: str = None
@@ -79,6 +80,7 @@ class AccountPut:
             None if self.isEntityRequired is None
             else bool(self.isEntityRequired)
         )
+        self.accountNo = str(int(self.accountNo))
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)
         self.isTaxable = None if self.isTaxable is None else bool(self.isTaxable)
         self.attributeId = validate_uuid(self.attributeId, throw=True)
