@@ -16,7 +16,7 @@ app_to_db = {
 }
 
 
-def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
+def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -70,7 +70,7 @@ def get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -
     return (query, params, uuid)
 
 
-def get_update_query(db: str, id: str, input: dict) -> tuple:
+def __get_update_query(db: str, id: str, input: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -118,7 +118,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     return (query, params)
 
 
-def get_delete_query(db: str, id: str) -> tuple:
+def __get_delete_query(db: str, id: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -145,7 +145,7 @@ def get_delete_query(db: str, id: str) -> tuple:
     return (query, params)
 
 
-def get_select_by_uuid_query(db: str, uuid: str) -> tuple:
+def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     """
     This function creates the select by uuid query with its parameters.
 
@@ -186,7 +186,7 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return
     A dict containing the journal entry that matches with the upcoming uuid
     """
-    params = get_select_by_uuid_query(db, uuid)
+    params = __get_select_by_uuid_query(db, uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -222,11 +222,12 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return
     A string specifying the recently added journal entry's uuid
     """
-    params = get_insert_query(db, input, region_name, secret_name)
+    params = __get_insert_query(db, input, region_name, secret_name)
     query_params = [params[0], params[1]]
     uuid = params[2]
 
-    cursor = connection.cursor()
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
     try:
         # Executing insert of journal entry first
@@ -255,13 +256,13 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
                 )
             )
 
-        connection.commit()
+        conn.commit()
     except Exception as e:
-        connection.rollback()
+        conn.rollback()
         raise e
     finally:
         cursor.close()
-        connection.close()
+        conn.close()
 
     return uuid
 
@@ -289,27 +290,28 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = get_delete_query(db, uuid)
+    params = __get_delete_query(db, uuid)
 
     # Getting the id before deleting
     id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
 
-    cursor = connection.cursor()
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
     try:
         # Executing delete of journal entry first
         cursor.execute(params)
 
         # Once deleted, delete the line items by journal_entry_id
-        line_item.delete_by_journal(db, id, region_name, secret_name)
+        cursor.execute(line_item.get_delete_by_journal_query(db, id, region_name, secret_name))
 
-        connection.commit()
+        conn.commit()
     except Exception as e:
-        connection.rollback()
+        conn.rollback()
         raise e
     finally:
         cursor.close()
-        connection.close()
+        conn.close()
 
     return
 
@@ -341,7 +343,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = get_update_query(db, uuid, input, region_name, secret_name)
+    params = __get_update_query(db, uuid, input, region_name, secret_name)
 
     # Getting the id before updating
     journal_entry_id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
@@ -358,73 +360,76 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         if key.get("line_number") is not None
     ]
 
-    cursor = connection.cursor()
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
     try:
         # Executing update of journal entry first
         cursor.execute(params)
 
         # Then, upsert debit and credit entries
-        for debit_entry in input["debitEntries"]:
-            line_uuid = None
+        if "debitEntries" in input:
+            for debit_entry in input["debitEntries"]:
+                line_uuid = None
 
-            # Filtering to decide if it is insert/update
-            if debit_entry["lineItemNo"] in list_line_numbers:
-                # Getting the uuid from the line_item
-                line_uuid = next(
-                    (
-                        x
-                        for x in lines_list
-                        if x.get("line_number") == debit_entry["lineItemNo"]
-                    ),
-                    None,
-                ).get("uuid")
-                cursor.execute(line_item.get_update_query(db, line_uuid, debit_entry))
-            else:
-                cursor.execute(
-                    line_item.get_insert_query(
-                        db,
-                        credit_entry,
-                        journal_entry_id,
-                        "Debit",
-                        region_name,
-                        secret_name,
+                # Filtering to decide if it is insert/update
+                if debit_entry["lineItemNo"] in list_line_numbers:
+                    # Getting the uuid from the line_item
+                    line_uuid = next(
+                        (
+                            x
+                            for x in lines_list
+                            if x.get("line_number") == debit_entry["lineItemNo"]
+                        ),
+                        None,
+                    ).get("uuid")
+                    cursor.execute(line_item.get_update_query(db, line_uuid, debit_entry))
+                else:
+                    cursor.execute(
+                        line_item.get_insert_query(
+                            db,
+                            credit_entry,
+                            journal_entry_id,
+                            "Debit",
+                            region_name,
+                            secret_name,
+                        )
                     )
-                )
 
-        for credit_entry in input["creditEntries"]:
-            line_uuid = None
+        if "creditEntries" in input:
+            for credit_entry in input["creditEntries"]:
+                line_uuid = None
 
-            # Filtering to decide if it is insert/update
-            if credit_entry["lineItemNo"] in list_line_numbers:
-                # Getting the uuid from the line_item
-                line_uuid = next(
-                    (
-                        x
-                        for x in lines_list
-                        if x.get("line_number") == credit_entry["lineItemNo"]
-                    ),
-                    None,
-                ).get("uuid")
-                cursor.execute(line_item.get_update_query(db, line_uuid, credit_entry))
-            else:
-                cursor.execute(
-                    line_item.get_insert_query(
-                        db,
-                        credit_entry,
-                        journal_entry_id,
-                        "Credit",
-                        region_name,
-                        secret_name,
+                # Filtering to decide if it is insert/update
+                if credit_entry["lineItemNo"] in list_line_numbers:
+                    # Getting the uuid from the line_item
+                    line_uuid = next(
+                        (
+                            x
+                            for x in lines_list
+                            if x.get("line_number") == credit_entry["lineItemNo"]
+                        ),
+                        None,
+                    ).get("uuid")
+                    cursor.execute(line_item.get_update_query(db, line_uuid, credit_entry))
+                else:
+                    cursor.execute(
+                        line_item.get_insert_query(
+                            db,
+                            credit_entry,
+                            journal_entry_id,
+                            "Credit",
+                            region_name,
+                            secret_name,
+                        )
                     )
-                )
 
-        connection.commit()
+        conn.commit()
     except Exception as e:
-        connection.rollback()
+        conn.rollback()
         raise e
     finally:
         cursor.close()
-        connection.close()
+        conn.close()
 
     return
