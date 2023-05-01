@@ -20,7 +20,7 @@ class TestAccount(unittest.TestCase):
             "FSMappingId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
             "FSName": "FSMapping is used for reporting purposes.",
             "isTaxable": True,
-            "isVendorCustomerPartnerRequired": False,
+            "isEntityRequired": False,
             "isDryRun": False
         }
 
@@ -77,7 +77,7 @@ class TestAccount(unittest.TestCase):
 
     @patch(account.__name__+'.select_by_number', Mock(return_value={'uuid':'abcde', 'id':123, 'name':'account'}))
     def test_get_id(self):
-        result = account.get_id(self.db, None, '', '')
+        result = account.get_id_by_number(self.db, None, '', '')
 
         self.assertEqual(result, 123)
     

@@ -15,7 +15,7 @@ app_to_db = {
     'attributeId': "account_attribute_id",
     'isHidden': "is_hidden",
     'isTaxable': "is_taxable",
-    'isVendorCustomerPartnerRequired': "is_vendor_customer_partner_required",
+    'isEntityRequired': "is_entity_required",
     'fsMappingId': "fs_mapping_id",
     'fsName': "fs_name",
     'isDryRun': "is_dry_run"
@@ -50,7 +50,7 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
         + db
         + """.account
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_vendor_customer_partner_required, fs_mapping_id, fs_name)
+            state, is_hidden, is_taxable, is_entity_required, fs_mapping_id, fs_name)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s);"""
@@ -87,7 +87,7 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
         translated_input.get("state"),
         translated_input.get("is_hidden"),
         translated_input.get("is_taxable"),
-        translated_input.get("is_vendor_customer_partner_required"),
+        translated_input.get("is_entity_required"),
         translated_input.get("fs_mapping_id"),
         translated_input.get("fs_name")
     )
@@ -188,7 +188,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
-        acc.is_taxable, acc.is_vendor_customer_partner_required, acc.created_at
+        acc.is_taxable, acc.is_entity_required, acc.created_at
         FROM """
         + db
         + """.account acc
@@ -227,7 +227,7 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
-        acc.is_taxable, acc.is_vendor_customer_partner_required, acc.created_at
+        acc.is_taxable, acc.is_entity_required, acc.created_at
         FROM """
         + db
         + """.account acc
