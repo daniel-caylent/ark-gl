@@ -13,7 +13,7 @@ drop table if exists ARKGL.fund_entity;
 
 CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	`uuid` CHAR(36),
+	`uuid` CHAR(36) UNIQUE,
 	client_id CHAR(36),
 	fund_id CHAR(36),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
