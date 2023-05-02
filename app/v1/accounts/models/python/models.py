@@ -80,7 +80,7 @@ class AccountPut:
             None if self.isEntityRequired is None
             else bool(self.isEntityRequired)
         )
-        self.accountNo = str(int(self.accountNo))
+        self.accountNo = None if self.accountNo is None else str(int(self.accountNo))
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)
         self.isTaxable = None if self.isTaxable is None else bool(self.isTaxable)
         self.attributeId = validate_uuid(self.attributeId, throw=True)

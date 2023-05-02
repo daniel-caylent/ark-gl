@@ -7,6 +7,7 @@ from ...data import (
     post_with_duplicate_name,
     post_with_duplicate_account_number,
     post_without_fund_id,
+    post_with_parent,
     LambdaContext
 )
 
@@ -15,6 +16,11 @@ class TestAccountsPost(AccountsTestBase):
     def test_goodPost(self):
         from accounts import post
         result = post(good_post, LambdaContext())
+        self.assertEqual(result['statusCode'], 201)
+
+    def test_postWithParent(self):
+        from accounts import post
+        result = post(post_with_parent, LambdaContext())
         self.assertEqual(result['statusCode'], 201)
 
     def test_postWithBadBody(self):

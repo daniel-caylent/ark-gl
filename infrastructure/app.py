@@ -10,7 +10,9 @@ from app.account_attributes import (
 from app.accounts import (
     AccountsGetStack,
     AccountsPostStack,
-    AccountsGetByIdStack
+    AccountsGetByIdStack,
+    AccountsPutStack,
+    AccountsCommitStack
 )
 
 from app.vpc_stack import VpcStack
@@ -43,8 +45,15 @@ AccountsGetByIdStack(
     app, "ark-gl-accounts-get-by-id-stack", env=env
 ).add_dependency(vpc_stack)
 
-PipelineStack(app, "ark-gl-pipeline-stack")
+AccountsPutStack(
+    app, "ark-gl-accounts-put-stack", env=env
+).add_dependency(vpc_stack)
 
+AccountsCommitStack(
+    app, "ark-gl-accounts-commit-stack", env=env
+).add_dependency(vpc_stack)
+
+PipelineStack(app, "ark-gl-pipeline-stack")
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 app.synth()

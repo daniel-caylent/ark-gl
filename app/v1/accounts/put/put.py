@@ -1,12 +1,12 @@
 import json
 
-from arkdb import accounts                  # pylint: disable=import-error
-from shared import (                        # pylint: disable=import-error
+from arkdb import accounts, account_attributes  # pylint: disable=import-error
+from shared import (                            # pylint: disable=import-error
     endpoint,
     validate_uuid,
     update_dict
   )
-from models import AccountPut               # pylint: disable=import-error
+from models import AccountPut                   # pylint: disable=import-error
 
 COMMITED_CHANGEABLE = ['fsName', 'fsMappingId']
 
@@ -55,6 +55,11 @@ def handler(event, context) -> tuple[int, dict]:
         parent = validate_parent_account(put, accts)
         if not parent:
             return 400, {'detail': "Parent account does not exist in this fund."}
+
+    if put.attributeId:
+        attribute = account_attributes.select_by_id(put.attributeId)
+        if not attribute:
+            return 400, {'detail': "Account attribute does not exist."}
 
     # only keep fields present in the initial body, but replace
     # with type safe values from dataclass
