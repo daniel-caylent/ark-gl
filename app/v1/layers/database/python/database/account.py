@@ -95,7 +95,7 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
     return (query, params, uuid)
 
 
-def __get_update_query(db: str, id: str, input: dict) -> tuple:
+def __get_update_query(db: str, id: str, input: dict, region_name: str, secret_name: str) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -124,6 +124,23 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
     where_clause = "WHERE uuid = %s;"
 
     translated_input = db_main.translate_to_db(app_to_db, input)
+
+    fund_entity_uuid = translated_input.get("fund_entity_id")
+    if fund_entity_uuid:
+        fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
+        translated_input["fund_entity_id"] = fund_entity_id
+
+    account_attribute_uuid = translated_input.get("account_attribute_id")
+    if account_attribute_uuid:
+        account_attribute_id = account_attribute.get_id(
+            db, account_attribute_uuid, region_name, secret_name
+        )
+        translated_input["account_attribute_id"] = account_attribute_id
+
+    parent_uuid = translated_input.get("parent_id")
+    if parent_uuid:
+        parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
+        translated_input["parent_id"] = parent_id
 
     set_clause = ""
     params = ()
@@ -374,7 +391,7 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = __get_update_query(db, id, input)
+    params = __get_update_query(db, id, input, region_name, secret_name)
 
     conn = connection.get_connection(db, region_name, secret_name)
 
@@ -457,7 +474,7 @@ def get_id_by_number(db: str, account_number: str, region_name: str, secret_name
     """
     record = select_by_number(db, account_number, region_name, secret_name)
 
-    return record.get("id")
+    return record.get("id") if record else None
 
 
 def select_by_uuid(
@@ -513,7 +530,7 @@ def get_id_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> st
     """
     record = select_by_uuid(db, uuid, region_name, secret_name)
 
-    return record.get("id")
+    return record.get("id") if record else None
 
 
 def select_by_fund(

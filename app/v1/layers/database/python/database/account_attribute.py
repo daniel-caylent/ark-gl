@@ -124,4 +124,4 @@ def get_id(db: str, uuid: str, region_name: str, secret_name: str) -> str:
     """
     record = select_by_uuid(db, uuid, region_name, secret_name)
 
-    return record.get("id")
+    return record.get("id") if record else None
