@@ -3,6 +3,10 @@ import json
 from arkdb import accounts # pylint: disable=import-error
 from shared import endpoint
 from shared.accounts import validate_new_account # pylint: disable=import-error
+from shared import (
+    endpoint,
+    validate_new_account
+) # pylint: disable=import-error
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
