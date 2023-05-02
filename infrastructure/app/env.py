@@ -6,11 +6,11 @@ prod = {}
 customer_dev = {}
 
 dev = {
-    'vpc': "vpc-0fee1c501ecae446b",
-    'subnets': ["subnet-0727e6789f058348b", "subnet-007ede16f0c16022f"],
+    'vpc': "vpc-03f2daf6891ff2ce7",
+    'subnets': ["subnet-059b26abb21e13281", "subnet-01f9e2bc3dced4993"],
     'deploy': {
       'DB_NAME': 'ARKGL',
-      'DB_SECRET_NAME': 'ark/db-password'
+      'DB_SECRET_NAME': '/secret/arkgl_poc'
     }
 }
 

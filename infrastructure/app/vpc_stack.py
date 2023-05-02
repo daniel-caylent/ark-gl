@@ -24,18 +24,6 @@ class VpcStack(BaseStack):
             "allow inbound traffic", True
         )
 
-        vpc.add_interface_endpoint(
-            "secrets-manager-endpoint",
-            service=cdk.aws_ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
-            security_groups=[security_group]
-        )
-
-        vpc.add_interface_endpoint(
-            "aurora-endpoint",
-            service=cdk.aws_ec2.InterfaceVpcEndpointAwsService.RDS,
-            security_groups=[security_group]
-        )
-
         cdk.CfnOutput(
             self, "lambdaSecurityGroup",
             value=security_group.security_group_id,
