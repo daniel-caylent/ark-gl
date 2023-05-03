@@ -12,12 +12,26 @@ The infrastructure is located in the `infrastructure` folder.
 
 ## Instructions
 
+### Requirements
+
+- python 3.10+
+
+- aws_cdk 2.74.0+
+
 ### Personal environments:
 
 To have your own provisioned architecture (represented as a prefix in the CloudFormation stack name), consider setting up the following environment variable:
 
 ```bash
 DEPLOYMENT_ENV=my-account-name
+```
+
+#### Creating a virtual environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
 ### Building up the layer's dependencies

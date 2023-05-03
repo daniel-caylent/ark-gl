@@ -10,8 +10,6 @@ from aws_cdk import (
 from constructs import Construct
 from app.base_stack import BaseStack
 
-
-
 class PipelineStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -54,7 +52,7 @@ class PipelineStack(BaseStack):
 
         # Define the pipeline
         pipeline = codepipeline.Pipeline(self, 'ark-code-pipeline',
-            pipeline_name='ark-code-pipeline',
+            pipeline_name=self.STACK_PREFIX + 'ark-code-pipeline',
             cross_account_keys=False,
             restart_execution_on_update=True
         )
