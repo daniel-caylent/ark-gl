@@ -18,6 +18,6 @@ def handler(event, context) -> tuple[int, dict]:
     try:
         accounts.delete_by_id(account_id)
     except Exception as e:
-        return 400, {'detail': f'Unable to delete due to: {str(e)}'}
+        return 400, {'detail': f'Unable to delete.'}
 
     return 200, {}

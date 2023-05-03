@@ -56,6 +56,7 @@ def handler(event, context) -> tuple[int, dict]:
         if not parent:
             return 400, {'detail': "Parent account does not exist in this fund."}
 
+    # if an attribute is part of this request, validate it exists
     if put.attributeId:
         attribute = account_attributes.select_by_id(put.attributeId)
         if not attribute:
