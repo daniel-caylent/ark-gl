@@ -37,12 +37,6 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "Invalid UUID for source or destination fund."}
 
     # check destination fund actually exists
-    valid_destination = validate_uuid(destination_fund_id)
-    valid_source = validate_uuid(source_fund_id)
-
-    if not valid_source and valid_destination:
-        return 400, {'detail': "Invalid UUID for source or destination fund."}
-
     destination_exists = funds.select_by_uuid(destination_fund_id)
     if not destination_exists:
         return 404, {'detail': "Fund not found."}
@@ -51,7 +45,6 @@ def handler(event, context) -> tuple[int, dict]:
     source_exists = funds.select_by_uuid(source_fund_id)
     if not source_exists:
         return 400, {'detail': "Source fund does not exist."}
-
 
     # check source accounts exist
     source_accounts = accounts.select_by_fund_id(source_fund_id)
