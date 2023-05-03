@@ -137,5 +137,9 @@ yarn.lock
 cdk.out
 # editor
 .vscode
+
 # App
 infrastructure/app/layers/pymysql/python/
+
+# Mac
+.DS_Store
