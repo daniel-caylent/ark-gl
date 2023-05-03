@@ -9,7 +9,6 @@ class VpcStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-
         vpc = get_vpc(self)
 
         security_group = cdk.aws_ec2.SecurityGroup(

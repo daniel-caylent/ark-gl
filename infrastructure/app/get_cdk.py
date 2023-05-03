@@ -30,7 +30,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
         memory_size=512,
-        tracing=cdk.aws_lambda.Tracing.ACTIVE, # Enabling X-Ray Tracing
+        tracing=cdk.aws_lambda.Tracing.ACTIVE, # Enabling X-Ray Tracing,
         environment={
             **ENV['deploy'],
             **env
