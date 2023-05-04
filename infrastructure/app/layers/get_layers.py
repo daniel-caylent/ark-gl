@@ -18,13 +18,6 @@ def get_database_layer(context):
         description="Lambda layer with database integrations"
     )
 
-def get_arkdb_layer(context):
-    dir = str(PurePath(LAYERS_DIR, 'arkdb'))
-
-    return get_lambda_layer(context, dir, "arkdb",
-        description="Lambda layer with database abstraction for ark env"
-    )
-
 def get_pymysql_layer(context):
     dir = str(PurePath(LOCAL_LAYERS_DIR, 'pymysql'))
 

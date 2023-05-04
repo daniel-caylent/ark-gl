@@ -8,7 +8,6 @@ from ..layers import (
     get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
-    get_arkdb_layer,
     get_database_layer
 )
 from ..utils import ACCOUNTS_DIR
@@ -26,10 +25,9 @@ class AccountsGetStack(BaseStack):
         pymysql_layer = get_pymysql_layer(self)
         models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
-        arkdb_layer = get_arkdb_layer(self)
 
         func = get_lambda_function(self, CODE_DIR,
             handler="get.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer, arkdb_layer],
+            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
             description="accounts get"
         )

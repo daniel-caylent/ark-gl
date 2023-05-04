@@ -10,7 +10,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
     to the stack
     """
     vpc = get_vpc(context)
-    security_group_id = cdk.Fn.import_value('lambdaSecurityGroup')
+    security_group_id = cdk.Fn.import_value(context.STACK_PREFIX + 'lambdaSecurityGroup')
 
     security_group = cdk.aws_ec2.SecurityGroup.from_security_group_id(
         context, 'ark-lambda-security-group', security_group_id
@@ -69,7 +69,6 @@ def get_lambda_layer(context, code_dir, name="layer", **kwargs):
     )
 
 def get_vpc(context):
-
     return cdk.aws_ec2.Vpc.from_lookup(
         context, 'ark-ledger-vpc', is_default=False, vpc_id=ENV['vpc']
     )

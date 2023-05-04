@@ -62,3 +62,8 @@ cdk deploy --all
 
 cdk deploy <stack_name>
 ```
+
+For deploying the pipeline
+```bash
+cdk deploy --app "python3 pipeline_app.py"
+```

@@ -7,8 +7,7 @@ from ..get_cdk import get_lambda_function
 from ..layers import (
     get_shared_layer,
     get_pymysql_layer,
-    get_database_layer,
-    get_arkdb_layer
+    get_database_layer
 )
 from ..utils import ACCOUNTS_ATTR_DIR
 
@@ -22,10 +21,9 @@ class AccountAttributesGetStack(BaseStack):
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
-        arkdb_layer = get_arkdb_layer(self)
 
         func = get_lambda_function(
             self, CODE_DIR, "get.handler",
-            layers=[shared_layer, pymysql_layer, db_layer, arkdb_layer],
+            layers=[shared_layer, pymysql_layer, db_layer],
             description="account attributes get"
         )

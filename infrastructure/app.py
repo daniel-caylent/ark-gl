@@ -12,18 +12,20 @@ from app.accounts import (
     AccountsPostStack,
     AccountsGetByIdStack,
     AccountsPutStack,
-    AccountsCommitStack
+    AccountsCommitStack,
+    AccountsUploadStack,
+    AccountsCopyStack,
+    AccountsDeleteStack
 )
 
 from app.vpc_stack import VpcStack
+
 from app.env import ENV
 
-from pipeline import PipelineStack
 
-
-cdk_env=cdk.Environment(                     # Caylent env:
-    account = os.getenv('AWS_ACCOUNT'),  # '131578276461'
-    region = os.getenv('AWS_REGION')     # 'us-east-2'
+cdk_env=cdk.Environment(
+    account = os.getenv('AWS_ACCOUNT'),
+    region = os.getenv('AWS_REGION')
 )
 
 app = cdk.App()
@@ -54,7 +56,17 @@ AccountsCommitStack(
     app, "ark-gl-accounts-commit-stack", env=cdk_env
 ).add_dependency(vpc_stack)
 
-PipelineStack(app, "ark-gl-pipeline-stack")
+AccountsDeleteStack(
+    app, "ark-gl-accounts-delete-stack", env=cdk_env
+).add_dependency(vpc_stack)
+
+AccountsUploadStack(
+    app, "ark-gl-accounts-upload-stack", env=cdk_env
+).add_dependency(vpc_stack)
+
+AccountsCopyStack(
+    app, "ark-gl-accounts-copy-stack", env=cdk_env
+).add_dependency(vpc_stack)
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 cdk.Tags.of(app).add(ENV['MAP_TAG'], ENV['MAP_VALUE'])
