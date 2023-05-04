@@ -6,12 +6,12 @@ from . import fund_entity
 app_to_db = {
     "fundId": "fund_entity_id",
     "ledgerId": "uuid",
-    "GLName": "name",
-    "GLDescription": "description",
+    "glName": "name",
+    "glDescription": "description",
     "state": "state",
     "currencyName": "currency",
     "currencyDecimal": "`decimal`",
-    "isHidden": "is_hidden",
+    "isHidden": "is_hidden"
 }
 
 
@@ -146,14 +146,14 @@ def __get_delete_query(db_: str, id_: str) -> tuple:
     return (query, params)
 
 
-def __get_by_uuid_query(db: str, id: str) -> tuple:
+def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     """
     This function creates the select by uuid query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    uuid: string
     This parameter specifies the uuid that will be used for this query
 
     return
@@ -162,28 +162,7 @@ def __get_by_uuid_query(db: str, id: str) -> tuple:
     """
     query = "SELECT * FROM " + db + ".ledger where uuid = %s;"
 
-    params = (id,)
-
-    return (query, params)
-
-
-def __get_by_id(db_: str, id_: str) -> tuple:
-    """
-    This function creates the select by id query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    id: string
-    This parameter specifies the id that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = "SELECT * FROM " + db_ + ".ledger where uuid = %s;"
-
-    params = (id_,)
+    params = (uuid,)
 
     return (query, params)
 
@@ -392,6 +371,64 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def select_by_fund(db: str, fund_id: str, region_name: str, secret_name: str) -> list:
+    """
+    This function returns the record from the result of the "select by fund" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_id: string
+    This parameter specifies the fund_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the ledgers that match with the upcoming fund_id
+    """
+    params = __get_by_fund(db, fund_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
+def select_by_name(db: str, ledger_name: str, region_name: str, secret_name: str) -> list:
+    """
+    This function returns the record from the result of the "select by fund" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_name: string
+    This parameter specifies the ledger_name that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the ledgers that match with the upcoming ledger_name
+    """
+    params = __get_by_name_query(db, ledger_name)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
 
 
 def get_id(db: str, uuid: str, region_name: str, secret_name: str) -> str:
