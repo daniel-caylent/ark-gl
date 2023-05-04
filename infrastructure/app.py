@@ -18,6 +18,10 @@ from app.accounts import (
     AccountsDeleteStack
 )
 
+from app.ledgers import (
+    LedgersGetStack
+)
+
 from app.vpc_stack import VpcStack
 
 from app.env import ENV
@@ -66,6 +70,10 @@ AccountsUploadStack(
 
 AccountsCopyStack(
     app, "ark-gl-accounts-copy-stack", env=cdk_env
+).add_dependency(vpc_stack)
+
+LedgersGetStack(
+    app, "ark-gl-ledgers-get-stack", env=cdk_env
 ).add_dependency(vpc_stack)
 
 cdk.Tags.of(app).add('project', 'Ark PES')
