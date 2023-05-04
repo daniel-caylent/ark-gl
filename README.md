@@ -18,7 +18,7 @@ The infrastructure is located in the `infrastructure` folder.
 
 - aws_cdk 2.74.0+
 
-### Personal environments:
+#### Setup environment variables
 
 To have your own provisioned architecture (represented as a prefix in the CloudFormation stack name), consider setting up the following environment variable:
 
@@ -26,12 +26,22 @@ To have your own provisioned architecture (represented as a prefix in the CloudF
 DEPLOYMENT_ENV=my-account-name
 ```
 
+There are other environments that should be setup
+```bash
+AWS_ACCOUNT=aws_account_id
+AWS_REGION=aws_region
+```
+
 #### Creating a virtual environment
+
+Make sure your python version is 3.10+
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r dev-requirements.txt
+
+python --version
 ```
 
 ### Building up the layer's dependencies
@@ -46,9 +56,9 @@ In the root folder of the repo, consider executing the following script:
 
 ### CDK:
 
-For provisioning the resources before the deploy:
+For provisioning the resources before the deploy (Just execute this a single time per account):
 ```bash
-cdk boostrap
+cdk bootstrap
 ```
 
 For creating the infrastructure CloudFormating scripts locally
