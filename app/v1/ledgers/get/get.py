@@ -2,6 +2,7 @@ from shared import endpoint, validate_uuid  # pylint: disable=import-error
 from arkdb import ledgers, funds  # pylint: disable=import-error
 from models import Ledger
 
+
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
     fund_id = event["queryStringParameters"].get("fundId", None)
