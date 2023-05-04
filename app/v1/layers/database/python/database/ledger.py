@@ -160,7 +160,19 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".ledger where uuid = %s;"
+    query = (
+        """
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.`decimal`, le.created_at
+        FROM """
+        + db
+        + """.ledger le
+        INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        where le.uuid = %s;"""
+    )
 
     params = (uuid,)
 
@@ -218,11 +230,16 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
 
     query = (
         """
-        SELECT *
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.`decimal`, le.created_at
         FROM """
         + db_
-        + """.ledger
-        where TRIM(LOWER(name)) = %s;"""
+        + """.ledger le
+        INNER JOIN """
+        + db_
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        where TRIM(LOWER(le.name)) = %s;"""
     )
 
     params = (ledger_name,)
