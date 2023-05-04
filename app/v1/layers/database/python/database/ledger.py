@@ -183,7 +183,9 @@ def __get_by_fund(db_: str, fund_id: str) -> tuple:
     """
     query = (
         """
-        SELECT le.*
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.`decimal`, le.created_at
         FROM """
         + db_
         + """.ledger le
