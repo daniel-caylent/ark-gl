@@ -140,6 +140,7 @@ cdk.out
 
 # App
 infrastructure/app/layers/pymysql/python/
+infrastructure/app/layers/qldb_requirements/python/
 
 # Mac
 .DS_Store
