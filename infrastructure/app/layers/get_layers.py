@@ -18,11 +18,25 @@ def get_database_layer(context):
         description="Lambda layer with database integrations"
     )
 
+def get_qldb_layer(context):
+    dir = str(PurePath(LAYERS_DIR, 'qldb'))
+
+    return get_lambda_layer(context, dir, "qldb",
+        description="Lambda layer with qldb integrations"
+    )
+
 def get_pymysql_layer(context):
     dir = str(PurePath(LOCAL_LAYERS_DIR, 'pymysql'))
 
     return get_lambda_layer(context, dir, "pymysql",
         description="Lambda layer with pymysql connector"
+    )
+
+def get_qldb_reqs_layer(context):
+    dir = str(PurePath(LOCAL_LAYERS_DIR, 'qldb_requirements'))
+
+    return get_lambda_layer(context, dir, "qldb_reqs",
+        description="Lambda layer with qldb requirements"
     )
 
 def get_models_layer(context, models_dir):
