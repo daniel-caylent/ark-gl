@@ -73,7 +73,6 @@ def handler(event, context) -> tuple[int, dict]:
 
         if code != 201:
             return code, {'detail': detail}
-
         # insert the new account and retain accountId mapping
         uuid_lookup[accountId] = accounts.create_new(post)
 

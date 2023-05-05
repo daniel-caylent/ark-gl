@@ -5,6 +5,9 @@ from .validate_new_account import validate_new_account
 def download_from_s3(signed_s3_url: str) -> str:
     response = requests.get(signed_s3_url)
 
+    if response.status_code != 200:
+        return None
+
     return response.content.decode('utf-8')
 
 def convert_csv_to_dicts(csv_str: str) -> list[dict]:
