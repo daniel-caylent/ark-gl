@@ -10,7 +10,7 @@ from ..layers import (
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
-    get_qldb_reqs_layer
+    get_pyqldb_layer
 )
 from ..utils import ACCOUNTS_DIR
 
@@ -26,7 +26,7 @@ class AccountsCommitStack(BaseStack):
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
-        qldb_reqs = get_qldb_reqs_layer(self)
+        qldb_reqs = get_pyqldb_layer(self)
 
         func = get_lambda_function(self, CODE_DIR,
             handler="commit.handler",

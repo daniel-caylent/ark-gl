@@ -5,5 +5,5 @@ from .get_layers import (
     get_pymysql_layer,
     get_shared_layer,
     get_qldb_layer,
-    get_qldb_reqs_layer
+    get_pyqldb_layer
 )

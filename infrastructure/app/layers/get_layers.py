@@ -32,10 +32,10 @@ def get_pymysql_layer(context):
         description="Lambda layer with pymysql connector"
     )
 
-def get_qldb_reqs_layer(context):
-    dir = str(PurePath(LOCAL_LAYERS_DIR, 'qldb_requirements'))
+def get_pyqldb_layer(context):
+    dir = str(PurePath(LOCAL_LAYERS_DIR, 'pyqldb'))
 
-    return get_lambda_layer(context, dir, "qldb_reqs",
+    return get_lambda_layer(context, dir, "pyqldb",
         description="Lambda layer with qldb requirements"
     )
 
