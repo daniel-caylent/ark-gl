@@ -103,7 +103,7 @@ def __get_update_query(db: str, id: str, input: dict, region_name: str, secret_n
     This parameter specifies the db name where the query will be executed
 
     id: string
-    This parameter specifies the uuid for identifying the ledger
+    This parameter specifies the uuid for identifying the account
     that will be updated
 
     input: dictionary
@@ -294,6 +294,62 @@ def __get_select_by_name_query(db: str, account_name: str) -> tuple:
     return (query, params)
 
 
+def __get_select_committed_between_dates_query(db: str, start_date: str, end_date:str) -> tuple:
+    """
+    This function creates the select between dates for committed state accounts.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    start_date: string
+    This parameter specifies the start date that will be used for this query
+
+    end_date: string
+    This parameter specifies the end date that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = "SELECT * FROM " + db + ".account where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+
+    params = (start_date, end_date,)
+
+    return (query, params)
+
+
+def select_committed_between_dates(db: str, start_date: str, end_date: str, region_name: str, secret_name: str) -> list:
+    """
+    This function returns the record from the result of the "select commited between dates" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    start_date: string
+    This parameter specifies the start date that will be used for this query
+
+    end_date: string
+    This parameter specifies the end date that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the accounts that match with the upcoming dates
+    """
+    params = __get_select_committed_between_dates_query(db, start_date, end_date)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_multiple_record_select(conn, params)
+
+    return record
+
+
 def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
@@ -342,7 +398,7 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     This parameter specifies the db name where the query will be executed
 
     id: string
-    This parameter contains the uuid of the ledger that will be deleted
+    This parameter contains the uuid of the account that will be deleted
 
     region_name: string
     This parameter specifies the region where the query will be executed
