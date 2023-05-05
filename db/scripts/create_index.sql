@@ -7,3 +7,10 @@ CREATE INDEX attachment_uuid_idx ON ARKGL.attachment(uuid);
 CREATE INDEX journal_entry_uuid_idx ON ARKGL.journal_entry(uuid);
 CREATE INDEX ledger_uuid_idx ON ARKGL.ledger(uuid);
 CREATE INDEX fund_entity_uuid_idx ON ARKGL.fund_entity(uuid);
+
+CREATE INDEX ledger_post_date_idx ON ARKGL.ledger(post_date);
+CREATE INDEX journal_post_date_idx ON ARKGL.journal_entry(post_date);
+CREATE INDEX account_post_date_idx ON ARKGL.account(post_date);
+
+
+

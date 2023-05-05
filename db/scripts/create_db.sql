@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 	is_hidden BOOL,
 	currency VARCHAR(255),
 	decimals INT,
+	post_date TIMESTAMP,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (fund_entity_id) REFERENCES fund_entity (id)
 );
@@ -78,6 +79,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 	is_hidden bool,
 	is_taxable bool,
 	is_entity_required bool,
+	post_date TIMESTAMP,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (fund_entity_id) REFERENCES fund_entity(id),
 	FOREIGN KEY (account_attribute_id) REFERENCES account_attribute(id),
