@@ -14,7 +14,7 @@ INSERT INTO ARKGL.account
             'account state', False, True, True);
            
 INSERT INTO ARKGL.ledger
-            (uuid, fund_entity_id, name, description, state, is_hidden, currency,  `decimal`)
+            (uuid, fund_entity_id, name, description, state, is_hidden, currency,  decimals)
         VALUES
             (UUID(), 1, 'ledger nam', 'ledge description', 'ok', False,
             'USD', 3);

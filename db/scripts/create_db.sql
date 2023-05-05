@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 	state VARCHAR(30),
 	is_hidden BOOL,
 	currency VARCHAR(255),
-	`decimal` INT,
+	decimals INT,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (fund_entity_id) REFERENCES fund_entity (id)
 );

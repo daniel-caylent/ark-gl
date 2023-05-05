@@ -10,7 +10,7 @@ app_to_db = {
     "glDescription": "description",
     "state": "state",
     "currencyName": "currency",
-    "currencyDecimal": "`decimal`",
+    "currencyDecimal": "decimals",
     "isHidden": "is_hidden"
 }
 
@@ -44,7 +44,7 @@ def __get_insert_query(
         INSERT INTO """
         + db_
         + """.ledger
-            (uuid, fund_entity_id, name, description, state, is_hidden, currency,  `decimal`)
+            (uuid, fund_entity_id, name, description, state, is_hidden, currency,  decimals)
         VALUES
             (%s, %s, %s, %s, %s, %s,
             %s, %s);"""
@@ -65,7 +65,7 @@ def __get_insert_query(
         translated_input.get("state"),
         translated_input.get("is_hidden"),
         translated_input.get("currency"),
-        translated_input.get("`decimal`"),
+        translated_input.get("decimals"),
     )
 
     return (query, params, uuid)
@@ -164,7 +164,7 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.`decimal`, le.created_at
+                le.currency, le.decimals, le.created_at
         FROM """
         + db
         + """.ledger le
@@ -197,7 +197,7 @@ def __get_by_fund(db_: str, fund_id: str) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.`decimal`, le.created_at
+                le.currency, le.decimals, le.created_at
         FROM """
         + db_
         + """.ledger le
@@ -232,7 +232,7 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.`decimal`, le.created_at
+                le.currency, le.decimals, le.created_at
         FROM """
         + db_
         + """.ledger le
