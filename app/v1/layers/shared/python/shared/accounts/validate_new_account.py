@@ -10,10 +10,10 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
         return 400, "No attribute specified.", None
 
     # validate the POST contents
-    # try:
-    post = AccountPost(**account)
-    # except Exception:
-    #     return 400, "Body does not contain valid data.", None
+    try:
+        post = AccountPost(**account)
+    except Exception:
+        return 400, "Body does not contain valid data.", None
 
     # validate that the fund exists and client has access to it
     fund = funds.select_by_uuid(post.fundId)
