@@ -15,9 +15,9 @@ from ..layers import (
 from ..utils import ACCOUNTS_DIR
 
 
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'commit'))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'state'))
 
-class AccountsCommitStack(BaseStack):
+class AccountsStateStack(BaseStack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -29,7 +29,7 @@ class AccountsCommitStack(BaseStack):
         qldb_reqs = get_pyqldb_layer(self)
 
         func = get_lambda_function(self, CODE_DIR,
-            handler="commit.handler",
+            handler="put.handler",
             layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
-            description="accounts commit"
+            description="accounts state"
         )

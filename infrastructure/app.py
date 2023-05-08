@@ -12,7 +12,7 @@ from app.accounts import (
     AccountsPostStack,
     AccountsGetByIdStack,
     AccountsPutStack,
-    AccountsCommitStack,
+    AccountsStateStack,
     AccountsUploadStack,
     AccountsCopyStack,
     AccountsDeleteStack
@@ -57,8 +57,8 @@ AccountsPutStack(
     app, "ark-gl-accounts-put-stack", env=cdk_env
 ).add_dependency(vpc_stack)
 
-AccountsCommitStack(
-    app, "ark-gl-accounts-commit-stack", env=cdk_env
+AccountsStateStack(
+    app, "ark-gl-accounts-state-stack", env=cdk_env
 ).add_dependency(vpc_stack)
 
 AccountsDeleteStack(
