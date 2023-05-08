@@ -120,7 +120,7 @@ def check_account_name(account_name):
     if account_name is None:
         raise Exception('Required argument is missing: accountName')
     try:
-        account_name = account_name.strip(' ')
+        account_name = account_name.strip()
     except:
         raise Exception('Invalid account name.')
 
@@ -154,7 +154,7 @@ def check_fs_name(fs_name):
     if fs_name is None:
         raise Exception('Required argument is missing: fsName')
     try:
-        fs_name = fs_name.strip(' ')
+        fs_name = fs_name.strip()
     except:
         raise Exception('Invalid value for fsName.')
 

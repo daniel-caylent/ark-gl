@@ -32,7 +32,10 @@ def handler(event, context) -> tuple[int, dict]:
     try:
         put = AccountPut(**body)
     except Exception as e:
-        return 400, {'detail': {str(e)}}
+        remove_str = "__init__() got an "
+        error_str = str(e).strip(remove_str)
+
+        return 400, {'detail': error_str[0].upper() + error_str[1:]}
 
     # verify account exists
     acct = accounts.select_by_id(account_id)
@@ -112,8 +115,11 @@ def check_missing_fields(account_dict):
         'isTaxable',
         'attributeId',
         'fsMappingId',
-        'fsName'
+        'fsName',
+        'isHidden',
+        'isEntityRequired'
     ]
+
     keys = list(account_dict.keys())
     for field in required:
         if field in keys:
