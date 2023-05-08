@@ -46,7 +46,7 @@ class Driver:
             )
         )
 
-    def insert_documents(self, table_name: str, document: dict) -> None:
+    def insert_document(self, table_name: str, document: dict) -> None:
         logger.info("Checking if table " + table_name + " exists")
         checking_query = (
             "SELECT name FROM information_schema.user_tables WHERE name = '"
@@ -60,6 +60,7 @@ class Driver:
             self.create_index(table_name, ["id"])
             self.create_index(table_name, ["uuid"])
             self.create_index(table_name, ["created_on"])
+            self.create_index(table_name, ["fund_entity_id"])
 
         logger.info("Inserting a document into table " + table_name)
         self.qldb_driver.execute_lambda(
@@ -89,3 +90,12 @@ class Driver:
         )
 
         return cursor
+
+    def insert_account(self, document: dict) -> None:
+        self.insert_document("account", document)
+
+    def insert_ledger(self, document: dict) -> None:
+        self.insert_document("ledger", document)
+
+    def insert_journal_entry(self, document: dict) -> None:
+        self.insert_document("journal_entry", document)
