@@ -12,8 +12,11 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
     # validate the POST contents
     try:
         post = AccountPost(**account)
-    except Exception:
-        return 400, "Body does not contain valid data.", None
+    except Exception as e:
+        remove_str = "__init__() got an "
+        error_str = str(e).strip(remove_str)
+
+        return 400, error_str[0].upper() + error_str[1:], None
 
     # validate that the fund exists and client has access to it
     fund = funds.select_by_uuid(post.fundId)
@@ -37,7 +40,7 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
     if attribute is None:
         return 400, "Specified account attribute does not exist.", None
 
-    return 201, '', post.__dict__
+    return 201, '', {'state': "UNUSED", **post.__dict__}
 
 
 def validate_unique_account(account: AccountPost, existing_accounts):
@@ -52,7 +55,6 @@ def validate_unique_account(account: AccountPost, existing_accounts):
 
 def validate_parent_account(account: AccountPost, existing_accounts):
     """Validate the parent id supplied for this account exists"""
-
     for existing_account in existing_accounts:
         if account.parentAccountId == existing_account['accountId']:
             return True

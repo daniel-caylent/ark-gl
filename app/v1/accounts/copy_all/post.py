@@ -64,6 +64,8 @@ def handler(event, context) -> tuple[int, dict]:
     uuid_lookup = {}
     for acct in sorted_accounts:
         accountId = acct.pop('accountId')
+        acct.pop('state')
+
         acct['fundId'] = destination_fund_id
 
         if acct['parentAccountId'] in uuid_lookup.keys():

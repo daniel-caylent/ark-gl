@@ -3,6 +3,7 @@ from typing import Literal
 
 from shared import validate_uuid    # pylint: disable=import-error
 
+
 @dataclass
 class Account:
     accountNo: str
@@ -27,34 +28,38 @@ class Account:
 
 @dataclass
 class AccountPost:
-    accountNo: str
-    accountName: str
-    accountDescription: str
-    fsMappingId: str
-    fsName: str
-    attributeId: str
-    fundId: str
-    isEntityRequired: bool
-    isTaxable: bool
+    fundId: str = None
+    attributeId: str = None
+    accountNo: str = None
+    accountName: str = None
+    isTaxable: bool = None
+    fsMappingId: str = None
+    fsName: str = None
+
+    # optional
+    isEntityRequired: bool = False
+    accountDescription: str = None
     isDryRun: bool = False
     parentAccountId: str = None
     isHidden: bool = False
-    state: Literal["USED", "UNUSED", "ACTIVE"] = "UNUSED"
 
     def __post_init__(self):
-        self.accountNo = str(int(self.accountNo))
-        self.accountName = self.accountName.strip(' ')
+        # required
+        self.accountNo = check_account_no(self.accountNo)
+        self.accountName = check_account_name(self.accountName)
+        self.fundId = check_uuid(self.fundId, "fundId")
+        self.attributeId = check_uuid(self.attributeId, "attributeId")
+        self.fsMappingId = check_uuid(self.fsMappingId, "fsMappingId")
+        self.isTaxable = check_is_taxable(self.isTaxable)
+        self.fsName = check_fs_name(self.fsName)
+
+        # optional
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
-        self.isTaxable = bool(self.isTaxable)
-        self.fundId = validate_uuid(self.fundId, throw=True)
-        self.attributeId = validate_uuid(self.attributeId, throw=True)
-        self.parentAccountId = validate_uuid(self.parentAccountId, throw=True)
-        self.fsMappingId = validate_uuid(self.fsMappingId, throw=True)
-
-        # default values for all new accounts
-        self.state = "UNUSED"
-        self.isHidden = False
+        self.parentAccountId = (
+            None if self.parentAccountId is None else
+            check_uuid(self.parentAccountId, "parentAccountId")
+        )
 
 
 @dataclass
@@ -73,16 +78,88 @@ class AccountPut:
 
     def __post_init__(self):
         self.accountName = (
-            None if self.accountName is None else 
-            self.accountName.strip(' ')
+            None if self.accountName is None else
+            check_account_name(self.accountName)
         )
         self.isEntityRequired = (
             None if self.isEntityRequired is None
             else bool(self.isEntityRequired)
         )
-        self.accountNo = None if self.accountNo is None else str(int(self.accountNo))
+        self.accountNo = (
+            None if self.accountNo is None else check_account_no(self.accountNo)
+        )
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)
-        self.isTaxable = None if self.isTaxable is None else bool(self.isTaxable)
-        self.attributeId = validate_uuid(self.attributeId, throw=True)
-        self.parentAccountId = validate_uuid(self.parentAccountId, throw=True)
-        self.fsMappingId = validate_uuid(self.fsMappingId, throw=True)
+        self.isTaxable = (
+            None if self.isTaxable is None else check_is_taxable(self.isTaxable)
+        )
+        self.attributeId = (
+            None if self.attributeId is None else
+            check_uuid(self.attributeId, "attributeId")
+        )
+        self.parentAccountId = (
+            None if self.parentAccountId is None else
+            check_uuid(self.parentAccountId, "parentAccountId")
+        )
+        self.fsMappingId = (
+            None if self.fsMappingId is None else
+            check_uuid(self.fsMappingId, "fsMappingId")
+        )
+
+
+def check_account_no(account_no):
+    if account_no is None:
+        raise Exception('Required argument is missing: accountNo')
+    try:
+        account_no = str(int(account_no))
+    except Exception:
+        raise Exception('Invalid account number.')
+    return account_no
+
+
+def check_account_name(account_name):
+    if account_name is None:
+        raise Exception('Required argument is missing: accountName')
+    try:
+        account_name = account_name.strip(' ')
+    except:
+        raise Exception('Invalid account name.')
+
+    if len(account_name) == 0:
+        raise Exception('Invalid account name.')
+
+    return account_name
+
+def check_is_taxable(is_taxable):
+    if is_taxable is None:
+        raise Exception("Required argument is missing: isTaxable.")
+    try:
+        is_taxable = bool(is_taxable)
+    except:
+        raise Exception("Invalid value for isTaxable.")
+
+    return is_taxable
+
+def check_uuid(uuid, name):
+    if uuid is None:
+        raise Exception(f'Required argument is missing: {name}')
+
+    try:
+        validate_uuid(uuid, throw=True)
+    except:
+        raise Exception(f'{name} is not a valid UUID')
+
+    return uuid
+
+def check_fs_name(fs_name):
+    if fs_name is None:
+        raise Exception('Required argument is missing: fsName')
+    try:
+        fs_name = fs_name.strip(' ')
+    except:
+        raise Exception('Invalid value for fsName.')
+
+    if len(fs_name) == 0:
+        raise Exception('Invalid value for fsName.')
+
+    return fs_name
+    

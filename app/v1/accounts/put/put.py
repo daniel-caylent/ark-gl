@@ -31,8 +31,8 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the PUT contents
     try:
         put = AccountPut(**body)
-    except Exception:
-        return 400, {'detail': "Body does not contain valid data."}
+    except Exception as e:
+        return 400, {'detail': {str(e)}}
 
     # verify account exists
     acct = accounts.select_by_id(account_id)
@@ -65,6 +65,11 @@ def handler(event, context) -> tuple[int, dict]:
     # only keep fields present in the initial body, but replace
     # with type safe values from dataclass
     type_safe_body = update_dict(body, put.__dict__)
+
+    missing = check_missing_fields(type_safe_body)
+    if missing is not None:
+        return 400, {'detail': f"{missing} cannot be null or empty."}
+
     accounts.update_by_id(account_id, type_safe_body)
     return 200, {}
 
@@ -94,3 +99,27 @@ def validate_parent_account(account: AccountPut, existing_accounts):
             return True
 
     return False
+
+def check_missing_fields(account_dict):
+    """
+    Check that the account information about to be updated does not input
+    any null values for required fields
+    """
+    required = [    
+        'accountNo',
+        'accountName',
+        'fundId',
+        'isTaxable',
+        'attributeId',
+        'fsMappingId',
+        'fsName'
+    ]
+    keys = list(account_dict.keys())
+    for field in required:
+        if field in keys:
+            value = account_dict[field]
+
+            if value is None or value == '':
+                return field
+    
+    return None
