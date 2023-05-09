@@ -14,8 +14,7 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
         post = AccountPost(**account)
     except Exception as e:
         remove_str = "__init__() got an "
-        error_str = str(e).strip(remove_str)
-
+        error_str = str(e).replace(remove_str, '')
         return 400, error_str[0].upper() + error_str[1:], None
 
     # validate that the fund exists and client has access to it
