@@ -39,7 +39,7 @@ app = cdk.App()
 vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=cdk_env)
 
 qldb_stack = QldbStack(
-    app, "ark-gl-ledgers-get-by-id-stack", env=cdk_env
+    app, "ark-gl-qldb-stack", env=cdk_env
 ).add_dependency(vpc_stack)
 
 AccountAttributesGetStack(
