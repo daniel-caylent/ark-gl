@@ -4,6 +4,9 @@ from models import Account    # pylint: disable=import-error
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
+    if not event.get('pathParameters'):
+        return 400, {'detail': "Missing path parameters"}
+
     account_id = event['pathParameters'].get('accountId', None)
     if account_id is None:
         return 400, {'detail': "No account specified."}

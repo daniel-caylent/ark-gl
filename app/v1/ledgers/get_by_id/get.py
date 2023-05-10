@@ -5,6 +5,9 @@ from models import Ledger # pylint: disable=import-error
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
+    if not event.get('pathParameters'):
+        return 400, {'detail': "Missing path parameters"}
+
     ledger_id = event['pathParameters'].get('ledgerId', None)
     if ledger_id is None:
         return 400, {'detail': "No ledger specified."}

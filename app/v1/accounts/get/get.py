@@ -5,6 +5,9 @@ from models import Account  # pylint: disable=import-error
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
+    if not event.get("queryStringParameters"):
+        return 400, {"detail": "Missing query string parameters"}
+
     fund_id = event["queryStringParameters"].get("fundId", None)
     if fund_id is None:
         return 400, {"detail": "No fund specified."}
