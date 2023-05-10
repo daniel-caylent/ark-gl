@@ -20,7 +20,8 @@ from app.accounts import (
 
 from app.ledgers import (
     LedgersGetStack,
-    LedgersGetByIdStack
+    LedgersGetByIdStack,
+    LedgersPostStack
 )
 
 from env import ENV
@@ -92,6 +93,11 @@ ledgers_get_by_id_stack=LedgersGetByIdStack(
 )
 ledgers_get_by_id_stack.add_dependency(vpc_stack)
 
+ledgers_post_stack=LedgersPostStack(
+    app, "ark-gl-ledgers-post-stack", env=cdk_env
+)
+ledgers_post_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
 dependency_group.add(account_attributes_get_stack)
@@ -104,6 +110,7 @@ dependency_group.add(accounts_state_stack)
 dependency_group.add(accounts_upload_stack)
 dependency_group.add(ledgers_get_stack)
 dependency_group.add(ledgers_get_by_id_stack)
+dependency_group.add(ledgers_post_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env).node.add_dependency(dependency_group)
 

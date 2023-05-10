@@ -14,8 +14,8 @@ def endpoint(func):
             code, data = func_with_logging(event, context)
 
             return response(code, context.aws_request_id, **data)
-        except Exception:
-            return response(503, context.aws_request_id, detail="Internal Server Error.")
+        except Exception as e:
+            return response(503, context.aws_request_id, detail=f"Internal Server Error: {str(e)}")
             
 
     return wrapper

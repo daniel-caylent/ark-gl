@@ -22,18 +22,20 @@ class Ledger:
 class LedgerPost:
     fundId: str
     glName: str
-    glDescription: str
     currencyName: str
     currencyDecimal: int
+    glDescription: str = None
     isHidden: bool = False
 
     def __post_init__(self):
-        self.glName = self.glName.strip()
-        self.glDescription = self.glDescription.strip()
-        self.currencyName = self.currencyName.strip()
+        self.glName = validate_str(self.glName, 'glName')
+        self.fundId = check_uuid(self.fundId, 'fundId')
+        self.currencyDecimal = validate_int(self.currencyDecimal, 'currencyDecimal')
+        self.currencyName = validate_str(self.currencyName, 'currencyName')
         self.isHidden = bool(self.isHidden)
-        self.fundId = validate_uuid(self.fundId, throw=True)
-        self.currencyDecimal = int(self.currencyDecimal)
+        self.glDescription = (
+            None if self.glDescription is None else self.glDescription.strip()
+        )
 
 
 @dataclass
@@ -60,3 +62,35 @@ class LedgerPut:
         self.currencyDecimal = (
             None if self.currencyDecimal is None else int(self.currencyDecimal)
         )
+
+
+def check_uuid(uuid, name) -> str:
+    if uuid is None:
+        raise Exception(f'Required argument is missing: {name}.')
+
+    try:
+        validate_uuid(uuid, throw=True)
+    except:
+        raise Exception(f'{name} is not a valid UUID.')
+
+    return uuid
+
+def validate_str(str_, name) -> str:
+    if str_ is None:
+        raise Exception(f'Required argument is missing: {name}.')
+
+    try:
+        str_ = str_.strip()
+    except:
+        raise Exception(f'{name} is invalid.')
+
+    return str_
+
+def validate_int(int_, name) -> int:
+    if int_ is None:
+        raise Exception(f'Required argument is missing: {name}.')
+
+    try:
+        int_ = int(str(int_))
+    except:
+        raise Exception(f'{name} is invalid.')
