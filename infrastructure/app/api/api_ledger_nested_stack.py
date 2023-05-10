@@ -10,6 +10,9 @@ from ..get_cdk import (
 )
 
 class LedgerNestedStack(BaseNestedStack):
+
+    methods = []
+
     def __init__(self, scope: Construct, id: str, rest_api_id: str, root_resource_id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -17,7 +20,6 @@ class LedgerNestedStack(BaseNestedStack):
 
         ledger_resource = rest_api.root.add_resource('ledgers')
         ledger_id_resource = ledger_resource.add_resource('{ledgerId}')
-
 
         self.__register_ledger_get_method(ledger_resource)
 
@@ -34,9 +36,11 @@ class LedgerNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "ledger-get")
 
-        resource.add_method(
+        method = resource.add_method(
             "GET",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_ledger_get_by_id_method(self, resource):
@@ -49,6 +53,8 @@ class LedgerNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "ledger-get-by-id")
 
-        resource.add_method(
+        method = resource.add_method(
             "GET",
             lambda_integration)
+
+        self.methods.append(method)

@@ -10,6 +10,9 @@ from ..get_cdk import (
 )
 
 class AccountAttributesNestedStack(BaseNestedStack):
+
+    methods = []
+
     def __init__(self, scope: Construct, id: str, rest_api_id: str, root_resource_id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -24,6 +27,8 @@ class AccountAttributesNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "account-attribute-get")
 
-        rest_api.root.add_resource('account-attributes').add_method(
+        method = rest_api.root.add_resource('account-attributes').add_method(
             "GET",
             lambda_integration)
+
+        self.methods.append(method)

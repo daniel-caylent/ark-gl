@@ -23,10 +23,19 @@ The infrastructure is located in the `infrastructure` folder.
 To have your own provisioned architecture (represented as a prefix in the CloudFormation stack name), consider setting up the following environment variable:
 
 ```bash
-DEPLOYMENT_ENV=my-account-name
+DEPLOYMENT_ENV=environment
 ```
 
-There are other environments that should be setup
+This variable dictates what VPC, Subnets and Secrets should be used per environment.
+All the configurations resides in the file `infrastructure/app/env.py`.
+
+Note:
+    - If the `DEPLOYMENT_ENV=prod`, the cdk will be deployed using the production resource ids
+    - If the `DEPLOYMENT_ENV=qa`, the cdk will be deployed using the qa resource ids
+    - If any other value is set up for the `DEPLOYMENT_ENV`, the cdk will be deployed using the dev resource ids
+
+
+There are other environments that should be set up
 ```bash
 AWS_ACCOUNT=aws_account_id
 AWS_REGION=aws_region

@@ -10,6 +10,9 @@ from ..get_cdk import (
 )
 
 class AccountNestedStack(BaseNestedStack):
+
+    methods = []
+
     def __init__(self, scope: Construct, id: str, rest_api_id: str, root_resource_id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -38,9 +41,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-get")
 
-        resource.add_method(
+        method = resource.add_method(
             "GET",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_get_by_id_method(self, resource):
@@ -53,9 +58,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-get-by-id")
 
-        resource.add_method(
+        method = resource.add_method(
             "GET",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_post_method(self, resource):
@@ -68,9 +75,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-post")
 
-        resource = resource.add_method(
+        method = resource.add_method(
             "POST",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_delete_method(self, resource):
@@ -83,9 +92,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-delete")
 
-        resource.add_method(
+        method = resource.add_method(
             "DELETE",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_put_method(self, resource):
@@ -98,9 +109,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-put")
 
-        resource.add_method(
+        method = resource.add_method(
             "PUT",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_state_method(self, resource):
@@ -113,9 +126,11 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-state")
 
-        resource.add_resource("state").add_method(
+        method = resource.add_resource("state").add_method(
             "PUT",
             lambda_integration)
+
+        self.methods.append(method)
 
 
     def __register_account_upload_method(self, resource):
@@ -128,6 +143,8 @@ class AccountNestedStack(BaseNestedStack):
             lambda_function,
             self.STACK_PREFIX + "accounts-upload")
 
-        resource.add_method(
+        method = resource.add_method(
             "POST",
             lambda_integration)
+
+        self.methods.append(method)
