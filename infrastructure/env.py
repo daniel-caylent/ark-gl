@@ -38,7 +38,7 @@ dev = {
       'DB_NAME': 'ARKGL',
       'DB_SECRET_NAME': '/secret/arkgl_poc'
     },
-    'ledger_name': 'ARKGL'
+    'ledger_name': 'ARKGL',
     **map_tag
 }
 
@@ -59,7 +59,7 @@ if env_name == 'prod':
     ENV = prod
 elif env_name == 'qa':
     ENV = qa
-elif env_name.startswith('caylent'):
+elif env_name and env_name.startswith('caylent'):
     ENV = caylent
 else:
     ENV = dev
