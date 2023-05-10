@@ -3,14 +3,15 @@ import aws_cdk as cdk
 from .env import ENV
 
 
-def get_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
+def build_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
     """
     Returns a Lambda Function with default configs + any customizations
     passed in as parameters. Call from a CDK Stack to add a lambda function
     to the stack
     """
     vpc = get_vpc(context)
-    security_group_id = cdk.Fn.import_value(context.STACK_PREFIX + 'lambdaSecurityGroup')
+
+    security_group_id = cdk.Fn.import_value(context.STACK_PREFIX + 'lambda-security-group')
 
     security_group = cdk.aws_ec2.SecurityGroup.from_security_group_id(
         context, 'ark-lambda-security-group', security_group_id
@@ -41,6 +42,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
     # Secrets Manager permission
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
         context, "db-secret", '/secret/arkgl_poc-??????'
+        #context, "db-secret", 'ark/db-password-??????'
     )
 
     secret_policy = cdk.aws_iam.PolicyStatement(
@@ -59,7 +61,7 @@ def get_lambda_function(context, code_dir: str, handler: str, name="main", env={
     return function
 
 
-def get_lambda_layer(context, code_dir, name="layer", **kwargs):
+def build_lambda_layer(context, code_dir, name="layer", **kwargs):
 
     return cdk.aws_lambda.LayerVersion(
         context, name,
@@ -68,10 +70,54 @@ def get_lambda_layer(context, code_dir, name="layer", **kwargs):
         **kwargs
     )
 
+
+def build_lambda_integration(context, function, role_suffix: str) -> cdk.aws_apigateway.LambdaIntegration:
+    api_role = cdk.aws_iam.Role(
+        context,
+        'api-role-' + role_suffix,
+        role_name='api-role-' + role_suffix,
+        assumed_by=cdk.aws_iam.ServicePrincipal('apigateway.amazonaws.com'))
+    api_role.add_to_policy(
+        cdk.aws_iam.PolicyStatement(resources=[function.function_arn], actions=['lambda:InvokeFunction']))
+    return cdk.aws_apigateway.LambdaIntegration(
+        function,
+        proxy=True,
+        credentials_role=api_role)
+
+
+def build_integration_responses(**kwargs) -> cdk.aws_apigateway.IntegrationResponse:
+    return cdk.aws_apigateway.IntegrationResponse(**kwargs)
+
+
+def build_method_response(**kwargs) -> cdk.aws_apigateway.MethodResponse:
+    return cdk.aws_apigateway.MethodResponse(**kwargs)
+
+
+def build_api_gateway(context, id: str, **kwargs) -> cdk.aws_apigateway.IRestApi:
+    return cdk.aws_apigateway.RestApi(context, id, **kwargs)
+
+
+def get_api_gateway_from_attributes(context, id: str, rest_api_id: str, root_resource_id: str) -> cdk.aws_apigateway.IRestApi:
+    return cdk.aws_apigateway.RestApi.from_rest_api_attributes(
+        context,
+        id,
+        rest_api_id=rest_api_id,
+        root_resource_id=root_resource_id)
+
+
+def get_imported_value(shared_value_to_import: str) -> str:
+    return cdk.Fn.import_value(shared_value_to_import)
+
+
+def get_lambda_function_from_arn(context, id: str, function_arn: str) -> cdk.aws_lambda.IFunction:
+    return cdk.aws_lambda.Function.from_function_arn(context, id, function_arn)
+
+
 def get_vpc(context):
     return cdk.aws_ec2.Vpc.from_lookup(
         context, 'ark-ledger-vpc', is_default=False, vpc_id=ENV['vpc']
     )
+
 
 def get_subnets(context):
     subnet_ids = ENV['subnets']
@@ -87,4 +133,3 @@ def get_subnets(context):
         )
 
     return subnets
-

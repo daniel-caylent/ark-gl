@@ -1,4 +1,7 @@
+import json
+
 from .dataclass_encoder import encode
+
 
 def response(code: int, id: str, data=None, **kwargs):
     """
@@ -9,11 +12,16 @@ def response(code: int, id: str, data=None, **kwargs):
 
     response_ = {
         'statusCode': code,
+        'isBase64Encoded': False,
+    }
+
+    body = {
         'eventId': id,
         **kwargs
     }
 
     if data is not None:
-        response_['body'] = encode(data)
+        body['data'] = encode(data)
 
+    response_['body'] = json.dumps(body)
     return response_

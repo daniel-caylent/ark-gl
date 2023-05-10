@@ -3,7 +3,7 @@ from pathlib import PurePath
 from constructs import Construct
 
 from ..base_stack import BaseStack
-from ..get_cdk import get_lambda_function
+from ..get_cdk import build_lambda_function
 from ..layers import (
     get_models_layer,
     get_pymysql_layer,
@@ -26,7 +26,7 @@ class AccountsCopyStack(BaseStack):
         models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
-        func = get_lambda_function(self, CODE_DIR,
+        func = build_lambda_function(self, CODE_DIR,
             handler="post.handler",
             layers=[shared_layer, pymysql_layer, models_layer, db_layer],
             description="copy accounts from one fund to another"

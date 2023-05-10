@@ -3,7 +3,7 @@ from pathlib import PurePath
 from constructs import Construct
 
 from ..base_stack import BaseStack
-from ..get_cdk import get_lambda_function
+from ..get_cdk import build_lambda_function
 from ..layers import (
     get_models_layer,
     get_pymysql_layer,
@@ -11,6 +11,8 @@ from ..layers import (
     get_database_layer
 )
 from ..utils import LEDGERS_DIR
+
+import aws_cdk as cdk
 
 
 CODE_DIR = str(PurePath(LEDGERS_DIR, 'get_by_id'))
@@ -26,8 +28,15 @@ class LedgersGetByIdStack(BaseStack):
         models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
-        func = get_lambda_function(self, CODE_DIR,
+        lambda_function = build_lambda_function(self, CODE_DIR,
             handler="get.handler",
             layers=[shared_layer, pymysql_layer, models_layer, db_layer],
             description="ledgers get by id"
         )
+
+        cdk.CfnOutput(
+            self, "ark-ledger-get-by-id-function-arn",
+            value=lambda_function.function_arn,
+            export_name= self.STACK_PREFIX + "ark-ledger-get-by-id-function-arn"
+        )
+

@@ -3,7 +3,7 @@ from pathlib import PurePath
 from constructs import Construct
 
 from ..base_stack import BaseStack
-from ..get_cdk import get_lambda_function
+from ..get_cdk import build_lambda_function
 from ..layers import (
     get_models_layer,
     get_pymysql_layer,
@@ -12,6 +12,7 @@ from ..layers import (
 )
 from ..utils import ACCOUNTS_DIR
 
+import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'delete'))
 MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
@@ -26,8 +27,14 @@ class AccountsDeleteStack(BaseStack):
         models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
-        func = get_lambda_function(self, CODE_DIR,
+        lambda_function = build_lambda_function(self, CODE_DIR,
             handler="delete.handler",
             layers=[shared_layer, pymysql_layer, models_layer, db_layer],
             description="delete account by id"
+        )
+
+        cdk.CfnOutput(
+            self, "ark-account-delete-function-arn",
+            value=lambda_function.function_arn,
+            export_name= self.STACK_PREFIX + "ark-account-delete-function-arn"
         )
