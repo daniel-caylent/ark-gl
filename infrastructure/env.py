@@ -29,7 +29,7 @@ dev = {
       'DB_SECRET_NAME': '/secret/arkgl_poc'
       #'DB_SECRET_NAME': 'ark/db-password'
     },
-    'ledger_name': 'ARKGL'
+    'ledger_name': 'ARKGL',
     **map_tag
 }
 
