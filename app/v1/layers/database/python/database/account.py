@@ -5,24 +5,26 @@ from . import account_attribute
 from . import fund_entity
 
 app_to_db = {
-    'accountId': "uuid",
-    'fundId': "fund_entity_id",
-    'accountNo': "account_no",
-    'state': "state",
-    'parentAccountId': "parent_id",
-    'accountName': "name",
-    'accountDescription': "description",
-    'attributeId': "account_attribute_id",
-    'isHidden': "is_hidden",
-    'isTaxable': "is_taxable",
-    'isEntityRequired': "is_entity_required",
-    'fsMappingId': "fs_mapping_id",
-    'fsName': "fs_name",
-    'isDryRun': "is_dry_run"
+    "accountId": "uuid",
+    "fundId": "fund_entity_id",
+    "accountNo": "account_no",
+    "state": "state",
+    "parentAccountId": "parent_id",
+    "accountName": "name",
+    "accountDescription": "description",
+    "attributeId": "account_attribute_id",
+    "isHidden": "is_hidden",
+    "isTaxable": "is_taxable",
+    "isEntityRequired": "is_entity_required",
+    "fsMappingId": "fs_mapping_id",
+    "fsName": "fs_name",
+    "isDryRun": "is_dry_run",
 }
 
-def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
 
+def __get_insert_query(
+    db: str, input: dict, region_name: str, secret_name: str
+) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -76,6 +78,11 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
     uuid = db_main.get_new_uuid(ro_conn)
 
+    # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
+    fs_mapping_id = translated_input.get("fs_mapping_id")
+    if not fs_mapping_id:
+        fs_mapping_id = uuid
+
     params = (
         uuid,
         translated_input.get("account_no"),
@@ -88,14 +95,16 @@ def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str)
         translated_input.get("is_hidden"),
         translated_input.get("is_taxable"),
         translated_input.get("is_entity_required"),
-        translated_input.get("fs_mapping_id"),
-        translated_input.get("fs_name")
+        fs_mapping_id,
+        translated_input.get("fs_name"),
     )
 
     return (query, params, uuid)
 
 
-def __get_update_query(db: str, id: str, input: dict, region_name: str, secret_name: str) -> tuple:
+def __get_update_query(
+    db: str, id: str, input: dict, region_name: str, secret_name: str
+) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -127,7 +136,9 @@ def __get_update_query(db: str, id: str, input: dict, region_name: str, secret_n
 
     fund_entity_uuid = translated_input.get("fund_entity_id")
     if fund_entity_uuid:
-        fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
+        fund_entity_id = fund_entity.get_id(
+            db, fund_entity_uuid, region_name, secret_name
+        )
         translated_input["fund_entity_id"] = fund_entity_id
 
     account_attribute_uuid = translated_input.get("account_attribute_id")
@@ -201,7 +212,8 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = ("""
+    query = (
+        """
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
@@ -218,7 +230,8 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         left join """
         + db
         + """. account acc2 on (acc.parent_id = acc2.id)
-        where acc.uuid = %s;""")
+        where acc.uuid = %s;"""
+    )
 
     params = (uuid,)
 
@@ -294,7 +307,9 @@ def __get_select_by_name_query(db: str, account_name: str) -> tuple:
     return (query, params)
 
 
-def __get_select_committed_between_dates_query(db: str, start_date: str, end_date:str) -> tuple:
+def __get_select_committed_between_dates_query(
+    db: str, start_date: str, end_date: str
+) -> tuple:
     """
     This function creates the select between dates for committed state accounts.
 
@@ -311,14 +326,23 @@ def __get_select_committed_between_dates_query(db: str, start_date: str, end_dat
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".account where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    query = (
+        "SELECT * FROM "
+        + db
+        + ".account where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    )
 
-    params = (start_date, end_date,)
+    params = (
+        start_date,
+        end_date,
+    )
 
     return (query, params)
 
 
-def select_committed_between_dates(db: str, start_date: str, end_date: str, region_name: str, secret_name: str) -> list:
+def select_committed_between_dates(
+    db: str, start_date: str, end_date: str, region_name: str, secret_name: str
+) -> list:
     """
     This function returns the record from the result of the "select commited between dates" query with its parameters.
 
@@ -508,7 +532,9 @@ def select_by_number(
     return record
 
 
-def get_id_by_number(db: str, account_number: str, region_name: str, secret_name: str) -> str:
+def get_id_by_number(
+    db: str, account_number: str, region_name: str, secret_name: str
+) -> str:
     """
     This function returns the id from an account with a specified account_number.
 
@@ -533,9 +559,7 @@ def get_id_by_number(db: str, account_number: str, region_name: str, secret_name
     return record.get("id") if record else None
 
 
-def select_by_uuid(
-    db: str, uuid: str, region_name: str, secret_name: str
-) -> dict:
+def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> dict:
     """
     This function returns the record from the result of the "select by uuid" query with its parameters.
 
@@ -589,9 +613,7 @@ def get_id_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> st
     return record.get("id") if record else None
 
 
-def select_by_fund(
-    db: str, fund_uuid: str, region_name: str, secret_name: str
-) -> list:
+def select_by_fund(db: str, fund_uuid: str, region_name: str, secret_name: str) -> list:
     """
     This function returns the record from the result of the "select by fund" query with its parameters.
 
