@@ -3,7 +3,7 @@ import os
 
 import aws_cdk as cdk
 
-from app.env import ENV
+from env import ENV
 
 from qldb_stack import QldbStack
 

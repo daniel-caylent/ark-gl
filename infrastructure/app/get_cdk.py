@@ -1,6 +1,7 @@
 import aws_cdk as cdk
+import os
 
-from .env import ENV
+from env import ENV
 
 
 def build_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
@@ -57,6 +58,44 @@ def build_lambda_function(context, code_dir: str, handler: str, name="main", env
             statements = [secret_policy]
         )
     )
+
+    return function
+
+
+def build_qldb_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
+
+    function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
+
+    ledger_name = ENV["ledger_name"]
+    ledger_arn = "arn:aws:qldb:"+os.getenv('AWS_REGION') +":"+os.getenv('AWS_ACCOUNT')+":ledger/"+ledger_name
+
+    qldb_send_command_statement = cdk.aws_iam.PolicyStatement(
+        actions = ["qldb:SendCommand"],
+        resources = [ledger_arn]
+    )
+    
+    qldb_actions_statement = cdk.aws_iam.PolicyStatement(
+        actions = [
+            "qldb:ShowCatalog",
+            "qldb:PartiQLInsert",
+            "qldb:ExecuteStatement",
+            "qldb:PartiQLCreateTable",
+            "qldb:PartiQLCreateIndex",
+            "qldb:PartiQLSelect"
+        ],
+        resources = [ledger_arn+"/*"]
+    )
+    
+    qldb_policy = cdk.aws_iam.Policy(
+        context,
+        "ark-db-qldb-policy",
+        policy_name = "ark-db-qldb-policy",
+        statements = [qldb_send_command_statement, qldb_actions_statement]
+    )
+
+    function.role.attach_inline_policy(qldb_policy)
+
+    function.add_environment('LEDGER_NAME', ledger_name)
 
     return function
 

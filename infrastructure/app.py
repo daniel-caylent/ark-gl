@@ -23,7 +23,7 @@ from app.ledgers import (
     LedgersGetByIdStack
 )
 
-from app.env import ENV
+from env import ENV
 from app.vpc_stack import VpcStack
 from app.api.api_stack import ApiStack
 
