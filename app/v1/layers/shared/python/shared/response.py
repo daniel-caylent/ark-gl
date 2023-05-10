@@ -17,6 +17,7 @@ def response(code: int, id: str, data=None, **kwargs):
 
     body = {
         'eventId': id,
+        'statusCode': code,
         **kwargs
     }
 
