@@ -72,7 +72,7 @@ def __get_insert_query(
     if parent_uuid:
         parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
     else:
-        parent_id = None
+        parent_id = uuid
 
     # Getting new uuid from the db to return it in insertion
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
