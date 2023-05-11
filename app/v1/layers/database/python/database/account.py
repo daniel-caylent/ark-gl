@@ -308,6 +308,31 @@ def __get_select_by_name_query(db: str, account_name: str) -> tuple:
 
     return (query, params)
 
+def __get_count_with_post_date(db: str) -> tuple:
+    """
+    This function creates the select query that counts the amount of rows with post_date not null.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    
+    query = (
+        """
+        SELECT count(*)
+        FROM """
+        + db
+        + """.account
+        where post_date IS NOT NULL;"""
+    )
+
+    params = ()
+
+    return (query, params)
+
 
 def __get_select_committed_between_dates_query(
     db: str, start_date: str, end_date: str
@@ -502,6 +527,33 @@ def __get_by_number_query(db: str, account_number: str) -> tuple:
 
     return (query, params)
 
+
+def select_count_with_post_date(
+    db: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select count with post date" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the count 
+    """
+    params = __get_count_with_post_date(db )
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
 
 def select_by_number(
     db: str, account_number: str, region_name: str, secret_name: str

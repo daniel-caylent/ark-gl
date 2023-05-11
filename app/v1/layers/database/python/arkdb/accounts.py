@@ -2,6 +2,7 @@ from database.account import (
     app_to_db,
     select_by_fund,
     select_by_uuid,
+    select_count_with_post_date,
     insert,
     delete,
     update
@@ -35,6 +36,10 @@ def create_new(account: dict) -> str:
 
 def delete_by_id(account_uuid) -> None:
     delete(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
+
+def select_count_with_post_date() -> str:
+    result = select_count_with_post_date(DB_NAME, REGION_NAME, SECRET_NAME)
+    return result
 
 def update_by_id(id: str, account: dict) -> None:
     if 'isDryRun' in account.keys():
