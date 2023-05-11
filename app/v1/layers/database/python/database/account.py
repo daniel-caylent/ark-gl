@@ -68,15 +68,17 @@ def __get_insert_query(
         db, account_attribute_uuid, region_name, secret_name
     )
 
+    # Getting new uuid from the db to return it in insertion
+    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
+    uuid = db_main.get_new_uuid(ro_conn)
+
+    # Evaluating if "parent_id" is null, to insert the uuid by default
+    # if not, get the id from the parent's uuid
     parent_uuid = translated_input.get("parent_id")
     if parent_uuid:
         parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
     else:
         parent_id = uuid
-
-    # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
 
     # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
     fs_mapping_id = translated_input.get("fs_mapping_id")
