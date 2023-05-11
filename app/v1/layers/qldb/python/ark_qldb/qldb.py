@@ -82,6 +82,27 @@ class Driver:
         )
 
         return cursor
+    
+    def read_document_fields(
+        self, table_name: str, fields: list, where_clause: str = None
+    ):
+        if fields == []:
+            fields_str = "*"
+        else:
+            fields_str = ','.join(fields)
+        
+        if where_clause:
+            sql_query = "SELECT "+fields_str+" FROM " + table_name + " WHERE " + where_clause
+        else:
+            sql_query = "SELECT "+fields_str+" FROM " + table_name
+
+        print("Querying the table " + table_name)
+
+        cursor = self.qldb_driver.execute_lambda(
+            lambda x: x.execute_statement(sql_query)
+        )
+
+        return cursor
 
     def execute_custom_query(self, sql_query: str) -> BufferedCursor:
         logger.info("Executing custom query: " + sql_query)
