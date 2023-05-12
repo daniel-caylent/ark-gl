@@ -9,7 +9,7 @@ drop table if exists ARKGL.journal_entry;
 drop table if exists ARKGL.ledger;
 drop table if exists ARKGL.fund_entity;
 
-
+dorp table if exists ARKGL.FS;
 
 CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 	id INT AUTO_INCREMENT PRIMARY KEY,
