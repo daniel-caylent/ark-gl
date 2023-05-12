@@ -17,7 +17,6 @@ class TestAccountsPost(AccountsTestBase):
     def test_goodPost(self):
         from accounts import post
         result = post(good_post, LambdaContext())
-        print(result)
         self.assertEqual(result['statusCode'], 201)
 
     def test_postWithParent(self):

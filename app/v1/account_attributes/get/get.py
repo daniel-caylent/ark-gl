@@ -1,5 +1,3 @@
-import boto3
-
 from arkdb import account_attributes    # pylint: disable=import-error
 from shared import endpoint             # pylint: disable=import-error
 from models import Attribute            # pylint: disable=import-error

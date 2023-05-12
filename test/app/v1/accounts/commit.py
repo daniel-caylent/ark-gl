@@ -2,21 +2,21 @@ import unittest
 
 from .accounts_base import AccountsTestBase
 from ...data import (
-    get_with_account_id,
-    get_with_non_uuid_account_id,
+    commit_account,
+    bad_commit_account,
     LambdaContext
 )
 
-class TestAccountsCommit(AccountsTestBase):
+class TestAccountsState(AccountsTestBase):
 
-    def test_goodCommit(self):
-        from accounts import commit
-        result = commit(get_with_account_id, LambdaContext())
+    def test_goodstate(self):
+        from accounts import state
+        result = state(commit_account, LambdaContext())
         self.assertEqual(result['statusCode'], 200)
 
-    def test_commitWithBadUuid(self):
-        from accounts import commit
-        result = commit(get_with_non_uuid_account_id, LambdaContext())
+    def test_stateWithBadUuid(self):
+        from accounts import state
+        result = state(bad_commit_account, LambdaContext())
         self.assertEqual(result['statusCode'], 400)
 
 if __name__ == "__main__":
