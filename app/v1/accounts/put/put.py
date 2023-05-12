@@ -20,7 +20,7 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "No account specified."}
 
     if not validate_uuid(account_id):
-        return 400, {'detail': "Invalid UUID provided."}
+        return 400, {'detail': "Invalid account UUID."}
 
     # validate the request body
     try:
