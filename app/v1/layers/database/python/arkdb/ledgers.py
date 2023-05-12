@@ -31,6 +31,17 @@ def select_by_id(uuid: str) -> dict:
 def update_by_id(uuid: str, ledger: dict) -> None:
     update(DB_NAME, uuid, ledger, REGION_NAME, SECRET_NAME)
 
+def select_by_client_id(uuid: str) -> dict:
+    #result = select_by_client_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+    result = None
+    if result is None:
+        return result
+
+    translated = translate_to_app(app_to_db, result)
+    filtered = {k: translated[k] for k in translated if not k.startswith('missing')}
+
+    return filtered
+
 def create_new(ledger: dict) -> str:
     result = insert(DB_NAME, ledger, REGION_NAME, SECRET_NAME)
 
