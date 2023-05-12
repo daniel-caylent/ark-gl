@@ -11,7 +11,7 @@ app_to_db = {
     "state": "state",
     "currencyName": "currency",
     "currencyDecimal": "decimals",
-    "isHidden": "is_hidden"
+    "isHidden": "is_hidden",
 }
 
 
@@ -179,7 +179,7 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     return (query, params)
 
 
-def __get_by_fund(db_: str, fund_id: str) -> tuple:
+def __get_by_fund_query(db_: str, fund_id: str) -> tuple:
     """
     This function creates the select by fund id query with its parameters.
 
@@ -247,8 +247,42 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
     return (query, params)
 
 
+def __get_by_client_id_query(db_: str, client_id: str) -> tuple:
+    """
+    This function creates the select by client_id query with its parameters.
 
-def __get_select_committed_between_dates_query(db: str, start_date: str, end_date:str) -> tuple:
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    client_id: string
+    This parameter specifies the client_id that will be used for the select in the query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.decimals, le.created_at
+        FROM """
+        + db_
+        + """.ledger le
+        INNER JOIN """
+        + db_
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        where fe.client_id = %s;"""
+    )
+
+    params = (client_id,)
+
+    return (query, params)
+
+
+def __get_select_committed_between_dates_query(
+    db: str, start_date: str, end_date: str
+) -> tuple:
     """
     This function creates the select between dates for committed state ledgers.
 
@@ -265,14 +299,23 @@ def __get_select_committed_between_dates_query(db: str, start_date: str, end_dat
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".ledger where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    query = (
+        "SELECT * FROM "
+        + db
+        + ".ledger where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    )
 
-    params = (start_date, end_date,)
+    params = (
+        start_date,
+        end_date,
+    )
 
     return (query, params)
 
 
-def select_committed_between_dates(db: str, start_date: str, end_date: str, region_name: str, secret_name: str) -> list:
+def select_committed_between_dates(
+    db: str, start_date: str, end_date: str, region_name: str, secret_name: str
+) -> list:
     """
     This function returns the record from the result of the "select commited between dates" query with its parameters.
 
@@ -469,7 +512,7 @@ def select_by_fund(db: str, fund_id: str, region_name: str, secret_name: str) ->
     return
     A list of dicts containing the ledgers that match with the upcoming fund_id
     """
-    params = __get_by_fund(db, fund_id)
+    params = __get_by_fund_query(db, fund_id)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -478,7 +521,9 @@ def select_by_fund(db: str, fund_id: str, region_name: str, secret_name: str) ->
     return records
 
 
-def select_by_name(db: str, ledger_name: str, region_name: str, secret_name: str) -> list:
+def select_by_name(
+    db: str, ledger_name: str, region_name: str, secret_name: str
+) -> list:
     """
     This function returns the record from the result of the "select by fund" query with its parameters.
 
@@ -499,6 +544,37 @@ def select_by_name(db: str, ledger_name: str, region_name: str, secret_name: str
     A list of dicts containing the ledgers that match with the upcoming ledger_name
     """
     params = __get_by_name_query(db, ledger_name)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
+def select_by_client_id(
+    db: str, client_id: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by client" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    client_id: string
+    This parameter specifies the client_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the ledgers that match with the upcoming fund_id
+    """
+    params = __get_by_client_id_query(db, client_id)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
