@@ -30,5 +30,7 @@ def handler(event, context) -> tuple[int, dict]:
     else:
         results = ledgers.select_by_client_id(client_id)
 
-    ledgers_ = [Ledger(**ledger) for ledger in results]
+    ledgers_ = []
+    if results:
+        ledgers_ = [Ledger(**ledger) for ledger in results]
     return 200, {"data": ledgers_}
