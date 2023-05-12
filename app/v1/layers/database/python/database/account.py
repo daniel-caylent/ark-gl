@@ -78,7 +78,7 @@ def __get_insert_query(
     if parent_uuid:
         parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
     else:
-        parent_id = uuid
+        parent_id = None
 
     # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
     fs_mapping_id = translated_input.get("fs_mapping_id")
