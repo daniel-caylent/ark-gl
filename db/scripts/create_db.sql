@@ -9,7 +9,7 @@ drop table if exists ARKGL.journal_entry;
 drop table if exists ARKGL.ledger;
 drop table if exists ARKGL.fund_entity;
 
-
+dorp table if exists ARKGL.FS;
 
 CREATE TABLE IF NOT EXISTS ARKGL.fund_entity (
 	id INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,4 +113,10 @@ CREATE TABLE IF NOT EXISTS ARKGL.attachment (
 	memo VARCHAR(255),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (journal_entry_id) REFERENCES journal_entry(id)
+);
+
+CREATE TABLE IF NOT EXISTS ARKGL.FS (
+	fs_mapping_id CHAR(36) PRIMARY KEY,
+	fs_name VARCHAR(255),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
