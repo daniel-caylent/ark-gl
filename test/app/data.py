@@ -144,6 +144,20 @@ put_with_parent_id = {
   },
 }
 
+commit_account = {
+  "body": "{\"state\": \"ACTIVE\"}",
+  "pathParameters": {
+    "accountId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+  },
+}
+
+bad_commit_account = {
+  "body": "{\"state\": \"ACTIVE\"}",
+  "pathParameters": {
+    "accountId": "a92bde1e-7825-429d-aaae-909f2d7a8df"
+  },
+}
+
 put_with_committed_account = {
   "body": "{\"accountNo\": 10,\"accountName\": \"unique\",\"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false,\"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\",\"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}",
   "pathParameters": {

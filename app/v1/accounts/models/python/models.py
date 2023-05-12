@@ -33,10 +33,10 @@ class AccountPost:
     accountNo: str = None
     accountName: str = None
     isTaxable: bool = None
-    fsMappingId: str = None
     fsName: str = None
 
     # optional
+    fsMappingId: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
     isDryRun: bool = False
@@ -49,7 +49,10 @@ class AccountPost:
         self.accountName = check_account_name(self.accountName)
         self.fundId = check_uuid(self.fundId, "fundId")
         self.attributeId = check_uuid(self.attributeId, "attributeId")
-        self.fsMappingId = check_uuid(self.fsMappingId, "fsMappingId")
+        self.fsMappingId = (
+            None if self.fsMappingId is None else
+            check_uuid(self.fsMappingId, "fsMappingId")
+        )
         self.isTaxable = check_is_taxable(self.isTaxable)
         self.fsName = check_fs_name(self.fsName)
 

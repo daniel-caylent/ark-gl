@@ -13,14 +13,11 @@ class TestAccountsCopy(AccountsTestBase):
     def test_goodApiRequest(self):
         from accounts import copy_all
         result = copy_all(good_copy, LambdaContext())
-        print(result)
-        
         self.assertEqual(result['statusCode'], 201)
 
     def test_isJsonEncodable(self):
         from accounts import copy_all
         result = copy_all(good_copy, LambdaContext())
-
         json.dumps(result)
 
 if __name__ == "__main__":

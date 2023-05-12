@@ -37,7 +37,7 @@ def create_new(account: dict) -> str:
 def delete_by_id(account_uuid) -> None:
     delete(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
 
-def select_count_with_post_date() -> str:
+def select_count_commited_accounts() -> str:
     result = select_count_with_post_date(DB_NAME, REGION_NAME, SECRET_NAME)
     return result
 
