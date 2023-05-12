@@ -6,7 +6,7 @@ from shared import (                        # pylint: disable=import-error
     validate_uuid
 )
 
-VALID_STATES = ["ACTIVE", "USED", "UNUSED"]
+VALID_STATES = ["UNUSED", "DRAFT", "POSTED"]
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
@@ -35,7 +35,7 @@ def handler(event, context) -> tuple[int, dict]:
     if acct is None:
         return 404, {'detail': "No account found."}
 
-    if acct['state'] == "ACTIVE":
+    if acct['state'] == "POSTED":
         return 400, {'detail': "Account state cannot be changed."}
     
     if state not in VALID_STATES:

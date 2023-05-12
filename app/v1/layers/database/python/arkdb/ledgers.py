@@ -2,7 +2,8 @@ from database.ledger import (
     app_to_db,
     select_by_fund,
     select_by_uuid,
-    insert
+    insert,
+    update
 )
 from database.db_main import translate_to_app
 
@@ -26,6 +27,9 @@ def select_by_id(uuid: str) -> dict:
     filtered = {k: translated[k] for k in translated if not k.startswith('missing')}
 
     return filtered
+
+def update_by_id(uuid: str, ledger: dict) -> None:
+    update(DB_NAME, uuid, ledger, REGION_NAME, SECRET_NAME)
 
 def create_new(ledger: dict) -> str:
     result = insert(DB_NAME, ledger, REGION_NAME, SECRET_NAME)
