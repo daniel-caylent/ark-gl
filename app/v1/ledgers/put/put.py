@@ -49,10 +49,10 @@ def handler(event, context) -> tuple[int, dict]:
     if ledger is None:
         return 404, {'detail': "No ledger found."}
 
-    if ledger['state'] == 'POSTED':
+    if ledger['state'] == 'COMMITTED':
         for key in body.keys():
             if key not in COMMITED_CHANGEABLE:
-                return 400, {'detail': f"Ledger property cannot be modified: {key}"}
+                return 400, {'detail': f"COMMITTED ledger property cannot be modified: {key}."}
 
     # validate no other accounts exist with number or name
     ledgers_ = ledgers.select_by_fund_id(put.fundId)

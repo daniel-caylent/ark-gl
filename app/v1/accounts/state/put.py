@@ -6,7 +6,7 @@ from shared import (                        # pylint: disable=import-error
     validate_uuid
 )
 
-VALID_STATES = ["UNUSED", "DRAFT", "POSTED"]
+VALID_STATES = ["COMMITTED"]
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
@@ -35,11 +35,12 @@ def handler(event, context) -> tuple[int, dict]:
     if acct is None:
         return 404, {'detail': "No account found."}
 
-    if acct['state'] == "POSTED":
-        return 400, {'detail': "Account state cannot be changed."}
+    if acct['state'] == "COMMITTED":
+        return 400, {'detail': "Account is already committed."}
     
     if state not in VALID_STATES:
         return 400, {'detail': "State is invalid."}
     
-    accounts.update_by_id(account_id, {'state': state})
+    # hard coding the state so there's no chance of tampering
+    accounts.update_by_id(account_id, {'state': 'COMMITTED'})
     return 200, {}

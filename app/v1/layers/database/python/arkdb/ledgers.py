@@ -1,5 +1,6 @@
 from database.ledger import (
     app_to_db,
+    delete,
     select_by_fund,
     select_by_uuid,
     insert,
@@ -10,6 +11,9 @@ from database.db_main import translate_to_app
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
+
+def delete_by_id(uuid) -> None:
+    delete(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
 def select_by_fund_id(fund_id):
     results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)

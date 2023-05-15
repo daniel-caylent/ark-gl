@@ -22,7 +22,8 @@ from app.ledgers import (
     LedgersGetStack,
     LedgersGetByIdStack,
     LedgersPostStack,
-    LedgersPutStack
+    LedgersPutStack,
+    LedgersDeleteStack
 )
 
 from env import ENV
@@ -103,6 +104,11 @@ ledgers_put_stack = LedgersPutStack(
 )
 ledgers_put_stack.add_dependency(vpc_stack)
 
+ledgers_delete_stack = LedgersDeleteStack(
+    app, "ark-gl-ledgers-delete-stack", env=cdk_env
+)
+ledgers_delete_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
 dependency_group.add(account_attributes_get_stack)
@@ -117,6 +123,7 @@ dependency_group.add(ledgers_get_stack)
 dependency_group.add(ledgers_get_by_id_stack)
 dependency_group.add(ledgers_post_stack)
 dependency_group.add(ledgers_put_stack)
+dependency_group.add(ledgers_delete_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack",
                     env=cdk_env).node.add_dependency(dependency_group)

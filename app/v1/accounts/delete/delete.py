@@ -15,12 +15,12 @@ def handler(event, context) -> tuple[int, dict]:
     if result is None:
         return 404, {'detail': "No account found."}
 
-    if result['state'] != 'UNUSED':
-        return 400, {'detail': "Account cannot be deleted."}
+    if result['state'] == 'COMMITTED':
+        return 400, {'detail': "COMMITTED accounts cannot be deleted."}
 
     try:
         accounts.delete_by_id(account_id)
     except Exception as e:
-        return 400, {'detail': f'Unable to delete.'}
+        return 400, {'detail': f'Unable to delete. This account may have children.'}
 
     return 200, {}
