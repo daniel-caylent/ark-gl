@@ -5,9 +5,9 @@ import os
 import sys
  
 # setting path
-sys.path.append('../')
+#sys.path.append('../')
 
-from sqs_stack import SQSStack
+from reconciliation.sqs_stack import SQSStack
 from env import ENV
 
 
