@@ -3,6 +3,7 @@ from . import db_main
 from . import connection
 from . import account_attribute
 from . import fund_entity
+from . import fs
 
 app_to_db = {
     "accountId": "uuid",
@@ -46,17 +47,14 @@ def __get_insert_query(
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = (
-        """
-        INSERT INTO """
-        + db
-        + """.account
+    query = """
+        INSERT INTO """ + db + """.account
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_entity_required, fs_mapping_id, fs_name)
+            state, is_hidden, is_taxable, is_entity_required, fs_mapping_id)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s, %s);"""
-    )
+            %s, %s, %s, %s, %s);"""
+    
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
@@ -82,8 +80,8 @@ def __get_insert_query(
 
     # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
     fs_mapping_id = translated_input.get("fs_mapping_id")
-    if not fs_mapping_id:
-        fs_mapping_id = uuid
+    # if not fs_mapping_id:
+    #     fs_mapping_id = uuid
 
     params = (
         uuid,
@@ -98,10 +96,14 @@ def __get_insert_query(
         translated_input.get("is_taxable"),
         translated_input.get("is_entity_required"),
         fs_mapping_id,
-        translated_input.get("fs_name"),
     )
 
-    return (query, params, uuid)
+    return (
+        query,
+        params,
+        uuid,
+        {"fs_mapping_id": fs_mapping_id, "fs_name": translated_input.get("fs_name")},
+    )
 
 
 def __get_update_query(
@@ -135,6 +137,11 @@ def __get_update_query(
     where_clause = "WHERE uuid = %s;"
 
     translated_input = db_main.translate_to_db(app_to_db, input)
+
+    if "fs_name" in translated_input:
+        del translated_input["fs_name"]
+    if "fs_mapping_id" in translated_input:
+        del translated_input["fs_mapping_id"]
 
     fund_entity_uuid = translated_input.get("fund_entity_id")
     if fund_entity_uuid:
@@ -218,7 +225,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         """
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
-        acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
+        acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at
         FROM """
         + db
@@ -228,10 +235,13 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         + """.fund_entity fe ON (acc.fund_entity_id = fe.id)
         inner join """
         + db
-        + """. account_attribute attr on (acc.account_attribute_id = attr.id)
+        + """.account_attribute attr on (acc.account_attribute_id = attr.id)
         left join """
         + db
-        + """. account acc2 on (acc.parent_id = acc2.id)
+        + """.account acc2 on (acc.parent_id = acc2.id)
+        left join """
+        + db
+        + """.FS fs on (acc.fs_mapping_id = fs.fs_mapping_id)
         where acc.uuid = %s;"""
     )
 
@@ -258,7 +268,7 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
         """
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
-        acc.name, acc.description, acc.fs_mapping_id, acc.fs_name, acc.state, acc.is_hidden,
+        acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at
         FROM """
         + db
@@ -268,10 +278,13 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
         + """.fund_entity fe ON (acc.fund_entity_id = fe.id)
         inner join """
         + db
-        + """. account_attribute attr on (acc.account_attribute_id = attr.id)
+        + """.account_attribute attr on (acc.account_attribute_id = attr.id)
         left join """
         + db
-        + """. account acc2 on (acc.parent_id = acc2.id)
+        + """.account acc2 on (acc.parent_id = acc2.id)
+        left join """
+        + db
+        + """.FS fs on (acc.fs_mapping_id = fs.fs_mapping_id)
         where fe.uuid = %s;"""
     )
 
@@ -308,6 +321,7 @@ def __get_select_by_name_query(db: str, account_name: str) -> tuple:
 
     return (query, params)
 
+
 def __get_count_with_post_date(db: str) -> tuple:
     """
     This function creates the select query that counts the amount of rows with post_date not null.
@@ -319,7 +333,7 @@ def __get_count_with_post_date(db: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    
+
     query = (
         """
         SELECT count(*)
@@ -401,6 +415,24 @@ def select_committed_between_dates(
     return record
 
 
+def check_fs(db: str, fs_mapping_id: str, region_name: str, secret_name: str) -> bool:
+    # Checking if the upcoming fs_mapping_id exists
+    fs_acc_check = select_by_uuid(db, fs_mapping_id, region_name, secret_name)
+
+    if not (fs_acc_check):
+        raise Exception("The upcoming fsMappingId is invalid")
+
+    # Checking if the FS row already exists, to insert or update later
+    fs_check = fs.select_by_fs_mapping_id(db, fs_mapping_id, region_name, secret_name)
+
+    if not (fs_check):
+        insert_fs = True
+    else:
+        insert_fs = False
+
+    return insert_fs
+
+
 def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
@@ -429,14 +461,39 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     """
     params = __get_insert_query(db, input, region_name, secret_name)
 
-    query_params = [params[0], params[1]]
+    query = params[0]
+    q_params = params[1]
     uuid = params[2]
+    fs_dict = params[3]
+    fs_mapping_id = fs_dict["fs_mapping_id"]
+    fs_name = fs_dict["fs_name"]
+
+    if fs_mapping_id:
+        insert_fs = check_fs(db, fs_mapping_id, region_name, secret_name)
 
     conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
-    query_list = [query_params]
+    try:
+        # Executing insert of account first
+        cursor.execute(query, q_params)
 
-    db_main.execute_dml(conn, query_list)
+        # Then, inserting/updating FS
+        if fs_mapping_id:
+            if insert_fs:
+                fs_params = fs.get_insert_query(db, fs_dict)
+            else:
+                fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
+            
+            cursor.execute(fs_params[0], fs_params[1])
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
     return uuid
 
@@ -492,19 +549,42 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
     params = __get_update_query(db, id, input, region_name, secret_name)
+    query = params[0]
+    q_params = params[1]
+    fs_mapping_id = input.get("fsMappingId")
+    fs_name = input.get("fsName")
+    fs_dict = {"fs_mapping_id": fs_mapping_id, "fs_name": fs_name}
+
+    if fs_mapping_id:
+        insert_fs = check_fs(db, fs_mapping_id, region_name, secret_name)
 
     conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
-    query_list = [(params[0], params[1])]
+    try:
+        # Executing update of account first
+        cursor.execute(query, q_params)
 
-    db_main.execute_dml(conn, query_list)
+        # Then, inserting/updating FS
+        if fs_mapping_id:
+            if insert_fs:
+                fs_params = fs.get_insert_query(db, fs_dict)
+            else:
+                fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
+            
+            cursor.execute(fs_params[0], fs_params[1])
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
+    return
 
 
 def __get_by_number_query(db: str, account_number: str) -> tuple:
@@ -528,9 +608,7 @@ def __get_by_number_query(db: str, account_number: str) -> tuple:
     return (query, params)
 
 
-def select_count_with_post_date(
-    db: str, region_name: str, secret_name: str
-) -> dict:
+def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> dict:
     """
     This function returns the record from the result of the "select count with post date" query with its parameters.
 
@@ -545,15 +623,16 @@ def select_count_with_post_date(
     the information for the connection including the credentials
 
     return
-    A dict containing the count 
+    A dict containing the count
     """
-    params = __get_count_with_post_date(db )
+    params = __get_count_with_post_date(db)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
 
 def select_by_number(
     db: str, account_number: str, region_name: str, secret_name: str
