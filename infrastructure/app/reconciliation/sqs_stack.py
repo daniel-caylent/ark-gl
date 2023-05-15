@@ -25,8 +25,9 @@ class SQSStack(BaseStack):
         super().__init__(scope, id, **kwargs)
         # An sqs queue for unsuccessful invocations of a lambda function
 
-        dead_letter_queue = cdk.aws_sqs.Queue(self, id="ark-sqs-reconciliation", queue_name="ark-sqs-reconciliation")
-        ledger_name = ENV["ledger_name"]
+        dead_letter_queue = cdk.aws_sqs.Queue(self, id="ark-sqs-reconciliation", 
+                                              queue_name=self.STACK_PREFIX +"ark-sqs-reconciliation")
+        
 
         
 
