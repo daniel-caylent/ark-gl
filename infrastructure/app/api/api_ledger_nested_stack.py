@@ -20,12 +20,14 @@ class LedgerNestedStack(BaseNestedStack):
 
         ledger_resource = rest_api.root.add_resource('ledgers')
         ledger_id_resource = ledger_resource.add_resource('{ledgerId}')
+        ledger_state_resource = ledger_resource.add_resource('{ledgerId}/state')
 
         self.__register_ledger_get_method(ledger_resource)
         self.__register_ledger_post_method(ledger_resource)
         self.__register_ledger_get_by_id_method(ledger_id_resource)
         self.__register_ledger_put_method(ledger_id_resource)
         self.__register_ledger_delete_method(ledger_id_resource)
+        self.__register_ledger_state_method(ledger_state_resource)
 
 
     def __register_ledger_get_method(self, resource):
@@ -105,6 +107,22 @@ class LedgerNestedStack(BaseNestedStack):
 
         method = resource.add_method(
             "DELETE",
+            lambda_integration)
+        
+        self.methods.append(method)
+
+    def __register_ledger_state_method(self, resource):
+        ark_ledger_get_function_arn = get_imported_value(self.STACK_PREFIX + "ark-ledger-state-function-arn")
+
+        lambda_function = get_lambda_function_from_arn(self, "ark-ledger-state-function-arn", ark_ledger_get_function_arn)
+
+        lambda_integration = build_lambda_integration(
+            self,
+            lambda_function,
+            self.STACK_PREFIX + "ledger-state")
+
+        method = resource.add_method(
+            "PUT",
             lambda_integration)
         
         self.methods.append(method)
