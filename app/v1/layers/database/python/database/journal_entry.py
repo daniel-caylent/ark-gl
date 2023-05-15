@@ -100,6 +100,11 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
+    if "debitEntries" in translated_input:
+        del translated_input["debitEntries"]
+    if "creditEntries" in translated_input:
+        del translated_input["creditEntries"]
+
     set_clause = ""
     params = ()
     for key in translated_input.keys():
@@ -276,7 +281,8 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     A string specifying the recently added journal entry's uuid
     """
     params = __get_insert_query(db, input, region_name, secret_name)
-    query_params = [params[0], params[1]]
+    query = params[0]
+    q_params = params[1]
     uuid = params[2]
 
     conn = connection.get_connection(db, region_name, secret_name)
@@ -284,30 +290,23 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
 
     try:
         # Executing insert of journal entry first
-        cursor.execute(query_params)
+        cursor.execute(query, q_params)
 
         # Once inserted, get the auto-generated id
         journal_entry_id = cursor.lastrowid
 
         # Then, insert debit and credit entries
         for debit_entry in input["debitEntries"]:
-            cursor.execute(
-                line_item.get_insert_query(
+            entry_params = line_item.get_insert_query(
                     db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
                 )
-            )
+            cursor.execute(entry_params[0], entry_params[1])
 
         for credit_entry in input["creditEntries"]:
-            cursor.execute(
-                line_item.get_insert_query(
-                    db,
-                    credit_entry,
-                    journal_entry_id,
-                    "Credit",
-                    region_name,
-                    secret_name,
+            entry_params = line_item.get_insert_query(
+                    db, credit_entry, journal_entry_id, "Credit", region_name, secret_name
                 )
-            )
+            cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
     except Exception as e:
@@ -344,6 +343,8 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     be optimized for this type of operations
     """
     params = __get_delete_query(db, uuid)
+    query = params[0]
+    q_params = params[1]
 
     # Getting the id before deleting
     id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
@@ -353,10 +354,11 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
 
     try:
         # Executing delete of journal entry first
-        cursor.execute(params)
+        cursor.execute(query, q_params)
 
         # Once deleted, delete the line items by journal_entry_id
-        cursor.execute(line_item.get_delete_by_journal_query(db, id, region_name, secret_name))
+        entry_params = line_item.get_delete_by_journal_query(db, id, region_name, secret_name)
+        cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
     except Exception as e:
@@ -397,6 +399,8 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     be optimized for this type of operations
     """
     params = __get_update_query(db, uuid, input, region_name, secret_name)
+    query = params[0]
+    q_params = params[1]
 
     # Getting the id before updating
     journal_entry_id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
@@ -418,7 +422,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
 
     try:
         # Executing update of journal entry first
-        cursor.execute(params)
+        cursor.execute(query, q_params)
 
         # Then, upsert debit and credit entries
         if "debitEntries" in input:
@@ -436,18 +440,18 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         ),
                         None,
                     ).get("uuid")
-                    cursor.execute(line_item.get_update_query(db, line_uuid, debit_entry))
+                    entry_params = line_item.get_update_query(db, line_uuid, debit_entry)
                 else:
-                    cursor.execute(
-                        line_item.get_insert_query(
-                            db,
-                            credit_entry,
-                            journal_entry_id,
-                            "Debit",
-                            region_name,
-                            secret_name,
-                        )
+                    entry_params = line_item.get_insert_query(
+                        db,
+                        credit_entry,
+                        journal_entry_id,
+                        "Debit",
+                        region_name,
+                        secret_name,
                     )
+                
+                cursor.execute(entry_params[0], entry_params[1])
 
         if "creditEntries" in input:
             for credit_entry in input["creditEntries"]:
@@ -464,18 +468,18 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         ),
                         None,
                     ).get("uuid")
-                    cursor.execute(line_item.get_update_query(db, line_uuid, credit_entry))
+                    entry_params = line_item.get_update_query(db, line_uuid, credit_entry)
                 else:
-                    cursor.execute(
-                        line_item.get_insert_query(
-                            db,
-                            credit_entry,
-                            journal_entry_id,
-                            "Credit",
-                            region_name,
-                            secret_name,
-                        )
+                    entry_params = line_item.get_insert_query(
+                        db,
+                        credit_entry,
+                        journal_entry_id,
+                        "Credit",
+                        region_name,
+                        secret_name,
                     )
+                
+                cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
     except Exception as e:

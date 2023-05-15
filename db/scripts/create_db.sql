@@ -74,7 +74,6 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 	name VARCHAR(255),
 	description VARCHAR(255),
 	fs_mapping_id VARCHAR(255),
-    fs_name VARCHAR(255),
 	state VARCHAR(30),
 	is_hidden bool,
 	is_taxable bool,
