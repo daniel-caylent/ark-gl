@@ -2,7 +2,9 @@ from database.ledger import (
     app_to_db,
     select_by_fund,
     select_by_uuid,
-    insert
+    insert,
+    update,
+    select_by_client_id as __select_by_client_id
 )
 from database.db_main import translate_to_app
 
@@ -24,6 +26,17 @@ def select_by_id(uuid: str) -> dict:
 
     translated = translate_to_app(app_to_db, result)
     filtered = {k: translated[k] for k in translated if not k.startswith('missing')}
+
+    return filtered
+
+def update_by_id(uuid: str, ledger: dict) -> None:
+    update(DB_NAME, uuid, ledger, REGION_NAME, SECRET_NAME)
+
+def select_by_client_id(uuid: str) -> dict:
+    results = __select_by_client_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+
+    translated = [translate_to_app(app_to_db, result) for result in results]
+    filtered = [{k: each[k] for k in each if not k.startswith('missing')} for each in translated]
 
     return filtered
 

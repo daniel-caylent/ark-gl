@@ -23,8 +23,8 @@ class LedgerNestedStack(BaseNestedStack):
 
         self.__register_ledger_get_method(ledger_resource)
         self.__register_ledger_post_method(ledger_resource)
-
         self.__register_ledger_get_by_id_method(ledger_id_resource)
+        self.__register_ledger_put_method(ledger_id_resource)
 
 
     def __register_ledger_get_method(self, resource):
@@ -72,6 +72,22 @@ class LedgerNestedStack(BaseNestedStack):
 
         method = resource.add_method(
             "POST",
+            lambda_integration)
+        
+        self.methods.append(method)
+
+    def __register_ledger_put_method(self, resource):
+        ark_ledger_get_function_arn = get_imported_value(self.STACK_PREFIX + "ark-ledger-put-function-arn")
+
+        lambda_function = get_lambda_function_from_arn(self, "ark-ledger-put-function-arn", ark_ledger_get_function_arn)
+
+        lambda_integration = build_lambda_integration(
+            self,
+            lambda_function,
+            self.STACK_PREFIX + "ledger-put")
+
+        method = resource.add_method(
+            "PUT",
             lambda_integration)
         
         self.methods.append(method)
