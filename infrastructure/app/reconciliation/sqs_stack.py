@@ -23,16 +23,16 @@ class SQSStack(BaseStack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        # An sqs queue for unsuccessful invocations of a lambda function
+        
 
-        dead_letter_queue = cdk.aws_sqs.Queue(self, id="ark-sqs-reconciliation", 
+        queue = cdk.aws_sqs.Queue(self, id="ark-sqs-reconciliation", 
                                               queue_name=self.STACK_PREFIX +"ark-sqs-reconciliation")
         
 
         
 
-       # cdk.CfnOutput(
-       #     self, "qldbLedger",
-       #     value=ledger.name,
-       #     export_name= self.STACK_PREFIX + "qldbLedger"
-       # )
+        cdk.CfnOutput(
+            self, "sqs-reconciliation",
+            value=queue.queue_name,
+            export_name= self.STACK_PREFIX + "sqs-reconciliation"
+        )
