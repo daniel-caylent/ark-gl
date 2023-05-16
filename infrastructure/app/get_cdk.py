@@ -1,6 +1,6 @@
 import aws_cdk as cdk
 import os
-
+from .utils import get_stack_id, get_stack_prefix
 from env import ENV
 
 
@@ -100,6 +100,35 @@ def build_qldb_lambda_function(context, code_dir: str, handler: str, name="main"
 
     return function
 
+def build_decorated_qldb_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
+
+    function = build_qldb_lambda_function(context, code_dir, handler, name, env, **kwargs)
+
+    sqs_name = ENV["sqs_name"]
+    sqs_arn = "arn:aws:sqs:"+os.getenv('AWS_REGION') +":"+os.getenv('AWS_ACCOUNT')+":"+ get_stack_prefix() + sqs_name
+    
+    sqs_actions_statement = cdk.aws_iam.PolicyStatement(
+        actions = [
+            "sqs:DeleteMessage",
+			"sqs:ReceiveMessage",
+            "sqs:SendMessage",
+
+        ],
+        resources = [sqs_arn]
+    )
+    
+    sqs_policy = cdk.aws_iam.Policy(
+        context,
+        "ark-db-sqs-policy",
+        policy_name = "ark-db-sqs-policy",
+        statements = [sqs_actions_statement]
+    )
+
+    function.role.attach_inline_policy(sqs_policy)
+
+    function.add_environment('SQS_NAME', sqs_name)
+
+    return function
 
 def build_lambda_layer(context, code_dir, name="layer", **kwargs):
 

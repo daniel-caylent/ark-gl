@@ -39,6 +39,8 @@ dev = {
       'DB_SECRET_NAME': '/secret/arkgl_poc'
     },
     'ledger_name': 'ARKGL',
+    'sqs_name': 'arkgl-sqs-reconciliation',
+    'sns_name': 'arkgl-sns-notifications',
     **map_tag
 }
 
