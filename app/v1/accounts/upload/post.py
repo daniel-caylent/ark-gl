@@ -4,7 +4,7 @@ from arkdb import accounts, account_attributes, funds  # pylint: disable=import-
 from shared import (
     endpoint
 )
-from shared.accounts.csv import download_from_s3, convert_csv_to_dicts  # pylint: disable=import-error
+from shared.accounts.csv_ import download_from_s3, convert_csv_to_dicts  # pylint: disable=import-error
 from shared.accounts import sort_accounts_for_insert, validate_new_account  # pylint: disable=import-error
 from shared import validate_uuid  # pylint: disable=import-error
 
@@ -83,6 +83,9 @@ def handler(event, context) -> tuple[int, dict]:
 
         if parent_no in uuid_lookup.keys():
             acct['parentAccountId'] = uuid_lookup[parent_no]
+
+        if acct['fsMappingId'] in uuid_lookup.keys():
+            acct['fsMappingId'] = uuid_lookup[acct['fsMappingId']]
 
         code, detail, post = validate_new_account(acct)
         if code != 201:

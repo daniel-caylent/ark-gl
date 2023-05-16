@@ -6,8 +6,7 @@ def sort_accounts_for_insert(source_accounts: list[dict], parent_id_field='paren
     parent_child_dict = {}
     for account in source_accounts:
         parent_id = account.get(parent_id_field)
-        if parent_id is None:
-            parent_id = None
+
         if parent_id not in parent_child_dict:
             parent_child_dict[parent_id] = []
 

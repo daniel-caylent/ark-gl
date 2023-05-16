@@ -34,6 +34,11 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
         if not parent:
             return 400, "Parent account does not exist in this fund.", None
 
+    if post.fsMappingId:
+        fs = validate_fs_account(post, accts)
+        if not fs:
+            return 400, "fsMappingId does not relate to an existing account.", None
+
     # validate the attribute exists
     attribute = account_attributes.select_by_id(post.attributeId)
     if attribute is None:
@@ -56,6 +61,14 @@ def validate_parent_account(account: AccountPost, existing_accounts):
     """Validate the parent id supplied for this account exists"""
     for existing_account in existing_accounts:
         if account.parentAccountId == existing_account['accountId']:
+            return True
+
+    return False
+
+def validate_fs_account(account: AccountPost, existing_accounts):
+    """Validate the parent id supplied for this account exists"""
+    for existing_account in existing_accounts:
+        if account.fsMappingId == existing_account['accountId']:
             return True
 
     return False

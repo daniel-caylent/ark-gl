@@ -1,3 +1,4 @@
+import csv
 import requests
 
 from .validate_new_account import validate_new_account
@@ -15,9 +16,8 @@ def convert_csv_to_dicts(csv_str: str) -> list[dict]:
 
     # Get the header row
     header = rows[0].split(",")
-
     dict_list = []
-    for row in rows[1:]:
+    for row in csv.reader(rows[1:], delimiter=','):
         values = row.split(",")
         row_dict = {}
 
