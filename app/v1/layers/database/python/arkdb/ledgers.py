@@ -5,7 +5,8 @@ from database.ledger import (
     select_by_uuid,
     insert,
     update,
-    select_by_client_id as __select_by_client_id
+    select_by_client_id as __select_by_client_id,
+    select_count_with_post_date
 )
 from database.db_main import translate_to_app
 
@@ -43,6 +44,10 @@ def select_by_client_id(uuid: str) -> dict:
     filtered = [{k: each[k] for k in each if not k.startswith('missing')} for each in translated]
 
     return filtered
+
+def select_count_commited_accounts() -> str:
+    result = select_count_with_post_date(DB_NAME, REGION_NAME, SECRET_NAME)
+    return result
 
 def create_new(ledger: dict) -> str:
     result = insert(DB_NAME, ledger, REGION_NAME, SECRET_NAME)

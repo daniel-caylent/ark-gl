@@ -20,6 +20,7 @@ class AccountNestedStack(BaseNestedStack):
 
         account_resource = rest_api.root.add_resource('accounts')
         account_id_resource = account_resource.add_resource('{accountId}')
+        account_upload_resource = account_resource.add_resource('upload')
 
         self.__register_account_get_method(account_resource)
         self.__register_account_post_method(account_resource)
@@ -28,7 +29,7 @@ class AccountNestedStack(BaseNestedStack):
         self.__register_account_get_by_id_method(account_id_resource)
         self.__register_account_delete_method(account_id_resource)
         self.__register_account_state_method(account_id_resource)
-        self.__register_account_upload_method(account_id_resource)
+        self.__register_account_upload_method(account_upload_resource)
 
 
     def __register_account_get_method(self, resource):

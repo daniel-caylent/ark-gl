@@ -4,7 +4,7 @@ import os
 from env import ENV
 
 
-def build_lambda_function(context, code_dir: str, handler: str, name="main", env={}, **kwargs):
+def build_lambda_function(context, code_dir: str, handler: str, name="main", env={}, timeout=60, **kwargs):
     """
     Returns a Lambda Function with default configs + any customizations
     passed in as parameters. Call from a CDK Stack to add a lambda function
@@ -32,6 +32,7 @@ def build_lambda_function(context, code_dir: str, handler: str, name="main", env
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
         memory_size=512,
+        timeout=cdk.Duration.seconds(timeout),
         tracing=cdk.aws_lambda.Tracing.ACTIVE, # Enabling X-Ray Tracing,
         environment={
             **ENV['deploy'],
