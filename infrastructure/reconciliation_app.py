@@ -9,6 +9,7 @@ import sys
 from app.vpc_stack import VpcStack
 from app.reconciliation import SQSStack
 from app.reconciliation import AccountsReconciliationStack
+from app.reconciliation import LedgersReconciliationStack
 from env import ENV
 
 
@@ -27,6 +28,9 @@ vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=cdk_env)
 
 accounts_reconciliation_stack = AccountsReconciliationStack(app, "ark-accounts-reconciliation-stack", env=cdk_env)
 accounts_reconciliation_stack.add_dependency(vpc_stack)
+
+ledgers_reconciliation_stack = LedgersReconciliationStack(app, "ark-ledgers-reconciliation-stack", env=cdk_env)
+ledgers_reconciliation_stack.add_dependency(vpc_stack)
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 cdk.Tags.of(app).add(ENV['MAP_TAG'], ENV['MAP_VALUE'])
