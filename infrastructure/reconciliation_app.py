@@ -7,7 +7,7 @@ import sys
 # setting path
 #sys.path.append('../')
 from app.vpc_stack import VpcStack
-from app.reconciliation import SQSStack
+from app.reconciliation import (SQSStack, SNSStack)
 from app.reconciliation import AccountsReconciliationStack
 from app.reconciliation import LedgersReconciliationStack
 from env import ENV
@@ -21,9 +21,14 @@ cdk_env=cdk.Environment(                     # Caylent env:
 app = cdk.App()
 
 
-qldb_stack = SQSStack(
+sqs_stack = SQSStack(
     app, "ark-sqs-stack", env=cdk_env
 )
+
+sns_stack = SNSStack(
+    app, "ark-sns-stack", env=cdk_env
+)
+
 vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=cdk_env)
 
 accounts_reconciliation_stack = AccountsReconciliationStack(app, "ark-accounts-reconciliation-stack", env=cdk_env)

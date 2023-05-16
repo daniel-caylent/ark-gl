@@ -19,20 +19,17 @@ from app.base_stack import BaseStack
 #sys.path.append('../')
 from env import ENV
 
-class SQSStack(BaseStack):
+class SNSStack(BaseStack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        
-
-        queue = cdk.aws_sqs.Queue(self, id="ark-sqs-reconciliation", 
-                                              queue_name=self.STACK_PREFIX +"ark-sqs-reconciliation")
+        topic = cdk.aws_sns.Topic(self, id="ark-sns-reconciliation", display_name=self.STACK_PREFIX + ENV['sns_name'])
         
 
         
 
         cdk.CfnOutput(
-            self, "sqs-reconciliation",
-            value=queue.queue_name,
-            export_name= self.STACK_PREFIX + "sqs-reconciliation"
+            self, "sns_reconciliation",
+            value=topic.topic_name,
+            export_name= self.STACK_PREFIX + ENV['sns_name']
         )

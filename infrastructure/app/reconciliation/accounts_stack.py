@@ -4,7 +4,7 @@ from constructs import Construct
 
 from ..base_stack import BaseStack
 
-from ..get_cdk import build_qldb_lambda_function
+from ..get_cdk import (build_qldb_lambda_function, build_decorated_qldb_lambda_function)
 from ..layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -30,7 +30,7 @@ class AccountsReconciliationStack(BaseStack):
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
 
-        lambda_function = build_qldb_lambda_function(self, CODE_DIR,
+        lambda_function = build_decorated_qldb_lambda_function(self, CODE_DIR,
             handler="account.handler",
             layers=[pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts reconciliation"
