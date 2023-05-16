@@ -29,7 +29,7 @@ class LedgersStateStack(BaseStack):
         qldb_layer = get_qldb_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
-            handler="state.handler",
+            handler="put.handler",
             layers=[shared_layer, pymysql_layer, db_layer, pyqldb_layer, qldb_layer],
             description="ledgers state"
         )

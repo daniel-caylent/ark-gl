@@ -20,7 +20,7 @@ class LedgerNestedStack(BaseNestedStack):
 
         ledger_resource = rest_api.root.add_resource('ledgers')
         ledger_id_resource = ledger_resource.add_resource('{ledgerId}')
-        ledger_state_resource = ledger_resource.add_resource('{ledgerId}/state')
+        ledger_state_resource = ledger_id_resource.add_resource('state')
 
         self.__register_ledger_get_method(ledger_resource)
         self.__register_ledger_post_method(ledger_resource)

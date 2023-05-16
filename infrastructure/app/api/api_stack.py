@@ -19,7 +19,7 @@ class ApiStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        self.api = build_api_gateway(self, "ark-gl-rest-api", deploy=False, cloud_watch_role=True)
+        self.api = build_api_gateway(self, self.STACK_PREFIX+"ark-gl-rest-api", deploy=False, cloud_watch_role=True)
 
         self.api.root.add_method("ANY")
 
