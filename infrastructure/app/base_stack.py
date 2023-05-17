@@ -1,6 +1,5 @@
-from aws_cdk import Stack, Environment, PermissionsBoundary, IStackSynthesizer
+from aws_cdk import Stack
 from constructs import Construct
-from typing import Dict, Any, Mapping
 
 from .utils import get_stack_id, get_stack_prefix
 
