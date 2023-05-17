@@ -35,9 +35,9 @@ def handler(event, context) -> tuple[int, dict]:
         else:
             processed_failure.append(current_row)
             
-    account_count = ledgers.select_count_commited_accounts()
-    if account_count['count(*)'] != len(processed_list):
-        print("Error on amount of records on Aurora "+str(account_count['count(*)'] )+ " vs QLDB "+ str(len(processed_list)) ) # distintc amount of accounts in the QLDB than the DB 
+    ledger_count = ledgers.select_count_commited_ledgers()
+    if ledger_count['count(*)'] != len(processed_list):
+        print("Error on amount of records on Aurora "+str(ledger_count['count(*)'] )+ " vs QLDB "+ str(len(processed_list)) ) # distinct amount of ledgers in the QLDB than the DB 
 
     
     return 200, {}

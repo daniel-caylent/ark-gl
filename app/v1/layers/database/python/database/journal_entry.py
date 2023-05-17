@@ -16,7 +16,9 @@ app_to_db = {
 }
 
 
-def __get_insert_query(db: str, input: dict, region_name: str, secret_name: str) -> tuple:
+def __get_insert_query(
+    db: str, input: dict, region_name: str, secret_name: str
+) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -170,7 +172,10 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
 
     return (query, params)
 
-def __get_select_committed_between_dates_query(db: str, start_date: str, end_date:str) -> tuple:
+
+def __get_select_committed_between_dates_query(
+    db: str, start_date: str, end_date: str
+) -> tuple:
     """
     This function creates the select between dates for commited state journal entries.
 
@@ -187,11 +192,19 @@ def __get_select_committed_between_dates_query(db: str, start_date: str, end_dat
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".journal_entry where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    query = (
+        "SELECT * FROM "
+        + db
+        + ".journal_entry where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+    )
 
-    params = (start_date, end_date,)
+    params = (
+        start_date,
+        end_date,
+    )
 
     return (query, params)
+
 
 def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> dict:
     """
@@ -221,7 +234,10 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
 
     return record
 
-def select_committed_between_dates(db: str, start_date: str, end_date: str, region_name: str, secret_name: str) -> list:
+
+def select_committed_between_dates(
+    db: str, start_date: str, end_date: str, region_name: str, secret_name: str
+) -> list:
     """
     This function returns the record from the result of the "select by uuid" query with its parameters.
 
@@ -298,14 +314,14 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         # Then, insert debit and credit entries
         for debit_entry in input["debitEntries"]:
             entry_params = line_item.get_insert_query(
-                    db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
-                )
+                db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
+            )
             cursor.execute(entry_params[0], entry_params[1])
 
         for credit_entry in input["creditEntries"]:
             entry_params = line_item.get_insert_query(
-                    db, credit_entry, journal_entry_id, "Credit", region_name, secret_name
-                )
+                db, credit_entry, journal_entry_id, "Credit", region_name, secret_name
+            )
             cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
@@ -357,7 +373,9 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
         cursor.execute(query, q_params)
 
         # Once deleted, delete the line items by journal_entry_id
-        entry_params = line_item.get_delete_by_journal_query(db, id, region_name, secret_name)
+        entry_params = line_item.get_delete_by_journal_query(
+            db, id, region_name, secret_name
+        )
         cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
@@ -440,7 +458,9 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         ),
                         None,
                     ).get("uuid")
-                    entry_params = line_item.get_update_query(db, line_uuid, debit_entry)
+                    entry_params = line_item.get_update_query(
+                        db, line_uuid, debit_entry
+                    )
                 else:
                     entry_params = line_item.get_insert_query(
                         db,
@@ -450,7 +470,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         region_name,
                         secret_name,
                     )
-                
+
                 cursor.execute(entry_params[0], entry_params[1])
 
         if "creditEntries" in input:
@@ -468,7 +488,9 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         ),
                         None,
                     ).get("uuid")
-                    entry_params = line_item.get_update_query(db, line_uuid, credit_entry)
+                    entry_params = line_item.get_update_query(
+                        db, line_uuid, credit_entry
+                    )
                 else:
                     entry_params = line_item.get_insert_query(
                         db,
@@ -478,7 +500,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                         region_name,
                         secret_name,
                     )
-                
+
                 cursor.execute(entry_params[0], entry_params[1])
 
         conn.commit()
@@ -490,3 +512,55 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         conn.close()
 
     return
+
+
+def __get_count_with_post_date(db: str) -> tuple:
+    """
+    This function creates the select query that counts the amount of rows with post_date not null.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+
+    query = (
+        """
+        SELECT count(*)
+        FROM """
+        + db
+        + """.journal_entry
+        where post_date IS NOT NULL;"""
+    )
+
+    params = ()
+
+    return (query, params)
+
+
+def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> dict:
+    """
+    This function returns the record from the result of the "select count with post date" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the count
+    """
+    params = __get_count_with_post_date(db)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record

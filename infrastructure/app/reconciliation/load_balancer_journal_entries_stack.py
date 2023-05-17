@@ -29,12 +29,21 @@ class LoadBalancerJournalEntriesStack(BaseStack):
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
-
+        sns_name = self.STACK_PREFIX + ENV["sns_name"]
         lambda_function = build_decorated_qldb_lambda_function(
             self,
             CODE_DIR,
             handler="load_balancer.handler",
             layers=[pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="load balancer for journal entries in the reconciliation",
-            env={"sqs_name": self.STACK_PREFIX + ENV["sqs_name"]},
+            env={
+                "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
+                "sns_name": sns_name,
+                "sns_arn": "arn:aws:sns:"
+                + self.region
+                + ":"
+                + self.account
+                + ":"
+                + sns_name,
+            },
         )
