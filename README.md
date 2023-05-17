@@ -86,3 +86,17 @@ For deploying the pipeline
 ```bash
 cdk deploy --app "python3 pipeline_app.py"
 ```
+
+### Tests execution / Code Coverage
+
+For the tests execution the following command should be executed:
+```
+pytest tests
+```
+
+For gathering code coverage metrics, the following commands should be executed:
+```
+pytest --cov=app tests
+
+pytest --cov=infrastructure tests
+```

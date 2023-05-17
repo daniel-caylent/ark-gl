@@ -62,6 +62,11 @@ def handler(event, context) -> tuple[int, dict]:
         if not parent:
             return 400, {'detail': "Parent account does not exist in this fund."}
 
+    if put.fsMappingId:
+        fs = validate_fs_account(put, accts)
+        if not fs:
+            return 400, {'detail': "fsMappingId does not relate to an existing account."}
+
     # if an attribute is part of this request, validate it exists
     if put.attributeId:
         attribute = account_attributes.select_by_id(put.attributeId)
@@ -97,6 +102,7 @@ def validate_unique_account(account_id: str, account: AccountPut, existing_accou
 
     return True
 
+
 def validate_parent_account(account: AccountPut, existing_accounts):
     """Validate the parent id supplied for this account exists"""
 
@@ -105,6 +111,16 @@ def validate_parent_account(account: AccountPut, existing_accounts):
             return True
 
     return False
+
+
+def validate_fs_account(account: AccountPut, existing_accounts):
+    """Validate the parent id supplied for this account exists"""
+    for existing_account in existing_accounts:
+        if account.fsMappingId == existing_account['accountId']:
+            return True
+
+    return False
+
 
 def check_missing_fields(account_dict):
     """
