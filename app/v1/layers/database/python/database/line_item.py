@@ -76,7 +76,7 @@ def get_insert_query(
         translated_input.get("state"),
         translated_input.get("is_hidden"),
         translated_input.get("vendor_customer_partner").get("VCPtype"),
-        translated_input.get("vendor_customer_partner").get("VCPId")
+        translated_input.get("vendor_customer_partner").get("VCPId"),
     )
 
     return (query, params)
@@ -194,13 +194,13 @@ def select_by_number_journal(
     return record
 
 
-def __get_numbers_by_journal_query(db: str, journal_entry_id: str) -> tuple:
+def __get_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     """
     This function creates the select line_number, uuid by journal_entry_id query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
-    
+
     journal_entry_id: string
     This parameter specifies the journal_entry_id that will be used for this query
 
@@ -208,15 +208,42 @@ def __get_numbers_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = (
-        "SELECT line_number, uuid FROM "
-        + db
-        + ".line_item where journal_entry_id = %s;"
-    )
+    query = "SELECT * FROM " + db + ".line_item where journal_entry_id = %s;"
 
     params = (journal_entry_id,)
 
     return (query, params)
+
+
+def select_by_journal(
+    db: str, journal_entry_id: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select numbers by journal" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the line items that match with the upcoming journal_entry_id
+    """
+    params = __get_by_journal_query(db, journal_entry_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
 
 
 def select_numbers_by_journal(
@@ -241,13 +268,22 @@ def select_numbers_by_journal(
     return
     A dict containing the line item's number and uuid that matches with the upcoming journal_entry_id
     """
-    params = __get_numbers_by_journal_query(db, journal_entry_id)
+    params = __get_by_journal_query(db, journal_entry_id)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     records = db_main.execute_multiple_record_select(conn, params)
 
-    return records
+    if records:
+        ret_list = []
+        for entry in records:
+            ret_list.append(
+                {"line_number": entry["line_number"], "uuid": entry["uuid"]}
+            )
+
+        return ret_list
+    else:
+        return None
 
 
 def get_delete_query(db: str, id: str) -> tuple:
@@ -302,3 +338,62 @@ def get_delete_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     params = (journal_entry_id,)
 
     return (query, params)
+
+
+def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
+    """
+    This function creates the select line_number, uuid by journal_entry_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(journal_entry_ids))
+
+    query = (
+        """SELECT *
+    FROM """
+        + db
+        + """.line_item where journal_entry_id IN (%s);""" % format_strings
+    )
+
+    params = (tuple(journal_entry_ids),)
+
+    return (query, params)
+
+
+def select_by_multiple_journals(
+    db: str, journal_entry_ids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by multiple journals" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    journal_entry_id: string
+    This parameter specifies the journal_entry_ids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the line items that match with the upcoming journal_entry_ids
+    """
+    params = __get_by_multiple_journals_query(db, journal_entry_ids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
