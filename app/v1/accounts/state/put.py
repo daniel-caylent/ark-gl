@@ -23,7 +23,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the request body
     try:
         body = json.loads(event['body'])
-    except:
+    except Exception:
         return 400, {'detail': "Body does not contain valid json."}
 
     state = body.get('state')
@@ -37,10 +37,10 @@ def handler(event, context) -> tuple[int, dict]:
 
     if acct['state'] == "COMMITTED":
         return 400, {'detail': "Account is already committed."}
-    
+
     if state not in VALID_STATES:
         return 400, {'detail': "State is invalid."}
-    
+
     # hard coding the state so there's no chance of tampering
     accounts.update_by_id(account_id, {'state': 'COMMITTED'})
     return 200, {}
