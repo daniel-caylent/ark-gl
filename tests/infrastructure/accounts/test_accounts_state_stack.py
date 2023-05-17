@@ -19,7 +19,7 @@ class TestAccountsStateStack(AccountsTestBase):
         stack = AccountsStateStack(app, "cdk", env=self.__class__.cdk_env)
         template = assertions.Template.from_stack(stack)
 
-        template.resource_count_is('AWS::Lambda::LayerVersion', 5)
+        template.resource_count_is('AWS::Lambda::LayerVersion', 4)
         template.resource_count_is('AWS::IAM::Policy', 3)
         template.resource_count_is('AWS::Lambda::Function', 1)
         template.resource_count_is('AWS::IAM::Role', 1)

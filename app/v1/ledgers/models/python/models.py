@@ -28,13 +28,14 @@ class LedgerPost:
     isHidden: bool = False
 
     def __post_init__(self):
-        self.glName = validate_str(self.glName, 'glName')
         self.fundId = check_uuid(self.fundId, 'fundId')
-        self.currencyDecimal = validate_int(self.currencyDecimal, 'currencyDecimal')
-        self.currencyName = validate_str(self.currencyName, 'currencyName')
+        self.glName = validate_str(self.glName, 'glName', min_len=3, max_len=128)
+        self.currencyDecimal = validate_int(self.currencyDecimal, 'currencyDecimal', allowed=[0,2,3,4])
+        self.currencyName = validate_str(self.currencyName, 'currencyName', min_len=3, max_len=3)
         self.isHidden = bool(self.isHidden)
         self.glDescription = (
-            None if self.glDescription is None else self.glDescription.strip()
+            None if self.glDescription is None else
+            validate_str(self.glDescription, 'glDescription', max_len=256)
         )
 
 
@@ -48,20 +49,24 @@ class LedgerPut:
     isHidden: bool = False
 
     def __post_init__(self):
-        self.glName = None if self.glName is None else self.glName.strip()
-        self.glDescription = (
-            None if self.glDescription is None else self.glDescription.strip()
+        self.glName = None if self.glName is None else validate_str(self.glName, 'glName', min_len=3)
+        self.currencyDecimal = (
+            None if self.currencyDecimal is None else
+            validate_int(self.currencyDecimal, 'currencyDecimal', allowed=[0,2,3,4])
         )
         self.currencyName = (
-            None if self.currencyName is None else self.currencyName.strip()
+            None if self.currencyName is None else
+            validate_str(self.currencyName, 'currencyName', min_len=3, max_len=3)
+        )
+        self.fundId = (
+            None if self.fundId is None else
+            validate_uuid(self.fundId, throw=True)
+        )
+        self.glDescription = (
+            None if self.glDescription is None else
+            validate_str(self.glDescription, 'glDescription', max_len=256)
         )
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)
-        self.fundId = (
-            None if self.fundId is None else validate_uuid(self.fundId, throw=True)
-        )
-        self.currencyDecimal = (
-            None if self.currencyDecimal is None else int(self.currencyDecimal)
-        )
 
 
 def check_uuid(uuid, name) -> str:
@@ -75,7 +80,7 @@ def check_uuid(uuid, name) -> str:
 
     return uuid
 
-def validate_str(str_, name) -> str:
+def validate_str(str_, name, min_len=0, max_len=255) -> str:
     if str_ is None:
         raise Exception(f'Required argument is missing: {name}.')
 
@@ -83,10 +88,15 @@ def validate_str(str_, name) -> str:
         str_ = str_.strip()
     except:
         raise Exception(f'{name} is invalid.')
+    
+    if len(str_) < min_len:
+        raise Exception(f'{name} does not meet min length required of {min_len} characters.')
+    if len(str_) > max_len:
+        raise Exception(f'{name} does not meet max length required of {max_len} characters.')
 
     return str_
 
-def validate_int(int_, name) -> int:
+def validate_int(int_, name, allowed: list=None) -> int:
     if int_ is None:
         raise Exception(f'Required argument is missing: {name}.')
 
@@ -94,3 +104,7 @@ def validate_int(int_, name) -> int:
         int_ = int(str(int_))
     except:
         raise Exception(f'{name} is invalid.')
+
+    if allowed:
+        if int_ not in allowed:
+            raise Exception(f'{name} must be one of {allowed}.')
