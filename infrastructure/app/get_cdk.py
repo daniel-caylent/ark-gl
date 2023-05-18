@@ -140,13 +140,13 @@ def build_decorated_qldb_lambda_function(
         + os.getenv("AWS_ACCOUNT")
         + ":"
         + get_stack_prefix()
-        + sqs_name
+        + sns_name
     )
 
     sns_actions_statement = cdk.aws_iam.PolicyStatement(
         actions=[
             "sns:Publish",
-            "sqs:ListTopics",
+            "sns:ListTopics",
         ],
         resources=[sns_arn],
     )

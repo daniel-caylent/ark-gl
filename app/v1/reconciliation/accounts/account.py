@@ -24,7 +24,7 @@ def handler(event, context) -> tuple[int, dict]:
         aurora_record = accounts.select_by_id(current_uuid)
         if aurora_record is None:
             sns_client.publish(
-                TopicArn=topic_arn, message="Error from lambda"
+                TopicArn=topic_arn, Message="Error from lambda"
             )  # record exists in QLDB and not in Aurora. Someone deleted it
             processed_success = False
         else:
