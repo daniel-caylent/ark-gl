@@ -12,20 +12,14 @@ def handler(event, context) -> tuple[int, dict]:
     processed_list = []
     processed_succesfully = []
     processed_failure = []
-    sns_name = os.getenv("sns_name")
 
-    topic_arn = os.getenv("sns_arn")
-
-    sns_client = boto3.client("sns")
     for current_row in buffered_cursor:
         processed_success = True
         current_uuid = current_row["accountId"]
 
         aurora_record = accounts.select_by_id(current_uuid)
         if aurora_record is None:
-            sns_client.publish(
-                TopicArn=topic_arn, message="Error from lambda"
-            )  # record exists in QLDB and not in Aurora. Someone deleted it
+            print("Error from lambda")  # record exists in QLDB and not in Aurora. Someone deleted it
             processed_success = False
         else:
             for current_key in current_row.keys():

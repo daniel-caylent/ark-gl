@@ -7,7 +7,7 @@ import sys
 # setting path
 #sys.path.append('../')
 from app.vpc_stack import VpcStack
-from app.reconciliation import (SQSStack, SNSStack)
+from app.reconciliation import SQSStack
 from app.reconciliation import AccountsReconciliationStack
 from app.reconciliation import LedgersReconciliationStack
 from app.reconciliation import LoadBalancerJournalEntriesStack
@@ -24,10 +24,6 @@ app = cdk.App()
 
 sqs_stack = SQSStack(
     app, "ark-sqs-stack", env=cdk_env
-)
-
-sns_stack = SNSStack(
-    app, "ark-sns-stack", env=cdk_env
 )
 
 vpc_stack = VpcStack(app, "ark-gl-vpc-stack", env=cdk_env)
