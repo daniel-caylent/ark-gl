@@ -10,7 +10,7 @@ from models import LedgerPut
 
 COMMITED_CHANGEABLE = []
 REQUIRED_FIELDS = [    
-    'fundId', 'glName', 'currencyName', 'currencyDecimals'
+    'fundId', 'glName', 'currencyName', 'currencyDecimal'
 ]
 
 @endpoint
@@ -44,7 +44,7 @@ def handler(event, context) -> tuple[int, dict]:
 
         return 400, {'detail': error_str[0].upper() + error_str[1:]}
 
-    # verify account exists
+    # verify ledger exists
     ledger = ledgers.select_by_id(ledger_id)
     if ledger is None:
         return 404, {'detail': "No ledger found."}
@@ -54,11 +54,11 @@ def handler(event, context) -> tuple[int, dict]:
             if key not in COMMITED_CHANGEABLE:
                 return 400, {'detail': f"COMMITTED ledger property cannot be modified: {key}."}
 
-    # validate no other accounts exist with number or name
-    ledgers_ = ledgers.select_by_fund_id(put.fundId)
+    # validate no other ledgers exist with the same name
+    ledgers_ = ledgers.select_by_fund_id(ledger['fundId'])
     unique = validate_unique_ledger(ledger_id, put, ledgers_)
     if unique is False:
-        return 409, {'detail': "Account number or name already exists in this fund."}
+        return 409, {'detail': "Ledger name already exists in this fund."}
     
 
     # only keep fields present in the initial body, but replace
@@ -76,22 +76,22 @@ def handler(event, context) -> tuple[int, dict]:
 def validate_unique_ledger(ledger_id: str, ledger: LedgerPut, existing_ledgers):
     """Validate the incoming ledger has a unique name"""
 
-    for ledger in existing_ledgers:
-        if ledger['ledgerId'] == ledger_id:
+    for ledger_ in existing_ledgers:
+        if ledger_['ledgerId'] == ledger_id:
             continue
 
         if ledger.glName:
-            if ledger['glName'].lower() == ledger.glName.lower():
+            if ledger_['glName'].lower() == ledger.glName.lower():
                 return False
     return True
 
 def check_missing_fields(dict_, required):
     """
-    Check that the account information about to be updated does not input
+    Check that the ledger information about to be updated does not input
     any null values for required fields
     """
     keys = list(dict_.keys())
-    for field in REQUIRED_FIELDS:
+    for field in required:
         if field in keys:
             value = dict_[field]
 

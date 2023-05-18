@@ -41,7 +41,6 @@ class LedgerPost:
 
 @dataclass
 class LedgerPut:
-    fundId: str = None
     glName: str = None
     glDescription: str = None
     currencyName: str = None
@@ -49,7 +48,7 @@ class LedgerPut:
     isHidden: bool = False
 
     def __post_init__(self):
-        self.glName = None if self.glName is None else validate_str(self.glName, 'glName', min_len=3)
+        self.glName = None if self.glName is None else validate_str(self.glName, 'glName', min_len=3, max_len=128)
         self.currencyDecimal = (
             None if self.currencyDecimal is None else
             validate_int(self.currencyDecimal, 'currencyDecimal', allowed=[0,2,3,4])
@@ -57,10 +56,6 @@ class LedgerPut:
         self.currencyName = (
             None if self.currencyName is None else
             validate_str(self.currencyName, 'currencyName', min_len=3, max_len=3)
-        )
-        self.fundId = (
-            None if self.fundId is None else
-            validate_uuid(self.fundId, throw=True)
         )
         self.glDescription = (
             None if self.glDescription is None else
@@ -108,3 +103,5 @@ def validate_int(int_, name, allowed: list=None) -> int:
     if allowed:
         if int_ not in allowed:
             raise Exception(f'{name} must be one of {allowed}.')
+
+    return int_
