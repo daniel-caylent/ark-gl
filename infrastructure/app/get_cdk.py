@@ -143,6 +143,21 @@ def build_decorated_qldb_lambda_function(
         + sqs_name
     )
 
+    sns_actions_statement = cdk.aws_iam.PolicyStatement(
+        actions=[
+            "sns:Publish",
+            "sqs:ListTopics",
+        ],
+        resources=[sns_arn],
+    )
+
+    sns_policy = cdk.aws_iam.Policy(
+        context,
+        "ark-db-sns-policy",
+        policy_name="ark-db-sns-policy",
+        statements=[sns_actions_statement],
+    )
+
     sqs_actions_statement = cdk.aws_iam.PolicyStatement(
         actions=[
             "sqs:DeleteMessage",
@@ -163,8 +178,11 @@ def build_decorated_qldb_lambda_function(
     )
 
     function.role.attach_inline_policy(sqs_policy)
+    function.role.attach_inline_policy(sns_policy)
 
     function.add_environment("SQS_NAME", sqs_name)
+    function.add_environment("SNS_NAME", sns_name)
+    function.add_environment("SNS_ARN", sns_arn)
 
     return function
 
