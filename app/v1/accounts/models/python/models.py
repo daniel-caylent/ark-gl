@@ -127,8 +127,8 @@ def check_account_name(account_name):
     except:
         raise Exception('Invalid account name.')
 
-    if len(account_name) == 0:
-        raise Exception('Invalid account name.')
+    if len(account_name) < 3:
+        raise Exception('Account name is too short.')
 
     return account_name
 

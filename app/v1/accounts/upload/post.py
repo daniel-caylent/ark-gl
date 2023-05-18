@@ -61,7 +61,11 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {'detail': "No access to content"}
 
     # transform accountType fields into attributeIds
-    account_dicts = convert_csv_to_dicts(contents)
+    try:
+        account_dicts = convert_csv_to_dicts(contents)
+    except:
+        return 400, {'detail': "Invalid CSV."}
+
     attributes = account_attributes.select_all()
     linked_accounts = link_attributes(account_dicts, attributes)
 
