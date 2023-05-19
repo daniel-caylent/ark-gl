@@ -173,6 +173,27 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     return (query, params)
 
 
+def __get_select_by_ledger_query(db: str, ledger_id: str) -> tuple:
+    """
+    This function creates the select by ledger query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_id: string
+    This parameter specifies the ledger_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = "SELECT * FROM " + db + ".journal_entry where ledger_id = %s;"
+
+    params = (ledger_id,)
+
+    return (query, params)
+
+
 def __get_select_committed_between_dates_query(
     db: str, start_date: str, end_date: str
 ) -> tuple:
@@ -233,6 +254,35 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def select_by_ledger(db: str, ledger_id: str, region_name: str, secret_name: str) -> list:
+    """
+    This function returns the record from the result of the "select by ledger" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_id: string
+    This parameter specifies the ledger_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_select_by_ledger_query(db, ledger_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
 
 
 def select_committed_between_dates(
