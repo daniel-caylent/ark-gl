@@ -47,21 +47,6 @@ class Driver:
         )
 
     def insert_document(self, table_name: str, document: dict) -> None:
-        logger.info("Checking if table " + table_name + " exists")
-        checking_query = (
-            "SELECT name FROM information_schema.user_tables WHERE name = '"
-            + table_name
-            + "' AND status = 'ACTIVE';"
-        )
-        result_cursor = self.execute_custom_query(checking_query)
-        if not (next(result_cursor, None)):
-            # If it does not exist, create the table and its indexes
-            self.create_table(table_name)
-            self.create_index(table_name, ["id"])
-            self.create_index(table_name, ["uuid"])
-            self.create_index(table_name, ["created_on"])
-            self.create_index(table_name, ["fund_entity_id"])
-
         logger.info("Inserting a document into table " + table_name)
         self.qldb_driver.execute_lambda(
             lambda x: x.execute_statement("INSERT INTO " + table_name + " ?", document)

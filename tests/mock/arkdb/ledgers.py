@@ -12,7 +12,7 @@ def select_by_fund_id(fund_id):
     },
     {
       "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
-      "glName": "ledger nam",
+      "glName": "duplicate",
       "glDescription": "ledger description",
       "ledgerId": "b2122123-eaa5-11ed-9a6e-0a3efd619f29",
       "state": "ok",
@@ -32,6 +32,9 @@ def select_by_fund_id(fund_id):
     }
   ]
 
+def select_by_client_id(client_id):
+    return select_by_fund_id(None)
+
 def select_by_id(id):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return None
@@ -46,3 +49,6 @@ def select_by_id(id):
       "currencyDecimal": 3,
       "isHidden": False
     }
+
+def update_by_id(id, dict):
+    return None

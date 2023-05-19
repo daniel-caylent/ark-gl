@@ -66,7 +66,7 @@ def select_by_id(id):
                 'accountName': 'account name',
                 'accountId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'accountDescription': 'account description',
-                'state': 'ACTIVE',
+                'state': 'COMMITTED',
                 'isHidden': False,
                 'isTaxable': True,
                 'isEntityRequired': False,
