@@ -52,3 +52,9 @@ def select_by_id(id):
 
 def update_by_id(id, dict):
     return None
+
+def create_new(*args):
+    return None
+
+def delete_by_id(*args):
+    return None

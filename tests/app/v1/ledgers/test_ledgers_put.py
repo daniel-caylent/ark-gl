@@ -60,3 +60,48 @@ class TestLedgersPut(LedgersTestBase):
 
       assert 200 == response['statusCode']
 
+    def test_bad_body(self):
+      from app.v1.ledgers import put
+      request = {
+         "pathParameters": {
+            "ledgerId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+         },
+         "body": None
+      }
+      response = put(request, LambdaContext())
+
+      assert 400 == response['statusCode']
+
+    def test_bad_params(self):
+      from app.v1.ledgers import put
+      request = {
+         "pathParameters": {
+            "ledgerI": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+         },
+         "body": None
+      }
+      response = put(request, LambdaContext())
+
+      assert 400 == response['statusCode']
+
+    def test_no_params(self):
+      from app.v1.ledgers import put
+      request = {
+         "pathParameters": None,
+         "body": None
+      }
+      response = put(request, LambdaContext())
+
+      assert 400 == response['statusCode']
+
+    def test_empty_body(self):
+      from app.v1.ledgers import put
+      request = {
+         "pathParameters": {
+            "ledgerId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+         },
+         "body": {}
+      }
+      response = put(request, LambdaContext())
+
+      assert 400 == response['statusCode']

@@ -1,5 +1,5 @@
 from arkdb import accounts    # pylint: disable=import-error
-from shared import endpoint   # pylint: disable=import-error
+from shared import endpoint, validate_uuid   # pylint: disable=import-error
 from models import Account    # pylint: disable=import-error
 
 @endpoint
@@ -10,6 +10,9 @@ def handler(event, context) -> tuple[int, dict]:
     account_id = event['pathParameters'].get('accountId', None)
     if account_id is None:
         return 400, {'detail': "No account specified."}
+
+    if not validate_uuid(account_id):
+        return 400, {'detail': "Invalid UUID provided."}
 
     result = accounts.select_by_id(account_id)
     if result is None:
