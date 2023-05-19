@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 
 CREATE TABLE IF NOT EXISTS ARKGL.account_attribute (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+	number int,
 	`uuid` CHAR(36),
 	account_type VARCHAR(255),
 	detail_type VARCHAR(255),
