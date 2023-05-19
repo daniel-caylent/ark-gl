@@ -8,7 +8,11 @@ from ..layers import (
     get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
+<<<<<<< HEAD
     get_database_layer,
+=======
+    get_database_layer
+>>>>>>> a8c985a (Get journal entry by id)
 )
 from ..utils import JOURNAL_ENTRIES_DIR
 
