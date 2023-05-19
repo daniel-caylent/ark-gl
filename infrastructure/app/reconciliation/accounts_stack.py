@@ -24,7 +24,7 @@ class AccountsReconciliationStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # shared_layer = get_shared_layer(self)
+        shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
@@ -33,9 +33,10 @@ class AccountsReconciliationStack(BaseStack):
             self,
             CODE_DIR,
             handler="account.handler",
-            layers=[pymysql_layer, db_layer, qldb_layer, qldb_reqs],
+            layers=[shared_layer,pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
+                "LOG_LEVEL": "INFO",
             },
         )
