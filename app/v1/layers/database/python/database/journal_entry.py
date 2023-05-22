@@ -15,6 +15,8 @@ app_to_db = {
     "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
     "isHidden": "is_hidden",
+    "postDate": "post_date",
+    "date": "date"
 }
 
 

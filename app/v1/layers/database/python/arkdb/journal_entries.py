@@ -2,13 +2,20 @@ from database.journal_entry import (
     app_to_db as journal_app_to_db,
     select_by_uuid,
     select_count_with_post_date,
+    select_by_ledger_uuid
 )
 from database.line_item import (
     app_to_db as line_app_to_db,
     select_by_multiple_journals,
     select_by_number_journal,
-    select_by_journal
+    select_by_journal as select_line_items
 )
+
+from database.attachment import (
+    app_to_db as attachment_app_to_db,
+    select_by_journal as select_attachments
+)
+
 from database.db_main import translate_to_app
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
@@ -25,12 +32,39 @@ def select_by_id(uuid: str) -> dict:
 
     return filtered
 
-def get_line_items(journal_uuid):
-    results = select_by_journal(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)
+def select_by_ledger_id(uuid: str) -> dict:
+    results = select_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+
+    if results is None:
+        return results
+
+    translated = [translate_to_app(journal_app_to_db, result) for result in results]
+    filtered = [
+        {k: each[k] for k in each if not k.startswith("missing")}
+        for each in translated
+    ]
+
+    return filtered
+
+
+def get_line_items(journal_id):
+    results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
     translated = [translate_to_app(line_app_to_db, result) for result in results]
     filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+        {k: each[k] for k in each if not k.startswith("missing")}
+        for each in translated
+    ]
+
+    return filtered
+
+def get_attachments(journal_id):
+    results = select_attachments(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
+
+    translated = [translate_to_app(attachment_app_to_db, result) for result in results]
+    filtered = [
+        {k: each[k] for k in each if not k.startswith("missing")}
+        for each in translated
     ]
 
     return filtered

@@ -6,13 +6,12 @@ from . import account
 app_to_db = {
     "lineItemNo": "line_number",
     "accountNo": "account_number",
-    "entryMemo": "memo",
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
     "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
-    "VendorCustomerPartner": "vendor_customer_partner",
+    "entityId": "vendor_customer_partner_id",
 }
 
 

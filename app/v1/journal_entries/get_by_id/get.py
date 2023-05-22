@@ -2,7 +2,7 @@
 
 from arkdb import journal_entries  # pylint: disable=import-error
 from shared import endpoint, validate_uuid  # pylint: disable=import-error, no-name-in-module
-
+from models import JournalEntry
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument
@@ -24,5 +24,8 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     journal_entry_id = journal_entry.pop("id")
     journal_entry["lineItems"] = journal_entries.get_line_items(journal_entry_id)
+    journal_entry["attachments"] = journal_entries.get_attachments(journal_entry_id)
 
-    return 200, {"data": journal_entry}
+
+
+    return 200, {"data": JournalEntry(**journal_entry)}
