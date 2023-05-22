@@ -29,7 +29,7 @@ class AccountsReconciliationStack(BaseStack):
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
-        lambda_function = build_decorated_qldb_lambda_function(
+        self.lambda_function = build_decorated_qldb_lambda_function(
             self,
             CODE_DIR,
             handler="account.handler",

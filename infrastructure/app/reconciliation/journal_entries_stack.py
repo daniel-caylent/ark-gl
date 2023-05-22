@@ -16,10 +16,10 @@ from ..utils import RECONCILIATION_DIR
 from env import ENV
 
 
-CODE_DIR = str(PurePath(RECONCILIATION_DIR, "load_balancer"))
+CODE_DIR = str(PurePath(RECONCILIATION_DIR, "journal_entries"))
 
 
-class LoadBalancerJournalEntriesStack(BaseStack):
+class JournalEntriesReconciliationStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -28,13 +28,12 @@ class LoadBalancerJournalEntriesStack(BaseStack):
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
-      
         self.lambda_function = build_decorated_qldb_lambda_function(
             self,
             CODE_DIR,
-            handler="load_balancer.handler",
-            layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
-            description="load balancer for journal entries in the reconciliation",
+            handler="journal_entry.handler",
+            layers=[shared_layer,pymysql_layer, db_layer, qldb_layer, qldb_reqs],
+            description="journal entries reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
