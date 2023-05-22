@@ -7,10 +7,13 @@ import sys
 # setting path
 #sys.path.append('../')
 from app.vpc_stack import VpcStack
-from app.reconciliation import SQSStack
-from app.reconciliation import AccountsReconciliationStack
-from app.reconciliation import LedgersReconciliationStack
-from app.reconciliation import LoadBalancerJournalEntriesStack
+from app.reconciliation import (
+    SQSStack,
+    AccountsReconciliationStack,
+    LedgersReconciliationStack,
+    LoadBalancerJournalEntriesStack,
+    JournalEntriesReconciliationStack,
+    StepFunctionStack)
 from env import ENV
 
 
@@ -34,8 +37,19 @@ accounts_reconciliation_stack.add_dependency(vpc_stack)
 load_balancer_reconciliation_stack = LoadBalancerJournalEntriesStack(app, "ark-load-balancer-reconciliation-stack", env=cdk_env)
 load_balancer_reconciliation_stack.add_dependency(vpc_stack)
 
+journals_reconciliation_stack = JournalEntriesReconciliationStack(app, "ark-journals-reconciliation-stack", env=cdk_env)
+journals_reconciliation_stack.add_dependency(vpc_stack)
+
 ledgers_reconciliation_stack = LedgersReconciliationStack(app, "ark-ledgers-reconciliation-stack", env=cdk_env)
 ledgers_reconciliation_stack.add_dependency(vpc_stack)
+
+step_function_stack = StepFunctionStack(
+    app, "ark-stepfunction-reconciliation-stack",
+    accounts_reconciliation_lambda=accounts_reconciliation_stack.lambda_function,
+    ledgers_reconciliation_lambda=ledgers_reconciliation_stack.lambda_function,
+    journals_loadbalancer_lambda=load_balancer_reconciliation_stack.lambda_function,
+    env=cdk_env)
+step_function_stack.add_dependency(vpc_stack)
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 cdk.Tags.of(app).add(ENV['MAP_TAG'], ENV['MAP_VALUE'])

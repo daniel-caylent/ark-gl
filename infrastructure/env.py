@@ -41,6 +41,8 @@ dev = {
     'ledger_name': 'ARKGL',
     'sqs_name': 'ark-sqs-reconciliation',
     'sns_name': 'ark-sns-notifications',
+    'reconciliation_trigger_hour': 1,
+    'reconciliation_trigger_minute': 0,
     **map_tag
 }
 

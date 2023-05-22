@@ -7,6 +7,7 @@ from database.line_item import (
     app_to_db as line_app_to_db,
     select_by_multiple_journals,
     select_by_number_journal,
+    select_by_journal
 )
 from database.db_main import translate_to_app
 
@@ -21,6 +22,16 @@ def select_by_id(uuid: str) -> dict:
 
     translated = translate_to_app(journal_app_to_db, result)
     filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
+
+    return filtered
+
+def get_line_items(journal_uuid):
+    results = select_by_journal(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)
+
+    translated = [translate_to_app(line_app_to_db, result) for result in results]
+    filtered = [
+        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+    ]
 
     return filtered
 

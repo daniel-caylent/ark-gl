@@ -6,10 +6,11 @@ from . import line_item
 
 
 app_to_db = {
-    "journalId": "uuid",
+    "id": "id",
+    "journalEntryId": "uuid",
     "ledgerId": "ledger_id",
-    "txReference": "reference",
-    "txMemo": "memo",
+    "reference": "reference",
+    "memo": "memo",
     "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
     "isHidden": "is_hidden",
