@@ -167,30 +167,40 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".journal_entry where uuid = %s;"
+    query = """SELECT je.id, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """ + db + """.journal_entry je
+    INNER JOIN """ + db + """.ledger le ON (je.ledger_id = le.id)
+    where je.uuid = %s;"""
 
     params = (uuid,)
 
     return (query, params)
 
 
-def __get_select_by_ledger_query(db: str, ledger_id: str) -> tuple:
+def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     """
     This function creates the select by ledger query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    ledger_id: string
-    This parameter specifies the ledger_id that will be used for this query
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
 
     return
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".journal_entry where ledger_id = %s;"
+    query = """SELECT je.id, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """ + db + """.journal_entry je
+    INNER JOIN """ + db + """.ledger le ON (je.ledger_id = le.id)
+    where le.uuid = %s;"""
 
-    params = (ledger_id,)
+    params = (ledger_uuid,)
 
     return (query, params)
 
@@ -257,15 +267,15 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return record
 
 
-def select_by_ledger(db: str, ledger_id: str, region_name: str, secret_name: str) -> list:
+def select_by_ledger_uuid(db: str, ledger_uuid: str, region_name: str, secret_name: str) -> list:
     """
-    This function returns the record from the result of the "select by ledger" query with its parameters.
+    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    ledger_id: string
-    This parameter specifies the ledger_id that will be used for this query
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -277,7 +287,7 @@ def select_by_ledger(db: str, ledger_id: str, region_name: str, secret_name: str
     return
     A list containing the journal entries that match with the upcoming ledger_id
     """
-    params = __get_select_by_ledger_query(db, ledger_id)
+    params = __get_select_by_ledger_uuid_query(db, ledger_uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
