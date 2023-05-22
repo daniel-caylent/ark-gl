@@ -9,13 +9,10 @@ def handler(event, context) -> tuple[int, dict]:
         return 400, {"detail": "Missing query string parameters"}
 
     client_id = event["queryStringParameters"].get("clientId", None)
-    if client_id is None:
-        return 400, {"detail": "No client specified."}
-
     fund_id = event["queryStringParameters"].get("fundId", None)
 
-    if not validate_uuid(client_id):
-        return 400, {"detail": "Invalid client UUID provided."}
+    if client_id is None and fund_id is None:
+        return 400, {"detail": "No client or fund ID specified."}
 
     if fund_id:
         if not validate_uuid(fund_id):
@@ -28,6 +25,9 @@ def handler(event, context) -> tuple[int, dict]:
         # get and format the ledgers
         results = ledgers.select_by_fund_id(fund_id)
     else:
+        if not validate_uuid(client_id):
+            return 400, {"detail": "Invalid client UUID provided."}
+
         results = ledgers.select_by_client_id(client_id)
 
     ledgers_ = []

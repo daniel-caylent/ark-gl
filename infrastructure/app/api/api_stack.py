@@ -7,6 +7,7 @@ from ..get_cdk import build_api_gateway
 from .api_account_attribute_nested_stack import AccountAttributesNestedStack
 from .api_account_nested_stack import AccountNestedStack
 from .api_ledger_nested_stack import LedgerNestedStack
+from .api_journal_entry_nested_stack import JournalEntryNestedStack
 from .api_deploy_stack import DeployStack
 
 from aws_cdk import aws_logs as logs, aws_apigateway as apigtw
@@ -44,9 +45,17 @@ class ApiStack(BaseStack):
             self.api.rest_api_root_resource_id
         )
 
+        journal_entries_nested_stack=JournalEntryNestedStack(
+            self,
+            "ark-gl-journal-entries-api-nested",
+            self.api.rest_api_id,
+            self.api.rest_api_root_resource_id
+        )
+
         methods = []
         methods.extend(account_attributes_nested_stack.methods)
         methods.extend(account_nested_stack.methods)
         methods.extend(ledger_nested_stack.methods)
+        methods.extend(journal_entries_nested_stack.methods)
 
         DeployStack(self, "ark-gl-rest-api-deploy", self.api.rest_api_id, methods)
