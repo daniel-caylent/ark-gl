@@ -109,7 +109,6 @@ CREATE TABLE IF NOT EXISTS ARKGL.attachment (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	`uuid` CHAR(36),
 	journal_entry_id INT NOT NULL,
-	location VARCHAR(255),
 	memo VARCHAR(255),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (journal_entry_id) REFERENCES journal_entry(id)

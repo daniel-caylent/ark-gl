@@ -69,7 +69,7 @@ class TestLedgersGet(LedgersTestBase):
         }
         result = handler(request, LambdaContext())
 
-        assert 400 == result['statusCode']
+        assert 200 == result['statusCode']
 
     def test_is_json_encodable(self):
         from app.v1.ledgers.get.get import handler

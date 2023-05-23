@@ -3,6 +3,7 @@ from . import db_main
 from . import connection
 from . import ledger
 from . import line_item
+from . import attachment
 
 
 app_to_db = {
@@ -14,6 +15,8 @@ app_to_db = {
     "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
     "isHidden": "is_hidden",
+    "postDate": "post_date",
+    "date": "date"
 }
 
 
@@ -107,6 +110,8 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
         del translated_input["debitEntries"]
     if "creditEntries" in translated_input:
         del translated_input["creditEntries"]
+    if "journalAttachments" in translated_input:
+        del translated_input["journalAttachments"]
 
     set_clause = ""
     params = ()
@@ -167,30 +172,52 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".journal_entry where uuid = %s;"
+    query = (
+        """SELECT je.id, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    where je.uuid = %s;"""
+    )
 
     params = (uuid,)
 
     return (query, params)
 
 
-def __get_select_by_ledger_query(db: str, ledger_id: str) -> tuple:
+def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     """
     This function creates the select by ledger query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    ledger_id: string
-    This parameter specifies the ledger_id that will be used for this query
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
 
     return
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".journal_entry where ledger_id = %s;"
+    query = (
+        """SELECT je.id, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    where le.uuid = %s;"""
+    )
 
-    params = (ledger_id,)
+    params = (ledger_uuid,)
 
     return (query, params)
 
@@ -257,15 +284,17 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return record
 
 
-def select_by_ledger(db: str, ledger_id: str, region_name: str, secret_name: str) -> list:
+def select_by_ledger_uuid(
+    db: str, ledger_uuid: str, region_name: str, secret_name: str
+) -> list:
     """
-    This function returns the record from the result of the "select by ledger" query with its parameters.
+    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    ledger_id: string
-    This parameter specifies the ledger_id that will be used for this query
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -277,7 +306,7 @@ def select_by_ledger(db: str, ledger_id: str, region_name: str, secret_name: str
     return
     A list containing the journal entries that match with the upcoming ledger_id
     """
-    params = __get_select_by_ledger_query(db, ledger_id)
+    params = __get_select_by_ledger_uuid_query(db, ledger_uuid)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -375,6 +404,10 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
             )
             cursor.execute(entry_params[0], entry_params[1])
 
+        for att in input["journalAttachments"]:
+            att_params = att.get_insert_query(db, att, journal_entry_id)
+            cursor.execute(att_params[0], att_params[1])
+
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -424,10 +457,12 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
         cursor.execute(query, q_params)
 
         # Once deleted, delete the line items by journal_entry_id
-        entry_params = line_item.get_delete_by_journal_query(
-            db, id, region_name, secret_name
-        )
+        entry_params = line_item.get_delete_by_journal_query(db, id)
         cursor.execute(entry_params[0], entry_params[1])
+
+        # Also, delete the attachments by journal_entry_id
+        att_params = attachment.get_delete_by_journal_query(db, id)
+        cursor.execute(att_params[0], att_params[1])
 
         conn.commit()
     except Exception as e:
@@ -553,6 +588,22 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                     )
 
                 cursor.execute(entry_params[0], entry_params[1])
+
+        if "journalAttachments" in input:
+            for att in input["journalAttachments"]:
+                att_uuid = att.get("documentId")
+
+                # Checking to decide if it is insert/update
+                existent_att = attachment.select_by_document_id(
+                    db, att_uuid, region_name, secret_name
+                )
+
+                if existent_att:
+                    att_params = attachment.get_update_query(db, att_uuid, att)
+                else:
+                    att_params = attachment.get_insert_query(db, att, journal_entry_id)
+
+                cursor.execute(att_params[0], att_params[1])
 
         conn.commit()
     except Exception as e:
