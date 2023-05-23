@@ -43,6 +43,7 @@ dev = {
     'sns_name': 'ark-sns-notifications',
     'reconciliation_trigger_hour': 1,
     'reconciliation_trigger_minute': 0,
+    'dr_bucket_name': 'arkgl-dr',
     **map_tag
 }
 

@@ -10,6 +10,7 @@ JOURNAL_ENTRIES_DIR = str(PurePath(APP_DIR, 'journal_entries'))
 ACCOUNTS_ATTR_DIR = str(PurePath(APP_DIR, 'account_attributes'))
 LAYERS_DIR = str(PurePath(APP_DIR, 'layers'))
 RECONCILIATION_DIR = str(PurePath(APP_DIR, 'reconciliation'))
+DR_DIR = str(PurePath(APP_DIR, 'dr')) 
 QLDB_DIR = str(PurePath(APP_DB_DIR, 'qldb'))
 LOCAL_LAYERS_DIR = str(PurePath(THIS_DIRECTORY, 'layers'))
 
