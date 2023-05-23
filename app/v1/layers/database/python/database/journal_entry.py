@@ -9,6 +9,7 @@ from . import attachment
 app_to_db = {
     "id": "id",
     "journalEntryId": "uuid",
+    "journalNo": "journal_entry_no",
     "ledgerId": "ledger_id",
     "reference": "reference",
     "memo": "memo",
@@ -16,7 +17,7 @@ app_to_db = {
     "state": "state",
     "isHidden": "is_hidden",
     "postDate": "post_date",
-    "date": "date"
+    "date": "date",
 }
 
 
@@ -49,9 +50,9 @@ def __get_insert_query(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_no)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
@@ -71,6 +72,7 @@ def __get_insert_query(
         translated_input.get("adjusting_journal_entry"),
         translated_input.get("state"),
         translated_input.get("is_hidden"),
+        translated_input.get("journal_entry_no"),
     )
 
     return (query, params, uuid)
@@ -173,7 +175,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
@@ -205,7 +207,7 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
