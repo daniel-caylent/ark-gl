@@ -64,6 +64,13 @@ class StepFunctionStack(BaseStack):
             get_stack_prefix() + "ark-reconciliation-sfn",
             state_machine_name=get_stack_prefix() + "ark-reconciliation-sfn",
             definition=sfn_definition,
+            logs=cdk.aws_stepfunctions.LogOptions(
+                destination=cdk.aws_logs.LogGroup(
+                    self,
+                    get_stack_prefix() + "ark-reconciliation-sfn-lg",
+                    log_group_name=get_stack_prefix() + "ark-reconciliation-sfn-lg"),
+                level=cdk.aws_stepfunctions.LogLevel.ALL
+            )
         )
 
         eventbridge_cron = cdk.aws_events.Rule(
