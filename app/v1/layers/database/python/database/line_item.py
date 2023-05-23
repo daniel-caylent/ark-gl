@@ -5,7 +5,7 @@ from . import account
 
 app_to_db = {
     "lineItemNo": "line_number",
-    "accountNo": "account_number",
+    "accountNo": "account_no",
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
@@ -58,7 +58,7 @@ def get_insert_query(
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
-    account_number = translated_input.get("account_number")
+    account_number = translated_input.get("account_no")
     account_id = account.get_id_by_number(db, account_number, region_name, secret_name)
 
     # Getting new uuid from the db to return it in insertion
@@ -150,9 +150,16 @@ def __get_by_number_journal_query(
     one to avoid SQL Injections
     """
     query = (
-        "SELECT * FROM "
+        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        li.line_number, li.memo, li.vendor_customer_partner_type,
+        li.vendor_customer_partner_id, li.posting_type, li.amount, li.created_at
+        FROM """
         + db
-        + ".line_item where line_number = %s and journal_entry_id = %s;"
+        + """.line_item li
+        INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
+        where li.line_number = %s and li.journal_entry_id = %s;"""
     )
 
     params = (line_number, journal_entry_id)
@@ -208,7 +215,18 @@ def __get_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = "SELECT * FROM " + db + ".line_item where journal_entry_id = %s;"
+    query = (
+        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        li.line_number, li.memo, li.vendor_customer_partner_type,
+        li.vendor_customer_partner_id, li.posting_type, li.amount, li.created_at
+        FROM """
+        + db
+        + """.line_item li
+        INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
+        where li.journal_entry_id = %s;"""
+    )
 
     params = (journal_entry_id,)
 
