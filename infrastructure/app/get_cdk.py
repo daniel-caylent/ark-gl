@@ -68,6 +68,42 @@ def build_lambda_function(
 
     return function
 
+def build_dr_lambda_function(
+    context, code_dir: str, handler: str, name="main", env={}, **kwargs
+):
+    function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
+
+    ledger_name = ENV["ledger_name"]
+    ledger_arn = (
+        "arn:aws:qldb:"
+        + os.getenv("AWS_REGION")
+        + ":"
+        + os.getenv("AWS_ACCOUNT")
+        + ":ledger/"
+        + ledger_name
+    )
+
+    dr_actions_statement = cdk.aws_iam.PolicyStatement(
+        actions=[
+            "qldb:ListJournalS3Exports",
+            "qldb:ListJournalS3ExportsForLedger",
+            "qldb:ExportJournalToS3",
+        ],
+        resources=[ledger_arn + "/*"],
+    )
+
+    dr_policy = cdk.aws_iam.Policy(
+        context,
+        "ark-dr-policy",
+        policy_name="ark-dr-policy",
+        statements=[ dr_actions_statement],
+    )
+
+    function.role.attach_inline_policy(dr_policy)
+
+    function.add_environment("LEDGER_NAME", ledger_name)
+
+    return function
 
 def build_qldb_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, **kwargs
