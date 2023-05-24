@@ -5,7 +5,7 @@ import sys
 import os
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from ..get_cdk import build_dr_lambda_function
+from ..get_cdk import build_dr_lambda_function, build_qldb_lambda_function
 from ..layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -32,7 +32,7 @@ from app.utils import get_stack_prefix
 from env import ENV
 from ..utils import DR_DIR
 
-CODE_DIR = str(PurePath(DR_DIR, "export"))
+EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
 
 
 class DRStack(BaseStack):
@@ -41,7 +41,7 @@ class DRStack(BaseStack):
 
         dr_bucket_name = ENV["dr_bucket_name"]
         ledger_name = ENV["ledger_name"]
-        source_bucket = s3.Bucket(
+        self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
             bucket_name=dr_bucket_name,
@@ -62,7 +62,7 @@ class DRStack(BaseStack):
             actions=[
                 "s3:*",
             ],
-            resources=[source_bucket.bucket_arn, source_bucket.bucket_arn+"/*"],
+            resources=[self.source_bucket.bucket_arn, self.source_bucket.bucket_arn+"/*"],
         )
 
         ledger_name = ENV["ledger_name"]
@@ -100,7 +100,7 @@ class DRStack(BaseStack):
 
         self.lambda_function = build_dr_lambda_function(
             self,
-            CODE_DIR,
+            EXPORT_CODE_DIR,
             handler="export_qldb.handler",
             layers=[shared_layer, qldb_layer, qldb_reqs],
             description="dr qldb export lambda",
@@ -129,7 +129,7 @@ class DRStack(BaseStack):
         #    bucket_key_enabled=True,
         #    replication_destinations=[
         #        s3.ReplicationDestination(
-        #            bucket=source_bucket,
+        #            bucket=self.source_bucket,
         #            region=replica_region
         #        )
         #    ]

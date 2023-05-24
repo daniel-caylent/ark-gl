@@ -4,7 +4,7 @@ import aws_cdk as cdk
 
 from env import ENV
 
-from app.dr import DRStack
+from app.dr import DRStack, LambdaRestoreStack
 
 
 
@@ -17,6 +17,10 @@ app = cdk.App()
 
 dr_stack = DRStack(
     app, "ark-disaster-recovery-stack", env=cdk_env
+)
+
+restore_stack = LambdaRestoreStack(
+    app, "ark-restore-stack", bucket=dr_stack.source_bucket, env=cdk_env
 )
 
 

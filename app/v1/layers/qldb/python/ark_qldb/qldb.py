@@ -97,6 +97,14 @@ class Driver:
 
         return cursor
 
+    def execute_custom_query_with_params(self, sql_query: str, *args) -> BufferedCursor:
+        logger.info("Executing custom query: " + sql_query)
+        cursor = self.qldb_driver.execute_lambda(
+            lambda x: x.execute_statement(sql_query, *args)
+        )
+
+        return cursor
+
     def insert_account(self, document: dict) -> None:
         self.insert_document("account", document)
 
