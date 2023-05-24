@@ -243,6 +243,14 @@ def build_api_gateway(context, id: str, **kwargs) -> cdk.aws_apigateway.IRestApi
     return cdk.aws_apigateway.RestApi(context, id, **kwargs)
 
 
+def build_api_gateway_deployment(context, id: str, **kwargs) -> cdk.aws_apigateway.Deployment:
+    return cdk.aws_apigateway.Deployment(context, id, **kwargs)
+
+
+def build_api_gateway_stage(context, id: str, **kwargs) -> cdk.aws_apigateway.Stage:
+    return cdk.aws_apigateway.Stage(context, id, **kwargs)
+
+
 def get_api_gateway_from_attributes(
     context, id: str, rest_api_id: str, root_resource_id: str
 ) -> cdk.aws_apigateway.IRestApi:
