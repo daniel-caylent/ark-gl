@@ -72,7 +72,7 @@ def build_dr_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, **kwargs
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
-
+    role_arn = env['role_arn']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
         "arn:aws:qldb:"
@@ -89,14 +89,21 @@ def build_dr_lambda_function(
             "qldb:ListJournalS3ExportsForLedger",
             "qldb:ExportJournalToS3",
         ],
-        resources=[ledger_arn + "/*"],
+        resources=[ledger_arn],
+    )
+
+    dr_actions_statement2 = cdk.aws_iam.PolicyStatement(
+        actions=[
+            "iam:PassRole",
+        ],
+        resources=[role_arn],
     )
 
     dr_policy = cdk.aws_iam.Policy(
         context,
         "ark-dr-policy",
         policy_name="ark-dr-policy",
-        statements=[ dr_actions_statement],
+        statements=[ dr_actions_statement, dr_actions_statement2],
     )
 
     function.role.attach_inline_policy(dr_policy)
