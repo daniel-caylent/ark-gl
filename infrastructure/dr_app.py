@@ -16,7 +16,7 @@ cdk_env=cdk.Environment(                     # Caylent env:
 app = cdk.App()
 
 dr_stack = DRStack(
-    app, "ark-dr-stack", env=cdk_env
+    app, "ark-disaster-recovery-stack", env=cdk_env
 )
 
 
