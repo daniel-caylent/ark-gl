@@ -15,7 +15,7 @@ def handler(event, context) -> tuple[int, dict]:
     session = boto3.Session(region_name=region)
     qldb_client = session.client('qldb')
     
-    time_end = datetime.now() 
+    time_end = datetime.now().replace( minute=0, second=0, microsecond=0) 
     time_start = time_end - timedelta(hours=1)
     # Specify the QLDB ledger name and export configuration
     export_config = {
