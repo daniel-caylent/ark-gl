@@ -9,7 +9,7 @@ from . import attachment
 app_to_db = {
     "id": "id",
     "journalEntryId": "uuid",
-    "journalNo": "journal_entry_no",
+    "journalEntryNo": "journal_entry_no",
     "ledgerId": "ledger_id",
     "reference": "reference",
     "memo": "memo",

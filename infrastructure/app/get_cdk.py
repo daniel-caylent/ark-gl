@@ -5,7 +5,7 @@ from env import ENV
 
 
 def build_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, timeout=60, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], **kwargs
 ):
     """
     Returns a Lambda Function with default configs + any customizations
@@ -32,7 +32,7 @@ def build_lambda_function(
     function = cdk.aws_lambda.Function(
         context,
         name,
-        code=cdk.aws_lambda.Code.from_asset(code_dir),
+        code=cdk.aws_lambda.Code.from_asset(code_dir, exclude=exclude),
         handler=handler,
         vpc=vpc,
         vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),

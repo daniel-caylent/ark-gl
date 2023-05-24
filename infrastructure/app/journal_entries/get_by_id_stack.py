@@ -14,7 +14,7 @@ from ..utils import JOURNAL_ENTRIES_DIR
 
 import aws_cdk as cdk
 
-CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "get_by_id"))
+CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "get"))
 MODELS_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "shared"))
 
 
@@ -24,15 +24,15 @@ class JournalEntriesGetByIdStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="get.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
+            handler="get_by_id.handler",
+            layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries get by id",
+            exclude=["get.py"]
         )
 
         cdk.CfnOutput(
