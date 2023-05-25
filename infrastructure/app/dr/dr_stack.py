@@ -110,7 +110,7 @@ class DRStack(BaseStack):
                 "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
-            vpc=vpc
+            name="export"
         )
 
         self.lambda_function.role.attach_inline_policy(dr_policy)
@@ -145,7 +145,7 @@ class DRStack(BaseStack):
                 "SQS_QUEUE_URL": queue.queue_url, 
                 "LOG_LEVEL": "INFO",
             },
-            vpc=vpc
+            name="distribute-export"
         )
         # Create the destination bucket in the replica region
         # replica_region = 'us-east-2'  # Replace with your desired replica region

@@ -1,28 +1,28 @@
 import os
+from datetime import datetime
 
 import aws_cdk as cdk
 
-from .utils import get_stack_id, get_stack_prefix
+from .utils import get_stack_prefix
 from env import ENV
 
 
 def build_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], vpc=None, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], **kwargs
 ):
     """
     Returns a Lambda Function with default configs + any customizations
     passed in as parameters. Call from a CDK Stack to add a lambda function
     to the stack
     """
-    if vpc is None:
-        vpc = get_vpc(context)
+    vpc = get_vpc(context, name)
 
     security_group_id = cdk.Fn.import_value(
         context.STACK_PREFIX + "lambda-security-group"
     )
 
     security_group = cdk.aws_ec2.SecurityGroup.from_security_group_id(
-        context, "ark-lambda-security-group", security_group_id
+        context, f"ark-lambda-security-group-{name}", security_group_id
     )
 
     security_group.add_ingress_rule(
@@ -38,7 +38,7 @@ def build_lambda_function(
         code=cdk.aws_lambda.Code.from_asset(code_dir, exclude=exclude),
         handler=handler,
         vpc=vpc,
-        vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),
+        vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context, name)),
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
         memory_size=512,
@@ -51,7 +51,7 @@ def build_lambda_function(
     # Secrets Manager permission
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
         context,
-        "db-secret",
+        f"db-secret-{name}",
         "/secret/arkgl_poc-??????"
         # context, "db-secret", 'ark/db-password-??????'
     )
@@ -72,9 +72,9 @@ def build_lambda_function(
     return function
 
 def build_dr_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, vpc=None, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, **kwargs
 ):
-    function = build_lambda_function(context, code_dir, handler, name, env,vpc, **kwargs)
+    function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
     role_arn = env['ROLE_ARN']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
@@ -104,7 +104,7 @@ def build_dr_lambda_function(
 
     dr_policy = cdk.aws_iam.Policy(
         context,
-        "ark-dr-policy",
+        f"ark-dr-policy-{name}",
         policy_name="ark-dr-policy",
         statements=[ dr_actions_statement, dr_actions_statement2],
     )
@@ -148,7 +148,7 @@ def build_qldb_lambda_function(
 
     qldb_policy = cdk.aws_iam.Policy(
         context,
-        "ark-db-qldb-policy",
+        f"ark-db-qldb-policy-{name}",
         policy_name="ark-db-qldb-policy",
         statements=[qldb_send_command_statement, qldb_actions_statement],
     )
@@ -193,7 +193,7 @@ def build_decorated_qldb_lambda_function(
 
     sqs_policy = cdk.aws_iam.Policy(
         context,
-        "ark-db-sqs-policy",
+        f"ark-db-sqs-policy-{name}",
         policy_name="ark-db-sqs-policy",
         statements=[sqs_actions_statement],
     )
@@ -228,7 +228,7 @@ def build_lambda_integration(
 ) -> cdk.aws_apigateway.LambdaIntegration:
     api_role = cdk.aws_iam.Role(
         context,
-        "api-role-" + role_suffix,
+        f"api-role-{role_suffix}-{function.function_name}",
         role_name="api-role-" + role_suffix,
         assumed_by=cdk.aws_iam.ServicePrincipal("apigateway.amazonaws.com"),
     )
@@ -280,20 +280,20 @@ def get_lambda_function_from_arn(
     return cdk.aws_lambda.Function.from_function_arn(context, id, function_arn)
 
 
-def get_vpc(context):
+def get_vpc(context, name=""):
     return cdk.aws_ec2.Vpc.from_lookup(
-        context, "ark-ledger-vpc", is_default=False, vpc_id=ENV["vpc"]
+        context, f"ark-ledger-vpc-{name}", is_default=False, vpc_id=ENV["vpc"]
     )
 
 
-def get_subnets(context):
+def get_subnets(context, name=""):
     subnet_ids = ENV["subnets"]
 
     subnets = []
     for subnet in subnet_ids:
         subnets.append(
             cdk.aws_ec2.Subnet.from_subnet_id(
-                context, f"ark-pes-subnet-{subnet}", subnet
+                context, f"ark-pes-subnet-{subnet}-{name}", subnet
             )
         )
 
