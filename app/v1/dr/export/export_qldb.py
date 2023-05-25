@@ -20,7 +20,7 @@ def handler(event, context) -> tuple[int, dict]:
     # Specify the QLDB ledger name and export configuration
     export_config = {
         'Bucket': dr_bucket_name,
-        'Prefix':'arkgl-dr-',
+        'Prefix':'arkgl-dr/',
         'EncryptionConfiguration': {        "ObjectEncryptionType": "SSE_S3"      }
     }
 

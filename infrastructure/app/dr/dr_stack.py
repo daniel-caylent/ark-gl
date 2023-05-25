@@ -44,7 +44,7 @@ class DRStack(BaseStack):
         self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
-            bucket_name=dr_bucket_name,
+            bucket_name=get_stack_prefix()+dr_bucket_name,
             encryption=s3.BucketEncryption.S3_MANAGED,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             versioned=True,

@@ -1,6 +1,6 @@
 from pathlib import PurePath
 
-from ..get_cdk import build_lambda_layer
+from ..get_cdk import build_lambda_layer, get_lambda_layer_from_arn
 
 from ..utils import LAYERS_DIR, LOCAL_LAYERS_DIR
 
@@ -44,4 +44,13 @@ def get_models_layer(context, models_dir):
     return build_lambda_layer(
         context, models_dir, "models",
         description="Lambda layer with account api models"
+    )
+
+def get_awswrangler_layer(context):
+    arn = "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python39:7"
+
+    return get_lambda_layer_from_arn(
+        context,
+        "layer"+arn,
+        arn
     )

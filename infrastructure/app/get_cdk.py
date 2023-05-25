@@ -212,6 +212,14 @@ def build_lambda_layer(context, code_dir, name="layer", **kwargs):
     )
 
 
+def get_lambda_layer_from_arn(context, id, arn):
+    return cdk.aws_lambda.LayerVersion.from_layer_version_arn(
+        context,
+        id,
+        arn
+    )
+
+
 def build_lambda_integration(
     context, function, role_suffix: str
 ) -> cdk.aws_apigateway.LambdaIntegration:
