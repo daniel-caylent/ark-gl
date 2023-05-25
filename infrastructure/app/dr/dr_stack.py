@@ -5,7 +5,7 @@ import sys
 import os
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from ..get_cdk import build_dr_lambda_function
+from ..get_cdk import build_dr_lambda_function, build_qldb_lambda_function
 from ..layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -32,7 +32,7 @@ from app.utils import get_stack_prefix
 from env import ENV
 from ..utils import DR_DIR
 
-CODE_DIR = str(PurePath(DR_DIR, "export"))
+EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
 
 
 class DRStack(BaseStack):
@@ -42,7 +42,7 @@ class DRStack(BaseStack):
         
         dr_bucket_name = get_stack_prefix() + ENV["dr_bucket_name"]
         ledger_name = ENV["ledger_name"]
-        source_bucket = s3.Bucket(
+        self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
             bucket_name= dr_bucket_name,
@@ -63,7 +63,7 @@ class DRStack(BaseStack):
             actions=[
                 "s3:*",
             ],
-            resources=[source_bucket.bucket_arn, source_bucket.bucket_arn+"/*"],
+            resources=[self.source_bucket.bucket_arn, self.source_bucket.bucket_arn+"/*"],
         )
 
         ledger_name = ENV["ledger_name"]
@@ -101,16 +101,14 @@ class DRStack(BaseStack):
 
         self.lambda_function = build_dr_lambda_function(
             self,
-            CODE_DIR,
+            EXPORT_CODE_DIR,
             handler="export_qldb.handler",
             layers=[shared_layer, qldb_layer, qldb_reqs],
             description="dr qldb export lambda",
             env={
-                "role_arn": qldb_role.role_arn,
-                "dr_bucket_name": dr_bucket_name,
-                "ledger_name": ledger_name,
-                "region": self.region,
-                "qldb_export_trigger_hour": cron_hour, 
+                "ROLE_ARN": qldb_role.role_arn,
+                "DR_BUCKET_NAME": dr_bucket_name,
+                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
         )

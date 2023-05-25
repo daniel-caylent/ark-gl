@@ -72,7 +72,7 @@ def build_dr_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, **kwargs
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
-    role_arn = env['role_arn']
+    role_arn = env['ROLE_ARN']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
         "arn:aws:qldb:"
@@ -209,6 +209,14 @@ def build_lambda_layer(context, code_dir, name="layer", **kwargs):
         code=cdk.aws_lambda.Code.from_asset(code_dir),
         compatible_runtimes=[cdk.aws_lambda.Runtime.PYTHON_3_9],
         **kwargs,
+    )
+
+
+def get_lambda_layer_from_arn(context, id, arn):
+    return cdk.aws_lambda.LayerVersion.from_layer_version_arn(
+        context,
+        id,
+        arn
     )
 
 

@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
-    dr_bucket_name = os.getenv("dr_bucket_name")
-    ledger_name = os.getenv("ledger_name")
-    region = os.getenv("region")
-    role_arn = os.getenv("role_arn")
-    qldb_export_trigger_hour = os.getenv("qldb_export_trigger_hour")
+    dr_bucket_name = os.getenv("DR_BUCKET_NAME")
+    ledger_name = os.getenv("LEDGER_NAME")
+    region = os.getenv("AWS_REGION")
+    role_arn = os.getenv("ROLE_ARN")
+    qldb_export_trigger_hour = os.getenv("QLDB_EXPORT_TRIGGER_HOUR")
     # Configure the AWS SDK with your credentials and desired region
     session = boto3.Session(region_name=region)
     qldb_client = session.client('qldb')
@@ -21,7 +21,7 @@ def handler(event, context) -> tuple[int, dict]:
     # Specify the QLDB ledger name and export configuration
     export_config = {
         'Bucket': dr_bucket_name,
-        'Prefix':'arkgl-dr-',
+        'Prefix':'arkgl-dr/',
         'EncryptionConfiguration': {        "ObjectEncryptionType": "SSE_S3"      }
     }
 
