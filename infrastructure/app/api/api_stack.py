@@ -1,16 +1,20 @@
 from constructs import Construct
+from datetime import datetime
 
 from ..base_stack import BaseStack
 
-from ..get_cdk import build_api_gateway
+from ..get_cdk import (
+    build_api_gateway,
+    build_api_gateway_deployment,
+    build_api_gateway_stage
+)
 
 from .api_account_attribute_nested_stack import AccountAttributesNestedStack
 from .api_account_nested_stack import AccountNestedStack
 from .api_ledger_nested_stack import LedgerNestedStack
 from .api_journal_entry_nested_stack import JournalEntryNestedStack
-from .api_deploy_stack import DeployStack
 
-from aws_cdk import aws_logs as logs, aws_apigateway as apigtw
+from aws_cdk import aws_apigateway as apigtw, aws_logs as logs
 
 
 class ApiStack(BaseStack):
@@ -58,4 +62,37 @@ class ApiStack(BaseStack):
         methods.extend(ledger_nested_stack.methods)
         methods.extend(journal_entries_nested_stack.methods)
 
-        DeployStack(self, "ark-gl-rest-api-deploy", self.api.rest_api_id, methods)
+        deployment = build_api_gateway_deployment(
+            self,
+            'ark-gl-api-deployment-'+datetime.now().isoformat(),
+            api=self.api)
+
+        if methods:
+            for method in methods:
+                deployment.node.add_dependency(method)
+
+        deployment.add_to_logical_id(datetime.now().isoformat())
+
+        log_group = logs.LogGroup(self, "api-logs")
+
+        stage = build_api_gateway_stage(
+            self,
+            "ark-gl-api-stage-v1",
+            stage_name="v1",
+            deployment=deployment,
+            metrics_enabled=True,
+            access_log_destination=apigtw.LogGroupLogDestination(log_group),
+            access_log_format=apigtw.AccessLogFormat.json_with_standard_fields(
+                caller=False,
+                http_method=True,
+                ip=True,
+                protocol=True,
+                request_time=True,
+                resource_path=True,
+                response_length=True,
+                status=True,
+                user=True,
+            )
+        )
+
+        self.api.deployment_stage = stage

@@ -5,7 +5,7 @@ from env import ENV
 
 
 def build_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, timeout=60, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], **kwargs
 ):
     """
     Returns a Lambda Function with default configs + any customizations
@@ -32,7 +32,7 @@ def build_lambda_function(
     function = cdk.aws_lambda.Function(
         context,
         name,
-        code=cdk.aws_lambda.Code.from_asset(code_dir),
+        code=cdk.aws_lambda.Code.from_asset(code_dir, exclude=exclude),
         handler=handler,
         vpc=vpc,
         vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context)),
@@ -241,6 +241,14 @@ def build_method_response(**kwargs) -> cdk.aws_apigateway.MethodResponse:
 
 def build_api_gateway(context, id: str, **kwargs) -> cdk.aws_apigateway.IRestApi:
     return cdk.aws_apigateway.RestApi(context, id, **kwargs)
+
+
+def build_api_gateway_deployment(context, id: str, **kwargs) -> cdk.aws_apigateway.Deployment:
+    return cdk.aws_apigateway.Deployment(context, id, **kwargs)
+
+
+def build_api_gateway_stage(context, id: str, **kwargs) -> cdk.aws_apigateway.Stage:
+    return cdk.aws_apigateway.Stage(context, id, **kwargs)
 
 
 def get_api_gateway_from_attributes(
