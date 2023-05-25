@@ -38,9 +38,9 @@ EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
 class DRStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        cron_hour = ENV["qldb_export_trigger_hour"]
+        cron_hour = ENV["QLDB_EXPORT_TRIGGER_HOUR"]
         
-        dr_bucket_name = get_stack_prefix() + ENV["dr_bucket_name"]
+        dr_bucket_name = get_stack_prefix() + ENV["DR_BUCKET_NAME"]
         ledger_name = ENV["ledger_name"]
         self.source_bucket = s3.Bucket(
             self,
@@ -66,7 +66,6 @@ class DRStack(BaseStack):
             resources=[self.source_bucket.bucket_arn, self.source_bucket.bucket_arn+"/*"],
         )
 
-        ledger_name = ENV["ledger_name"]
         ledger_arn = (
             "arn:aws:qldb:"
             + self.region
@@ -126,6 +125,13 @@ class DRStack(BaseStack):
         eventbridge_cron.add_target(
             cdk.aws_events_targets.LambdaFunction(self.lambda_function)
         )
+
+        queue = cdk.aws_sqs.Queue(
+            self,
+            id="ark-sqs-dr-recovery-process",
+            queue_name=self.STACK_PREFIX + ENV["SQS_RECOVERY_PROCESS"],
+        )
+
         # Create the destination bucket in the replica region
         # replica_region = 'us-east-2'  # Replace with your desired replica region
         # replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'
