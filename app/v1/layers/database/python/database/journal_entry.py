@@ -394,21 +394,30 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         journal_entry_id = cursor.lastrowid
 
         # Then, insert debit and credit entries
-        for debit_entry in input["debitEntries"]:
-            entry_params = line_item.get_insert_query(
-                db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
-            )
-            cursor.execute(entry_params[0], entry_params[1])
+        if "debitEntries" in input:
+            for debit_entry in input["debitEntries"]:
+                entry_params = line_item.get_insert_query(
+                    db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
+                )
+                cursor.execute(entry_params[0], entry_params[1])
 
-        for credit_entry in input["creditEntries"]:
-            entry_params = line_item.get_insert_query(
-                db, credit_entry, journal_entry_id, "Credit", region_name, secret_name
-            )
-            cursor.execute(entry_params[0], entry_params[1])
+        if "creditEntries" in input:
+            for credit_entry in input["creditEntries"]:
+                entry_params = line_item.get_insert_query(
+                    db,
+                    credit_entry,
+                    journal_entry_id,
+                    "Credit",
+                    region_name,
+                    secret_name,
+                )
+                cursor.execute(entry_params[0], entry_params[1])
 
-        for att in input["journalAttachments"]:
-            att_params = att.get_insert_query(db, att, journal_entry_id)
-            cursor.execute(att_params[0], att_params[1])
+        # Also, insert attachments
+        if "journalAttachments" in input:
+            for att in input["journalAttachments"]:
+                att_params = attachment.get_insert_query(db, att, journal_entry_id)
+                cursor.execute(att_params[0], att_params[1])
 
         conn.commit()
     except Exception as e:
@@ -511,18 +520,6 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     # Getting the id before updating
     journal_entry_id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
 
-    # Getting the line_number, uuid from all the line items for this journal
-    lines_list = line_item.select_numbers_by_journal(
-        db, journal_entry_id, region_name, secret_name
-    )
-
-    # Getting only the line_number for iterating later
-    list_line_numbers = [
-        key.get("line_number")
-        for key in lines_list
-        if key.get("line_number") is not None
-    ]
-
     conn = connection.get_connection(db, region_name, secret_name)
     cursor = conn.cursor()
 
@@ -530,81 +527,38 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         # Executing update of journal entry first
         cursor.execute(query, q_params)
 
-        # Then, upsert debit and credit entries
+        # Once updated, delete all its line_items and attachments
+        # and keep only the upcoming ones (if these exist)
+        del_entry_params = line_item.get_delete_by_journal_query(db, journal_entry_id)
+        cursor.execute(del_entry_params[0], del_entry_params[1])
+
+        del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
+        cursor.execute(del_att_params[0], del_att_params[1])
+
+        # Then, insert upcoming debit and credit entries
         if "debitEntries" in input:
             for debit_entry in input["debitEntries"]:
-                line_uuid = None
-
-                # Filtering to decide if it is insert/update
-                if debit_entry["lineItemNo"] in list_line_numbers:
-                    # Getting the uuid from the line_item
-                    line_uuid = next(
-                        (
-                            x
-                            for x in lines_list
-                            if x.get("line_number") == debit_entry["lineItemNo"]
-                        ),
-                        None,
-                    ).get("uuid")
-                    entry_params = line_item.get_update_query(
-                        db, line_uuid, debit_entry
-                    )
-                else:
-                    entry_params = line_item.get_insert_query(
-                        db,
-                        credit_entry,
-                        journal_entry_id,
-                        "Debit",
-                        region_name,
-                        secret_name,
-                    )
-
+                entry_params = line_item.get_insert_query(
+                    db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
+                )
                 cursor.execute(entry_params[0], entry_params[1])
 
         if "creditEntries" in input:
             for credit_entry in input["creditEntries"]:
-                line_uuid = None
-
-                # Filtering to decide if it is insert/update
-                if credit_entry["lineItemNo"] in list_line_numbers:
-                    # Getting the uuid from the line_item
-                    line_uuid = next(
-                        (
-                            x
-                            for x in lines_list
-                            if x.get("line_number") == credit_entry["lineItemNo"]
-                        ),
-                        None,
-                    ).get("uuid")
-                    entry_params = line_item.get_update_query(
-                        db, line_uuid, credit_entry
-                    )
-                else:
-                    entry_params = line_item.get_insert_query(
-                        db,
-                        credit_entry,
-                        journal_entry_id,
-                        "Credit",
-                        region_name,
-                        secret_name,
-                    )
-
+                entry_params = line_item.get_insert_query(
+                    db,
+                    credit_entry,
+                    journal_entry_id,
+                    "Credit",
+                    region_name,
+                    secret_name,
+                )
                 cursor.execute(entry_params[0], entry_params[1])
 
+        # Also, insert upcoming attachments
         if "journalAttachments" in input:
             for att in input["journalAttachments"]:
-                att_uuid = att.get("documentId")
-
-                # Checking to decide if it is insert/update
-                existent_att = attachment.select_by_document_id(
-                    db, att_uuid, region_name, secret_name
-                )
-
-                if existent_att:
-                    att_params = attachment.get_update_query(db, att_uuid, att)
-                else:
-                    att_params = attachment.get_insert_query(db, att, journal_entry_id)
-
+                att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])
 
         conn.commit()
