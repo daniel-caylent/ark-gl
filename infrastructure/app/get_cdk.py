@@ -228,7 +228,7 @@ def build_lambda_integration(
 ) -> cdk.aws_apigateway.LambdaIntegration:
     api_role = cdk.aws_iam.Role(
         context,
-        f"api-role-{role_suffix}-{function.function_name}",
+        f"api-role-{role_suffix}",
         role_name="api-role-" + role_suffix,
         assumed_by=cdk.aws_iam.ServicePrincipal("apigateway.amazonaws.com"),
     )
