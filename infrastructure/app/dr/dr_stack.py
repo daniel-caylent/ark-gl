@@ -38,13 +38,14 @@ CODE_DIR = str(PurePath(DR_DIR, "export"))
 class DRStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
-        dr_bucket_name = ENV["dr_bucket_name"]
+        cron_hour = ENV["qldb_export_trigger_hour"]
+        
+        dr_bucket_name = get_stack_prefix() + ENV["dr_bucket_name"]
         ledger_name = ENV["ledger_name"]
         source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
-            bucket_name=dr_bucket_name,
+            bucket_name= dr_bucket_name,
             encryption=s3.BucketEncryption.S3_MANAGED,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             versioned=True,
@@ -109,15 +110,27 @@ class DRStack(BaseStack):
                 "dr_bucket_name": dr_bucket_name,
                 "ledger_name": ledger_name,
                 "region": self.region,
+                "qldb_export_trigger_hour": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
         )
 
         self.lambda_function.role.attach_inline_policy(dr_policy)
 
+        eventbridge_cron = cdk.aws_events.Rule(
+            self,
+            get_stack_prefix() + "ark-qldb-export-trigger",
+            schedule=cdk.aws_events.Schedule.cron(minute=str(0), hour="*/"+str(cron_hour)),
+            rule_name=get_stack_prefix() + "ark-qldb-export-trigger",
+        )
+
+        # Add statemachine to CW Event Rule
+        eventbridge_cron.add_target(
+            cdk.aws_events_targets.LambdaFunction(self.lambda_function)
+        )
         # Create the destination bucket in the replica region
-        # replica_region = 'us-west-2'  # Replace with your desired replica region
-        # replica_bucket_name = 'arkgl-dr-replica'
+        # replica_region = 'us-east-2'  # Replace with your desired replica region
+        # replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'
         # replica_bucket = s3.Bucket(
         #    self,
         #    'arkgl-dr-replica-bucket',
@@ -130,7 +143,7 @@ class DRStack(BaseStack):
         #    replication_destinations=[
         #        s3.ReplicationDestination(
         #            bucket=source_bucket,
-        #            region=replica_region
+        #            region=replica_region,
         #        )
         #    ]
         # )

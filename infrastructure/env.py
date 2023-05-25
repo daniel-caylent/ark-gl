@@ -43,8 +43,9 @@ dev = {
     'sns_name': 'ark-sns-notifications',
     'reconciliation_trigger_hour': 1,
     'reconciliation_trigger_minute': 0,
+    'qldb_export_trigger_hour': '1',
     'dr_bucket_name': 'arkgl-dr',
-    **map_tag
+    **map_tag,
 }
 
 # TODO: remove the caylent configuration
