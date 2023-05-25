@@ -1,5 +1,6 @@
 from pathlib import PurePath
 
+import aws_cdk as cdk
 from constructs import Construct
 
 from ..base_stack import BaseStack
@@ -11,10 +12,8 @@ from ..layers import (
 )
 from ..utils import ACCOUNTS_DIR
 
-import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
-MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
 class AccountsGetByIdStack(BaseStack):
 
@@ -26,7 +25,7 @@ class AccountsGetByIdStack(BaseStack):
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
-            handler="get.handler",
+            handler="get_by_id.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="accounts get by id",
             exclude=["get.py"]

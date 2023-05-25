@@ -1,7 +1,7 @@
 import json
 
 from arkdb import accounts # pylint: disable=import-error
-from validate import validate_new_journal_entry
+from validate_new_journal_entry import validate_new_journal_entry
 
 
 

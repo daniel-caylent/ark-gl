@@ -1,5 +1,6 @@
 from pathlib import PurePath
 
+import aws_cdk as cdk
 from constructs import Construct
 
 from ..base_stack import BaseStack
@@ -11,10 +12,8 @@ from ..layers import (
 )
 from ..utils import ACCOUNTS_DIR
 
-import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
-MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
 class AccountsGetStack(BaseStack):
 

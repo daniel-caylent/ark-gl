@@ -2,6 +2,8 @@ from arkdb import funds, ledgers
 from models import LedgerPost
 
 def validate_new_ledger(ledger: dict) -> tuple[int, str, LedgerPost]:
+    """Validate a new ledger against business rules"""
+
     # validate the POST contents
     try:
         post = LedgerPost(**ledger)

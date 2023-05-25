@@ -1,9 +1,9 @@
 from pathlib import PurePath
 
+import aws_cdk as cdk
 from constructs import Construct
 
 from ..base_stack import BaseStack
-
 from ..get_cdk import build_qldb_lambda_function
 from ..layers import (
     get_pymysql_layer,
@@ -14,10 +14,8 @@ from ..layers import (
 )
 from ..utils import ACCOUNTS_DIR
 
-import aws_cdk as cdk
 
-
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'put'))
 
 class AccountsStateStack(BaseStack):
 
