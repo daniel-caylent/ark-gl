@@ -43,8 +43,9 @@ dev = {
     'sns_name': 'ark-sns-notifications',
     'reconciliation_trigger_hour': 1,
     'reconciliation_trigger_minute': 0,
-    'qldb_export_trigger_hour': '1',
-    'dr_bucket_name': 'arkgl-dr',
+    'QLDB_EXPORT_TRIGGER_HOUR': '1',
+    'DR_BUCKET_NAME': 'arkgl-dr',
+    'SQS_RECOVERY_PROCESS': 'ark-sqs-dr-recovery-process',
     **map_tag,
 }
 
