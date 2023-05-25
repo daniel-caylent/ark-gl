@@ -11,12 +11,13 @@ def handler(event, context) -> tuple[int, dict]:
     ledger_name = os.getenv("ledger_name")
     region = os.getenv("region")
     role_arn = os.getenv("role_arn")
+    qldb_export_trigger_hour = os.getenv("qldb_export_trigger_hour")
     # Configure the AWS SDK with your credentials and desired region
     session = boto3.Session(region_name=region)
     qldb_client = session.client('qldb')
     
     time_end = datetime.now().replace( minute=0, second=0, microsecond=0) 
-    time_start = time_end - timedelta(hours=1)
+    time_start = time_end - timedelta(hours=int(qldb_export_trigger_hour))
     # Specify the QLDB ledger name and export configuration
     export_config = {
         'Bucket': dr_bucket_name,
