@@ -24,7 +24,7 @@ def validate_new_journal_entry(journal_entry):
     journal_entries_ = journal_entries.select_by_ledger_id(post.ledgerId)
     unique = validate_unique_journal_entry(post, journal_entries_)
     if unique is False:
-        return 409, "Account number or name already exists in this fund.", None
+        return 409, "journalEntryNo already exists in this fund.", None
 
     if not validate_line_items(post.lineItems):
         return 400, "Line items are invalid.", None   

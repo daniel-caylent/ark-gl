@@ -18,6 +18,8 @@ app_to_db = {
     "isHidden": "is_hidden",
     "postDate": "post_date",
     "date": "date",
+    "attachments": "attachments",
+    "lineItems": "line_items"
 }
 
 
