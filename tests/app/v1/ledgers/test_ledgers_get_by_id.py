@@ -1,4 +1,5 @@
 import json
+from pathlib import PurePath
 
 from tests.app.data import (
     get_with_account_id,
@@ -6,10 +7,13 @@ from tests.app.data import (
     get_with_bad_account_id,
     LambdaContext
 )
+from tests.test_base import TestBase
+from tests.utils import APP_DIR
 
-from .ledgers_test_base import LedgersTestBase
+MODELS = str(PurePath(APP_DIR, 'ledgers', 'get'))
+PATHS = [MODELS]
 
-class TestLedgersGetById(LedgersTestBase):
+class TestLedgersPost(TestBase(PATHS)):
 
     def test_good_api_request(self):
         from app.v1.ledgers.get.get_by_id import handler

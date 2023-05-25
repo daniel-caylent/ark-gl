@@ -1,4 +1,5 @@
 import json
+from pathlib import PurePath
 
 from tests.app.data import (
     get_with_fund_id,
@@ -9,7 +10,7 @@ from tests.app.data import (
 
 from .accounts_test_base import AccountsTestBase
 
-class TestAccountsGetById(AccountsTestBase):
+class TestAccountsGet(AccountsTestBase):
 
     def test_good_api_request(self):
         from app.v1.accounts.get.get import handler

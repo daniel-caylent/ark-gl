@@ -18,35 +18,35 @@ class TestAccountsState(AccountsTestBase):
 
     
     def test_bad_body(self):
-      from app.v1.accounts import state
+      from app.v1.accounts.put.state import handler
       request = {
          "pathParameters": {
             "ledgerId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
          },
          "body": None
       }
-      response = state(request, LambdaContext())
+      response = handler(request, LambdaContext())
 
       assert 400 == response['statusCode']
 
     def test_bad_params(self):
-      from app.v1.accounts import state
+      from app.v1.accounts.put.state import handler
       request = {
          "pathParameters": {
             "ledgerI": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
          },
          "body": None
       }
-      response = state(request, LambdaContext())
+      response = handler(request, LambdaContext())
 
       assert 400 == response['statusCode']
 
     def test_no_params(self):
-      from app.v1.accounts import state
+      from app.v1.accounts.put.state import handler
       request = {
          "pathParameters": None,
          "body": None
       }
-      response = state(request, LambdaContext())
+      response = handler(request, LambdaContext())
 
       assert 400 == response['statusCode']
