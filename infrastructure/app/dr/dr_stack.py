@@ -5,7 +5,7 @@ import sys
 import os
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from ..get_cdk import build_dr_lambda_function, build_qldb_lambda_function
+from ..get_cdk import build_dr_lambda_function, build_qldb_lambda_function, get_vpc
 from ..layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -39,7 +39,7 @@ class DRStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         cron_hour = ENV["QLDB_EXPORT_TRIGGER_HOUR"]
-        
+        vpc = get_vpc(self)
         dr_bucket_name = get_stack_prefix() + ENV["DR_BUCKET_NAME"]
         ledger_name = ENV["ledger_name"]
         self.source_bucket = s3.Bucket(
@@ -110,6 +110,7 @@ class DRStack(BaseStack):
                 "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
+            vpc=vpc
         )
 
         self.lambda_function.role.attach_inline_policy(dr_policy)
@@ -132,6 +133,20 @@ class DRStack(BaseStack):
             queue_name=self.STACK_PREFIX + ENV["SQS_RECOVERY_PROCESS"],
         )
 
+        self.lambda_function_2 = build_dr_lambda_function(
+            self,
+            EXPORT_CODE_DIR,
+            handler="distribute_export.handler",
+            layers=[shared_layer, qldb_layer, qldb_reqs],
+            description="dr qldb export lambda",
+            env={
+                "ROLE_ARN": qldb_role.role_arn,
+                "DR_BUCKET_NAME": dr_bucket_name,
+                "SQS_QUEUE_URL": queue.queue_url, 
+                "LOG_LEVEL": "INFO",
+            },
+            vpc=vpc
+        )
         # Create the destination bucket in the replica region
         # replica_region = 'us-east-2'  # Replace with your desired replica region
         # replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'
