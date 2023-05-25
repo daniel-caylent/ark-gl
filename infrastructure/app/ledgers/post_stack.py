@@ -5,7 +5,6 @@ from constructs import Construct
 from ..base_stack import BaseStack
 from ..get_cdk import build_lambda_function
 from ..layers import (
-    get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer
@@ -16,7 +15,6 @@ import aws_cdk as cdk
 
 
 CODE_DIR = str(PurePath(LEDGERS_DIR, 'post'))
-SHARED_DIR = str(PurePath(LEDGERS_DIR, 'ledgers'))
 
 class LedgersPostStack(BaseStack):
 
@@ -25,12 +23,11 @@ class LedgersPostStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        ledger_layer = get_models_layer(self, SHARED_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
             handler="post.handler",
-            layers=[shared_layer, pymysql_layer, ledger_layer, db_layer],
+            layers=[shared_layer, pymysql_layer, db_layer],
             description="ledgers post"
         )
 

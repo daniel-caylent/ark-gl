@@ -1,8 +1,9 @@
 import json
 
 from arkdb import accounts, funds # pylint: disable=import-error
-from shared import endpoint, validate_uuid # pylint: disable=import-error
-from shared.accounts import validate_new_account, sort_accounts_for_insert # pylint: disable=import-error
+from shared import endpoint, validate_uuid
+from validate_new_account import validate_new_account
+from sort_accounts_for_insert import sort_accounts_for_insert
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:

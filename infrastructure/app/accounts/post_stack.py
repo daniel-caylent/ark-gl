@@ -6,7 +6,6 @@ from ..base_stack import BaseStack
 
 from ..get_cdk import build_lambda_function
 from ..layers import (
-    get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer
@@ -17,7 +16,6 @@ import aws_cdk as cdk
 
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'post'))
-MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
 class AccountsPostStack(BaseStack):
 
@@ -26,13 +24,13 @@ class AccountsPostStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
             handler="post.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
-            description="accounts post"
+            layers=[shared_layer, pymysql_layer, db_layer],
+            description="accounts post",
+            exclude=["csv*", "copy*", "sort*", "upload*"]
         )
 
         cdk.CfnOutput(

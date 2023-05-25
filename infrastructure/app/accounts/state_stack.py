@@ -17,7 +17,7 @@ from ..utils import ACCOUNTS_DIR
 import aws_cdk as cdk
 
 
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'state'))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
 
 class AccountsStateStack(BaseStack):
 
@@ -31,9 +31,10 @@ class AccountsStateStack(BaseStack):
         qldb_reqs = get_pyqldb_layer(self)
 
         lambda_function = build_qldb_lambda_function(self, CODE_DIR,
-            handler="put.handler",
+            handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
-            description="accounts state"
+            description="accounts state",
+            exclude=["put.py"]
         )
 
         cdk.CfnOutput(

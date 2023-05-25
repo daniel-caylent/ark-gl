@@ -4,8 +4,9 @@ from arkdb import accounts, account_attributes, funds  # pylint: disable=import-
 from shared import (
     endpoint
 )
-from shared.accounts.csv_ import download_from_s3, convert_csv_to_dicts  # pylint: disable=import-error
-from shared.accounts import sort_accounts_for_insert, validate_new_account  # pylint: disable=import-error
+from csv_ import download_from_s3, convert_csv_to_dicts  # pylint: disable=import-error
+from sort_accounts_for_insert import sort_accounts_for_insert
+from validate_new_account import validate_new_account  # pylint: disable=import-error
 from shared import validate_uuid  # pylint: disable=import-error
 
 

@@ -1,7 +1,7 @@
 import csv
 import requests
 
-from .validate_new_account import validate_new_account
+from validate_new_account import validate_new_account
 
 def download_from_s3(signed_s3_url: str) -> str:
     response = requests.get(signed_s3_url)

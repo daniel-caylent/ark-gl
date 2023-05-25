@@ -61,7 +61,7 @@ def validate_str(str_, name, min_len=0, max_len=255, allowed: list = None) -> st
     return str_
 
 
-def validate_int(int_, name, allowed: list = None) -> int:
+def validate_int(int_, name: str, min: int = None, max: int = None, allowed: list = None) -> int:
     """Validate an integer exists for this value"""
 
     if int_ is None:
@@ -73,6 +73,14 @@ def validate_int(int_, name, allowed: list = None) -> int:
         int_ = int(str(int_))
     except:
         raise Exception(f"{name} is invalid.")  # pylint: disable=broad-exception-raised,raise-missing-from
+
+    if min is not None:
+        if int_ < min:
+            raise Exception(f"{name} is invalid.")
+
+    if max is not None:
+        if int_ > max:
+            raise Exception(f"{name} is invalid.")
 
     if allowed:
         if int_ not in allowed:
