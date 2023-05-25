@@ -13,10 +13,10 @@ from ..utils import JOURNAL_ENTRIES_DIR
 
 import aws_cdk as cdk
 
-CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "get"))
+CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "post"))
 
 
-class JournalEntriesGetStack(BaseStack):
+class JournalEntriesPostStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -27,16 +27,15 @@ class JournalEntriesGetStack(BaseStack):
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="get.handler",
+            handler="post.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries get",
-            exclude=["get_by_id.py"]
+            description="journal entries post"
         )
 
         cdk.CfnOutput(
             self,
-            "ark-journal-entries-get-function-arn",
+            "ark-journal-entries-post-function-arn",
             value=lambda_function.function_arn,
             export_name=self.STACK_PREFIX
-            + "ark-journal-entries-get-function-arn",
+            + "ark-journal-entries-post-function-arn",
         )

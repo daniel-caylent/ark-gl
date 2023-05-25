@@ -13,7 +13,7 @@ class JournalEntryPost:
     reference: str
     memo: str
     adjustingJournalEntry: bool
-    journalNo: str
+    journalEntryNo: int
     attachments: list = field(default_factory=list)
     lineItems: list = field(default_factory=list)
     isHidden: bool = False

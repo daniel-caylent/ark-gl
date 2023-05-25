@@ -29,7 +29,8 @@ from app.ledgers import (
 
 from app.journal_entries import (
     JournalEntriesGetByIdStack,
-    JournalEntriesGetStack
+    JournalEntriesGetStack,
+    JournalEntriesPostStack
 )
 
 from env import ENV
@@ -130,6 +131,11 @@ journal_entries_get_stack = JournalEntriesGetStack(
 )
 journal_entries_get_stack.add_dependency(vpc_stack)
 
+journal_entries_post_stack = JournalEntriesPostStack(
+    app, "ark-gl-journal-entries-post-stack", env=cdk_env
+)
+journal_entries_post_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
 dependency_group.add(account_attributes_get_stack)
@@ -148,6 +154,7 @@ dependency_group.add(ledgers_delete_stack)
 dependency_group.add(ledgers_state_stack)
 dependency_group.add(journal_entries_get_by_id_stack)
 dependency_group.add(journal_entries_get_stack)
+dependency_group.add(journal_entries_post_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack",
                     env=cdk_env).node.add_dependency(dependency_group)

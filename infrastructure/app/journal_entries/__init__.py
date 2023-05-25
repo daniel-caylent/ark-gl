@@ -1,2 +1,3 @@
 from .get_by_id_stack import JournalEntriesGetByIdStack
 from .get_stack import JournalEntriesGetStack
+from .post_stack import JournalEntriesPostStack

@@ -4,7 +4,6 @@ from arkdb import accounts # pylint: disable=import-error
 from validate_new_journal_entry import validate_new_journal_entry
 
 
-
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
     """Handler for the journal entries POST request
