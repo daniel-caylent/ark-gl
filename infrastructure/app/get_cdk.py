@@ -72,7 +72,7 @@ def build_dr_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, **kwargs
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
-    role_arn = env['role_arn']
+    role_arn = env['ROLE_ARN']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
         "arn:aws:qldb:"
