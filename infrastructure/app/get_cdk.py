@@ -72,9 +72,9 @@ def build_lambda_function(
     return function
 
 def build_dr_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, vpc=None, **kwargs
 ):
-    function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
+    function = build_lambda_function(context, code_dir, handler, name, env,vpc, **kwargs)
     role_arn = env['ROLE_ARN']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
