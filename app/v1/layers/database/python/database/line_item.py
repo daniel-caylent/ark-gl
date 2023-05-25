@@ -9,9 +9,8 @@ app_to_db = {
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
-    "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
-    "entityId": "vendor_customer_partner_id",
+    "entityId": "entity_id",
 }
 
 
@@ -50,10 +49,10 @@ def get_insert_query(
         + db
         + """.line_item
             (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount,
-            state, is_hidden, vendor_customer_partner_type, vendor_customer_partner_id)
+            state, is_hidden, entity_id)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s);"""
+            %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
@@ -75,8 +74,7 @@ def get_insert_query(
         translated_input.get("amount"),
         translated_input.get("state"),
         translated_input.get("is_hidden"),
-        translated_input.get("vendor_customer_partner").get("VCPtype"),
-        translated_input.get("vendor_customer_partner").get("VCPId"),
+        translated_input.get("entity_id"),
     )
 
     return (query, params)
@@ -151,8 +149,8 @@ def __get_by_number_journal_query(
     """
     query = (
         """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
-        li.line_number, li.memo, li.vendor_customer_partner_type,
-        li.vendor_customer_partner_id, li.posting_type, li.amount, li.created_at
+        li.line_number, li.memo, li.entity_id,
+        li.posting_type, li.amount, li.created_at
         FROM """
         + db
         + """.line_item li
@@ -217,8 +215,8 @@ def __get_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     """
     query = (
         """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
-        li.line_number, li.memo, li.vendor_customer_partner_type,
-        li.vendor_customer_partner_id, li.posting_type, li.amount, li.created_at
+        li.line_number, li.memo, li.entity_id,
+        li.posting_type, li.amount, li.created_at
         FROM """
         + db
         + """.line_item li
