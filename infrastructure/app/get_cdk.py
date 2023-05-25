@@ -1,18 +1,21 @@
-import aws_cdk as cdk
 import os
+
+import aws_cdk as cdk
+
 from .utils import get_stack_id, get_stack_prefix
 from env import ENV
 
 
 def build_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], vpc=None, **kwargs
 ):
     """
     Returns a Lambda Function with default configs + any customizations
     passed in as parameters. Call from a CDK Stack to add a lambda function
     to the stack
     """
-    vpc = get_vpc(context)
+    if vpc is None:
+        vpc = get_vpc(context)
 
     security_group_id = cdk.Fn.import_value(
         context.STACK_PREFIX + "lambda-security-group"
