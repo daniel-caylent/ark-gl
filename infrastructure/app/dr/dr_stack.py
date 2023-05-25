@@ -106,11 +106,9 @@ class DRStack(BaseStack):
             layers=[shared_layer, qldb_layer, qldb_reqs],
             description="dr qldb export lambda",
             env={
-                "role_arn": qldb_role.role_arn,
-                "dr_bucket_name": dr_bucket_name,
-                "ledger_name": ledger_name,
-                "region": self.region,
-                "qldb_export_trigger_hour": cron_hour, 
+                "ROLE_ARN": qldb_role.role_arn,
+                "DR_BUCKET_NAME": dr_bucket_name,
+                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
         )

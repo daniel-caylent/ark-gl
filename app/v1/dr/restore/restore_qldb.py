@@ -5,7 +5,7 @@ from shared import logging
 from ark_qldb import qldb
 
 region = os.getenv("AWS_REGION")
-dr_bucket_name = os.getenv("dr_bucket_name")
+dr_bucket_name = os.getenv("DR_BUCKET_NAME")
 ledger_name = os.getenv("LEDGER_NAME")
 
 def handler(event, context) -> tuple[int, dict]:
