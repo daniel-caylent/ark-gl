@@ -24,15 +24,15 @@ class JournalEntriesGetStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
             handler="get.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
+            layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries get",
+            exclude=["get_by_id.py"]
         )
 
         cdk.CfnOutput(
