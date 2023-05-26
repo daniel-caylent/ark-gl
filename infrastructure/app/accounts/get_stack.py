@@ -1,21 +1,19 @@
 from pathlib import PurePath
 
+import aws_cdk as cdk
 from constructs import Construct
 
 from ..base_stack import BaseStack
-from ..get_cdk import build_lambda_function, build_integration_responses, build_method_response, build_lambda_integration
+from ..get_cdk import build_lambda_function
 from ..layers import (
-    get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer
 )
 from ..utils import ACCOUNTS_DIR
 
-import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'get'))
-MODELS_DIR = str(PurePath(ACCOUNTS_DIR, 'models'))
 
 class AccountsGetStack(BaseStack):
 
@@ -24,13 +22,13 @@ class AccountsGetStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
             handler="get.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
-            description="accounts get"
+            layers=[shared_layer, pymysql_layer, db_layer],
+            description="accounts get",
+            exclude=["get_by_id.py"]
         )
 
         cdk.CfnOutput(

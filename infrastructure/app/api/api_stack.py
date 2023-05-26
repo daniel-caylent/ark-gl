@@ -32,7 +32,7 @@ class ApiStack(BaseStack):
             self,
             "ark-gl-account-attributes-api-nested",
             self.api.rest_api_id,
-            self.api.rest_api_root_resource_id
+            self.api.rest_api_root_resource_id,
         )
 
         account_nested_stack=AccountNestedStack(

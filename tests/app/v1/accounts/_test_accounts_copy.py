@@ -17,6 +17,6 @@ class TestAccountsCopy(AccountsTestBase):
     #     assert 201 == result['statusCode']
 
     def test_is_json_encodable(self):
-        from app.v1.accounts.copy_all.post import handler
+        from app.v1.accounts.post.copy_all import handler
         result = handler(good_copy, LambdaContext())
         json.dumps(result)

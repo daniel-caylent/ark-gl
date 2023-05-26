@@ -2,7 +2,7 @@ import json
 
 from arkdb import ledgers # pylint: disable=import-error
 from shared import endpoint
-from shared.ledgers import validate_new_ledger # pylint: disable=import-error
+from validate_new_ledger import validate_new_ledger # pylint: disable=import-error
 
 
 @endpoint

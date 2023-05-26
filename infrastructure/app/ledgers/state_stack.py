@@ -15,7 +15,7 @@ from ..layers import (
 from ..utils import LEDGERS_DIR
 
 
-CODE_DIR = str(PurePath(LEDGERS_DIR, 'state'))
+CODE_DIR = str(PurePath(LEDGERS_DIR, 'put'))
 
 class LedgersStateStack(BaseStack):
 
@@ -29,9 +29,10 @@ class LedgersStateStack(BaseStack):
         qldb_layer = get_qldb_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
-            handler="put.handler",
+            handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, pyqldb_layer, qldb_layer],
-            description="ledgers state"
+            description="ledgers state",
+            exclude=["put.py"]
         )
 
         cdk.CfnOutput(

@@ -5,7 +5,6 @@ from constructs import Construct
 from ..base_stack import BaseStack
 from ..get_cdk import build_lambda_function
 from ..layers import (
-    get_models_layer,
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer
@@ -15,8 +14,7 @@ from ..utils import LEDGERS_DIR
 import aws_cdk as cdk
 
 
-CODE_DIR = str(PurePath(LEDGERS_DIR, 'get_by_id'))
-MODELS_DIR = str(PurePath(LEDGERS_DIR, 'models'))
+CODE_DIR = str(PurePath(LEDGERS_DIR, 'get'))
 
 class LedgersGetByIdStack(BaseStack):
 
@@ -25,13 +23,13 @@ class LedgersGetByIdStack(BaseStack):
 
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
-        models_layer = get_models_layer(self, MODELS_DIR)
         db_layer = get_database_layer(self)
 
         lambda_function = build_lambda_function(self, CODE_DIR,
-            handler="get.handler",
-            layers=[shared_layer, pymysql_layer, models_layer, db_layer],
-            description="ledgers get by id"
+            handler="get_by_id.handler",
+            layers=[shared_layer, pymysql_layer, db_layer],
+            description="ledgers get by id",
+            exclude=["get.py"]
         )
 
         cdk.CfnOutput(
