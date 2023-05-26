@@ -37,7 +37,11 @@ accounts_reconciliation_stack.add_dependency(vpc_stack)
 load_balancer_reconciliation_stack = LoadBalancerJournalEntriesStack(app, "ark-load-balancer-reconciliation-stack", env=cdk_env)
 load_balancer_reconciliation_stack.add_dependency(vpc_stack)
 
-journals_reconciliation_stack = JournalEntriesReconciliationStack(app, "ark-journals-reconciliation-stack", env=cdk_env)
+journals_reconciliation_stack = JournalEntriesReconciliationStack(
+    app,
+    "ark-journals-reconciliation-stack",
+    queue=sqs_stack.queue,
+    env=cdk_env)
 journals_reconciliation_stack.add_dependency(vpc_stack)
 
 ledgers_reconciliation_stack = LedgersReconciliationStack(app, "ark-ledgers-reconciliation-stack", env=cdk_env)

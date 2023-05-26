@@ -1,8 +1,5 @@
-import json
 import boto3
 from ark_qldb import qldb
-from random import random
-from arkdb import accounts
 import os
 
 
@@ -15,8 +12,8 @@ def divide_chunks(l, n):
 def handler(event, context) -> tuple[int, dict]:
     driver = qldb.Driver("ARKGL", region_name="us-east-1")
     buffered_cursor = driver.read_document_fields(
-        "test_account2", ["accountNo"]
-    )  # will need to change it to uuid later with the correct data
+        "journal_entry", ["uuid"]
+    )
     sqs_name = os.getenv("sqs_name")
     processed_list = []
     i = 0
@@ -26,8 +23,8 @@ def handler(event, context) -> tuple[int, dict]:
 
     for current_row in buffered_cursor:
         processed_list.append(
-            current_row["accountNo"]
-        )  # will need to change it to uuid later with the correct data
+            current_row["uuid"]
+        )
 
     x = list(divide_chunks(processed_list, CHUNK_SIZE))
 

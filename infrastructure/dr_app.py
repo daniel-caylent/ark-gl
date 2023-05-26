@@ -23,7 +23,10 @@ dr_stack = DRStack(
 dr_stack.add_dependency(vpc_stack)
 
 restore_stack = LambdaRestoreStack(
-    app, "ark-restore-stack", bucket=dr_stack.source_bucket, env=cdk_env
+    app, "ark-restore-stack",
+    bucket=dr_stack.source_bucket,
+    queue=dr_stack.queue,
+    env=cdk_env
 )
 restore_stack.add_dependency(vpc_stack)
 
