@@ -396,28 +396,18 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         journal_entry_id = cursor.lastrowid
 
         # Then, insert debit and credit entries
-        if "debitEntries" in input:
-            for debit_entry in input["debitEntries"]:
+        if "lineItems" in input:
+            for item in input["lineItems"]:
+                type_ = item.pop("type")
                 entry_params = line_item.get_insert_query(
-                    db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
+                    db, item, journal_entry_id, type_, region_name, secret_name
                 )
                 cursor.execute(entry_params[0], entry_params[1])
 
-        if "creditEntries" in input:
-            for credit_entry in input["creditEntries"]:
-                entry_params = line_item.get_insert_query(
-                    db,
-                    credit_entry,
-                    journal_entry_id,
-                    "Credit",
-                    region_name,
-                    secret_name,
-                )
-                cursor.execute(entry_params[0], entry_params[1])
 
         # Also, insert attachments
-        if "journalAttachments" in input:
-            for att in input["journalAttachments"]:
+        if "attachments" in input:
+            for att in input["attachments"]:
                 att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])
 
