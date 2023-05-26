@@ -147,6 +147,22 @@ class DRStack(BaseStack):
             },
             name="distribute-export"
         )
+
+        sqs_actions_statement = cdk.aws_iam.PolicyStatement(
+            actions=[
+                "sqs:SendMessage",
+            ],
+            resources=[queue.queue_arn],
+        )
+
+        dr_policy_2 = cdk.aws_iam.Policy(
+            self,
+            "ark-dr-export-policy2",
+            policy_name="ark-dr-export-policy2",
+            statements=[dr_actions_statement, dr_actions_statement2, sqs_actions_statement],
+        )
+
+        self.lambda_function_2.role.attach_inline_policy(dr_policy_2)
         # Create the destination bucket in the replica region
         # replica_region = 'us-east-2'  # Replace with your desired replica region
         # replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'

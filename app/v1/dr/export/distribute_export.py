@@ -25,14 +25,12 @@ def handler(event, context) -> tuple[int, dict]:
 
         # Push each object key to the SQS queue
         for object_key in object_keys:
-            sqs.send_message(
-                QueueUrl=target_queue_url,
-                MessageBody=object_key
-            )
+            if object_key.endswith('.json'):
+                sqs.send_message(
+                 QueueUrl=target_queue_url,
+                 MessageBody="s3://"+source_bucket+"/"+object_key
+             )
 
-    return {
-        'statusCode': 200,
-        'body': 'Files pushed to SQS successfully!'
-    }
+    return (200,{})
 
 
