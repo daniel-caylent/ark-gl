@@ -127,7 +127,7 @@ class DRStack(BaseStack):
             cdk.aws_events_targets.LambdaFunction(self.lambda_function)
         )
 
-        queue = cdk.aws_sqs.Queue(
+        self.queue = cdk.aws_sqs.Queue(
             self,
             id="ark-sqs-dr-recovery-process",
             queue_name=self.STACK_PREFIX + ENV["SQS_RECOVERY_PROCESS"],
@@ -152,7 +152,7 @@ class DRStack(BaseStack):
             actions=[
                 "sqs:SendMessage",
             ],
-            resources=[queue.queue_arn],
+            resources=[self.queue.queue_arn],
         )
 
         dr_policy_2 = cdk.aws_iam.Policy(

@@ -45,7 +45,6 @@ class LambdaRestoreStack(BaseStack):
             layers=[shared_layer, qldb_layer, qldb_reqs, awswrangler],
             description="dr qldb restore lambda",
             env={
-                "DR_BUCKET_NAME": bucket.bucket_name,
                 "LOG_LEVEL": "INFO",
             },
         )
