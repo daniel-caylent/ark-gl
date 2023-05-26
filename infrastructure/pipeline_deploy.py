@@ -5,17 +5,19 @@ from aws_cdk import (
     aws_codebuild as codebuild,
     aws_codedeploy as codedeploy,
     aws_ecs as ecs,
+    aws_events as events,
+    aws_events_targets as targets,
     Stack
 )
 from constructs import Construct
 from app.base_stack import BaseStack
 
-class PipelineStack(BaseStack):
+class PipelineDeployStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # Define the CodeCommit repository
-        repo = codecommit.Repository.from_repository_name(self, 'ark-ledger', 'ark-ledger')
+        repo = codecommit.Repository.from_repository_name(self, 'ark-ledger', 'ark-ledger-pipeline-test')
 
         # Define the CodeBuild project
         build_project = codebuild.PipelineProject(self, 'ark-build-project',
@@ -51,8 +53,8 @@ class PipelineStack(BaseStack):
         )
 
         # Define the pipeline
-        pipeline = codepipeline.Pipeline(self, 'ark-code-pipeline',
-            pipeline_name=self.STACK_PREFIX + 'ark-code-pipeline',
+        pipeline = codepipeline.Pipeline(self, 'ark-code-pipeline-deploy',
+            pipeline_name=self.STACK_PREFIX + 'ark-code-pipeline-deploy',
             cross_account_keys=False,
             restart_execution_on_update=True
         )
@@ -67,6 +69,7 @@ class PipelineStack(BaseStack):
             branch='main',
             trigger=codepipeline_actions.CodeCommitTrigger.POLL
         )
+
         pipeline.add_stage(
             stage_name='Source',
             actions=[source_action]
@@ -82,4 +85,28 @@ class PipelineStack(BaseStack):
         pipeline.add_stage(
             stage_name='Build',
             actions=[build_action]
+        )
+
+        events.Rule(
+            self,
+            "ark-gl-pipeline-deploy-rule",
+            description="Trigger notifications based on CodeCommit PullRequests for Deployment",
+            event_pattern=events.EventPattern(
+                source=["aws.codecommit"],
+                detail_type=["CodeCommit Pull Request State Change"],
+                resources=[repo.repository_arn],
+                detail={
+                    "event": [
+                        "pullRequestMergeStatusUpdated"
+                    ],
+                    "isMerged": [
+                        "True"
+                    ]
+                }
+            ),
+            targets=[
+                targets.CodePipeline(
+                    pipeline,
+                )
+            ]
         )
