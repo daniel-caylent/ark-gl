@@ -30,7 +30,10 @@ RESTORE_CODE_DIR = str(PurePath(DR_DIR, "restore"))
 
 
 class LambdaRestoreStack(BaseStack):
-    def __init__(self, scope: Construct, id: str, bucket: cdk.aws_s3.Bucket, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str,
+                 bucket: cdk.aws_s3.Bucket,
+                 queue: cdk.aws_sqs.Queue,
+                 **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
         
         shared_layer = get_shared_layer(self)
@@ -50,3 +53,7 @@ class LambdaRestoreStack(BaseStack):
         )
 
         bucket.grant_read(self.restore_function.role)
+
+        # Adding DR sqs queue as source for this function
+        event_source = cdk.aws_lambda_event_sources.SqsEventSource(queue)
+        self.restore_function.add_event_source(event_source)

@@ -1,3 +1,4 @@
+import aws_cdk as cdk
 from pathlib import PurePath
 
 from constructs import Construct
@@ -20,7 +21,9 @@ CODE_DIR = str(PurePath(RECONCILIATION_DIR, "journal_entries"))
 
 
 class JournalEntriesReconciliationStack(BaseStack):
-    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str,
+                 queue: cdk.aws_sqs.Queue,
+                 **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         shared_layer = get_shared_layer(self)
@@ -39,3 +42,7 @@ class JournalEntriesReconciliationStack(BaseStack):
                 "LOG_LEVEL": "INFO",
             },
         )
+
+        # Adding sqs queue as source for this function
+        event_source = cdk.aws_lambda_event_sources.SqsEventSource(queue)
+        self.lambda_function.add_event_source(event_source)
