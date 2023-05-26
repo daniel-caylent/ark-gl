@@ -5,7 +5,7 @@ import aws_cdk as cdk
 
 from env import ENV
 
-from pipeline import PipelineStack
+from pipeline_deploy import PipelineDeployStack
 
 
 cdk_env=cdk.Environment(                     # Caylent env:
@@ -15,7 +15,7 @@ cdk_env=cdk.Environment(                     # Caylent env:
 
 app = cdk.App()
 
-PipelineStack(app, "ark-gl-pipeline-stack")
+PipelineDeployStack(app, "ark-gl-pipeline-deploy-stack")
 
 cdk.Tags.of(app).add('project', 'Ark PES')
 cdk.Tags.of(app).add(ENV['MAP_TAG'], ENV['MAP_VALUE'])
