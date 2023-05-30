@@ -6,16 +6,13 @@ class TestLineItem(LineItemTestBase):
     insert_input = {
         "lineItemNo": 1,
         "accountNo": 778899,
-        "entryMemo": "These charges describe catered Pizza.",
-        "VendorCustomerPartner": {
-            "VCPtype": "Vendor",
-            "VCPId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff"
-        },
+        "memo": "These charges describe catered Pizza.",
+        "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff",
         "amount": 10012
     }
 
     update_input = {
-        "entryMemo": "These charges describe catered Burgers.",
+        "memo": "These charges describe catered Burgers.",
         "amount": 100
     }
 
@@ -47,16 +44,13 @@ class TestLineItem(LineItemTestBase):
         INSERT INTO """
         + self.db
         + """.line_item
-            (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount,
-            state, is_hidden, vendor_customer_partner_type, vendor_customer_partner_id)
+            (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount, entity_id)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s);""",
+            (%s, %s, %s, %s, %s, %s, %s, %s);""",
             (
                 "d559fa87-e51a-11ed-aede-0247c1ed2eeb", 10, 1, self.insert_input["lineItemNo"],
-                self.insert_input["entryMemo"], "Credit", 10012, None, None,
-                self.insert_input["VendorCustomerPartner"]["VCPtype"],
-                self.insert_input["VendorCustomerPartner"]["VCPId"]
+                self.insert_input["memo"], "Credit", 10012,
+                self.insert_input["entityId"]
             )
         )
 
@@ -84,35 +78,7 @@ amount = %s
         wanted_result = (
             update_query+set_clause+where_clause,
             (
-                self.update_input["entryMemo"], self.update_input["amount"], id
-            )
-        )
-
-        assert wanted_result == result
-
-
-    def test_get_update_query(self):
-        import app.v1.layers.database.python.database.line_item as line_item
-
-        id = "d559fa87-e51a-11ed-aede-0247c1ed2eeb"
-        result = line_item.get_update_query(self.db, id, self.update_input)
-
-        update_query = (
-        """
-        UPDATE """
-        + self.db
-        + """.line_item
-        SET """
-        )
-        where_clause = " WHERE uuid = %s;"
-        set_clause = """memo = %s,
-amount = %s
-"""
-
-        wanted_result = (
-            update_query+set_clause+where_clause,
-            (
-                self.update_input["entryMemo"], self.update_input["amount"], id
+                self.update_input["memo"], self.update_input["amount"], id
             )
         )
 
@@ -189,11 +155,11 @@ amount = %s
         import app.v1.layers.database.python.database.db_main as db_main
 
         def execute_multiple_record_select(conn, params):
-            return [{'uuid':'abcde', 'line_number': 1, 'journal_id': 1, 'memo':'line'}]
+            return [{'uuid':'abcde', 'line_number': 1}, {'uuid':'fghijk', 'line_number': 2}]
 
         monkeypatch.setattr(connection, 'get_connection', Mock())
         monkeypatch.setattr(db_main, 'execute_multiple_record_select', execute_multiple_record_select)
 
         result = line_item.select_numbers_by_journal(self.db, 1, '', '')
 
-        assert [{'uuid':'abcde', 'line_number': 1, 'journal_id': 1, 'memo':'line'}] == result
+        assert [{'uuid':'abcde', 'line_number': 1}, {'uuid':'fghijk', 'line_number': 2}] == result
