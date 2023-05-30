@@ -10,7 +10,7 @@ from database.account import (
 from database.db_main import translate_to_app
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
-def select_by_fund_id(fund_id: int) -> list:
+def select_by_fund_id(fund_id: str) -> list:
     results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)
 
     translated = [translate_to_app(app_to_db, result) for result in results]

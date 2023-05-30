@@ -1,8 +1,8 @@
 import json
 
-from arkdb import accounts # pylint: disable=import-error
+from arkdb import journal_entries # pylint: disable=import-error
 from validate_new_journal_entry import validate_new_journal_entry
-
+from shared import endpoint
 
 
 @endpoint
@@ -29,5 +29,5 @@ def handler(event, context) -> tuple[int, dict]:
         return code, {'detail': detail}
 
     # insert the new account
-    result = accounts.create_new(post)
-    return code, {'accountId': result}
+    result = journal_entries.create_new(post)
+    return code, {'journalEntryId': result}

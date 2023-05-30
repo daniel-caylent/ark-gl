@@ -9,8 +9,7 @@ app_to_db = {
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
-    "state": "state",
-    "entityId": "entity_id",
+    "entityId": "entity_id"
 }
 
 
@@ -48,11 +47,9 @@ def get_insert_query(
         INSERT INTO """
         + db
         + """.line_item
-            (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount,
-            state, is_hidden, entity_id)
+            (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount, entity_id)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
@@ -72,8 +69,6 @@ def get_insert_query(
         translated_input.get("memo"),
         posting_type,
         translated_input.get("amount"),
-        translated_input.get("state"),
-        translated_input.get("is_hidden"),
         translated_input.get("entity_id"),
     )
 
