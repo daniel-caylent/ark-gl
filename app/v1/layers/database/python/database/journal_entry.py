@@ -103,19 +103,17 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
         """
         UPDATE """
         + db
-        + """.journal_item
+        + """.journal_entry
         SET """
     )
     where_clause = "WHERE uuid = %s;"
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
-    if "debitEntries" in translated_input:
-        del translated_input["debitEntries"]
-    if "creditEntries" in translated_input:
-        del translated_input["creditEntries"]
-    if "journalAttachments" in translated_input:
-        del translated_input["journalAttachments"]
+    if "lineItems" in translated_input:
+        del translated_input["lineItems"]
+    if "attachments" in translated_input:
+        del translated_input["attachments"]
 
     set_clause = ""
     params = ()
@@ -505,7 +503,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = __get_update_query(db, uuid, input, region_name, secret_name)
+    params = __get_update_query(db, uuid, input)
     query = params[0]
     q_params = params[1]
 
@@ -516,8 +514,9 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     cursor = conn.cursor()
 
     try:
-        # Executing update of journal entry first
-        cursor.execute(query, q_params)
+        if len(q_params) > 1:
+            # Executing update of journal entry first
+            cursor.execute(query, q_params)
 
         # Once updated, delete all its line_items and attachments
         # and keep only the upcoming ones (if these exist)
@@ -527,29 +526,19 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
         cursor.execute(del_att_params[0], del_att_params[1])
 
-        # Then, insert upcoming debit and credit entries
-        if "debitEntries" in input:
-            for debit_entry in input["debitEntries"]:
+        # Then, insert debit and credit entries
+        if "lineItems" in input:
+            for item in input["lineItems"]:
+                type_ = item.pop("type")
                 entry_params = line_item.get_insert_query(
-                    db, debit_entry, journal_entry_id, "Debit", region_name, secret_name
+                    db, item, journal_entry_id, type_, region_name, secret_name
                 )
                 cursor.execute(entry_params[0], entry_params[1])
 
-        if "creditEntries" in input:
-            for credit_entry in input["creditEntries"]:
-                entry_params = line_item.get_insert_query(
-                    db,
-                    credit_entry,
-                    journal_entry_id,
-                    "Credit",
-                    region_name,
-                    secret_name,
-                )
-                cursor.execute(entry_params[0], entry_params[1])
 
-        # Also, insert upcoming attachments
-        if "journalAttachments" in input:
-            for att in input["journalAttachments"]:
+        # Also, insert attachments
+        if "attachments" in input:
+            for att in input["attachments"]:
                 att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])
 

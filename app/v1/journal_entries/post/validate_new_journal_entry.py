@@ -1,5 +1,7 @@
 from models import JournalEntryPost, LineItemPost, AttachmentPost
 from arkdb import accounts, journal_entries, ledgers
+from shared import dataclass_error_to_str
+
 def validate_new_journal_entry(journal_entry):
     # Check for missing details
     if journal_entry.get('ledgerId') is None:
@@ -9,9 +11,7 @@ def validate_new_journal_entry(journal_entry):
     try:
         post = JournalEntryPost(**journal_entry)
     except Exception as e:
-        remove_str = "__init__() got an "
-        error_str = str(e).replace(remove_str, '')
-        return 400, error_str[0].upper() + error_str[1:], None
+        return 400, dataclass_error_to_str(e), None
 
     # validate that the ledger exists
     ledger = ledgers.select_by_id(post.ledgerId)
@@ -33,32 +33,27 @@ def validate_new_journal_entry(journal_entry):
             line_item_post = LineItemPost(**item)
             type_safe_line_items.append(line_item_post.__dict__)
         except Exception as e:
-            remove_str = "__init__() got an "
-            error_str = str(e).replace(remove_str, '')
-            return 400, error_str[0].upper() + error_str[1:], None
+            return 400, dataclass_error_to_str(e), None
         
         if line_item_post.accountNo not in acct_numbers:
             return 400, f"Line item references invalid account. Line item number: {line_item_post.lineItemNo}", None
   
+    post.lineItems = type_safe_line_items
+
     type_safe_attachments = []
     for attachment in post.attachments:
         try:
             attachment = AttachmentPost(**attachment)
             type_safe_attachments.append(attachment.__dict__)
         except Exception as e:
-            remove_str = "__init__() got an "
-            error_str = str(e).replace(remove_str, '')
-            return 400, error_str[0].upper() + error_str[1:], None
+            return 400, dataclass_error_to_str(e), None
         
+    post.attachments = type_safe_attachments
 
     if sum_line_items(type_safe_line_items) != 0:
         return 400, "Line items do not sum to 0.", None
 
-    type_safe_post = post.__dict__
-    type_safe_post["attachments"] = type_safe_attachments
-    type_safe_post["lineItems"] = type_safe_line_items
-
-    return 201, '', {'state': "DRAFT", **type_safe_post}
+    return 201, '', {'state': "DRAFT", **post.__dict__}
 
 
 def validate_unique_journal_entry(post, existing_journal_entries):

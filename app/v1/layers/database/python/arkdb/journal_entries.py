@@ -3,7 +3,8 @@ from database.journal_entry import (
     select_by_uuid,
     select_count_with_post_date,
     select_by_ledger_uuid,
-    insert
+    insert,
+    update
 )
 from database.line_item import (
     app_to_db as line_app_to_db,
@@ -51,6 +52,9 @@ def create_new(journal_entry):
     id = insert(DB_NAME, journal_entry, REGION_NAME, SECRET_NAME)
     return id
 
+def update_by_id(id, updated):
+    update(DB_NAME, id, updated, REGION_NAME, SECRET_NAME)
+
 def get_line_items(journal_id):
     results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
@@ -61,6 +65,7 @@ def get_line_items(journal_id):
     ]
 
     return filtered
+
 
 def get_attachments(journal_id):
     results = select_attachments(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
