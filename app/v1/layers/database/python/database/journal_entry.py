@@ -110,8 +110,8 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
-    if "lineItems" in translated_input:
-        del translated_input["lineItems"]
+    if "line_items" in translated_input:
+        del translated_input["line_items"]
     if "attachments" in translated_input:
         del translated_input["attachments"]
 
@@ -454,16 +454,16 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     cursor = conn.cursor()
 
     try:
-        # Executing delete of journal entry first
-        cursor.execute(query, q_params)
-
-        # Once deleted, delete the line items by journal_entry_id
+        # First, delete the line items by journal_entry_id
         entry_params = line_item.get_delete_by_journal_query(db, id)
         cursor.execute(entry_params[0], entry_params[1])
 
-        # Also, delete the attachments by journal_entry_id
+        # Then, delete the attachments by journal_entry_id
         att_params = attachment.get_delete_by_journal_query(db, id)
         cursor.execute(att_params[0], att_params[1])
+
+        # Finally delete the journal entry
+        cursor.execute(query, q_params)
 
         conn.commit()
     except Exception as e:

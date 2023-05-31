@@ -20,18 +20,18 @@ def validate_new_journal_entry(journal_entry):
 
     # check uniqueness of journal entry
     journal_entries_ = journal_entries.select_by_ledger_id(post.ledgerId)
-    unique = validate_unique_journal_entry(post, journal_entries_)
-    if unique is False:
-        return 409, "journalEntryNo already exists in this fund.", None
+    post.journalEntryNo = get_journal_entry_no(journal_entries_)
 
     accts = accounts.select_by_fund_id(ledger["fundId"])
     acct_numbers = [acct["accountNo"] for acct in accts]
 
     type_safe_line_items = []
+    line_item_no = 0
     for item in post.lineItems:
+        line_item_no += 1
         try:
             line_item_post = LineItemPost(**item)
-            type_safe_line_items.append(line_item_post.__dict__)
+            type_safe_line_items.append({"lineItemNo": line_item_no, **line_item_post.__dict__})
         except Exception as e:
             return 400, dataclass_error_to_str(e), None
         
@@ -56,10 +56,8 @@ def validate_new_journal_entry(journal_entry):
     return 201, '', {'state': "DRAFT", **post.__dict__}
 
 
-def validate_unique_journal_entry(post, existing_journal_entries):
-    for entry in existing_journal_entries:
-        if entry['journalEntryNo'] == post.journalEntryNo:
-            return False
+def validate_unique_journal_entry(journal_entries_):
+    return max([entry["journalEntryNo"] for entry in journal_entries_]) + 1
 
 def sum_line_items(line_items):
     sum = 0

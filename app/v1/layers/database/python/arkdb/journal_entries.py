@@ -4,7 +4,8 @@ from database.journal_entry import (
     select_count_with_post_date,
     select_by_ledger_uuid,
     insert,
-    update
+    update,
+    delete
 )
 from database.line_item import (
     app_to_db as line_app_to_db,
@@ -54,6 +55,9 @@ def create_new(journal_entry):
 
 def update_by_id(id, updated):
     update(DB_NAME, id, updated, REGION_NAME, SECRET_NAME)
+
+def delete_by_id(id):
+    delete(DB_NAME, id, REGION_NAME, SECRET_NAME)
 
 def get_line_items(journal_id):
     results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)

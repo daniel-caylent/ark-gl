@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 
 CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	journal_entry_no INT,
+	journal_entry_num INT,
 	`uuid` CHAR(36),
 	ledger_id INT NOT NULL,
 	`date` TIMESTAMP,
@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	is_hidden BOOL,
 	post_date TIMESTAMP,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (ledger_id) REFERENCES ledger (id)
+	FOREIGN KEY (ledger_id) REFERENCES ledger (id),
+	CONSTRAINT unique_no_and_ledger_id UNIQUE (journal_entry_no, ledger_id)
 );
 
 
