@@ -31,11 +31,14 @@ class JournalEntryNestedStack(BaseNestedStack):
         journal_entry_id_resource = journal_entry_resource.add_resource(
             "{journalEntryId}"
         )
+        journal_entry_state_resource = journal_entry_id_resource.add_resource("state")
 
         self.__register_journal_entry_get_method(journal_entry_resource)
         self.__register_journal_entry_post_method(journal_entry_resource)
-        self.__register_journal_entry_get_by_id_method(journal_entry_id_resource)
         self.__register_journal_entry_put_method(journal_entry_id_resource)
+        self.__register_journal_entry_get_by_id_method(journal_entry_id_resource)
+        self.__register_journal_entry_delete_method(journal_entry_id_resource)
+        self.__register_journal_entry_state_method(journal_entry_state_resource)
 
     def __register_journal_entry_get_by_id_method(self, resource):
         ark_journal_entry_get_function_arn = get_imported_value(
@@ -111,5 +114,45 @@ class JournalEntryNestedStack(BaseNestedStack):
         )
 
         method = resource.add_method("PUT", lambda_integration)
+
+        self.methods.append(method)
+
+
+    def __register_journal_entry_state_method(self, resource):
+        ark_journal_entry_state_function_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-journal-entries-state-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self,
+            "ark-journal-entries-state-function-arn",
+            ark_journal_entry_state_function_arn,
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "journal-entries-state"
+        )
+
+        method = resource.add_method("PUT", lambda_integration)
+
+        self.methods.append(method)
+
+
+    def __register_journal_entry_delete_method(self, resource):
+        ark_journal_entry_delete_function_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-journal-entries-delete-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self,
+            "ark-journal-entries-delete-function-arn",
+            ark_journal_entry_delete_function_arn,
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "journal-entries-delete"
+        )
+
+        method = resource.add_method("DELETE", lambda_integration)
 
         self.methods.append(method)

@@ -60,15 +60,17 @@ def handler(event, context) -> tuple[int, dict]:
     acct_numbers = [acct["accountNo"] for acct in accts]
     type_safe_line_items = []
     if put.lineItems:
+        line_item_no = 0
         for item in put.lineItems:
+            line_item_no += 1
             try:
                 line_item_put = LineItemPost(**item)
-                type_safe_line_items.append(line_item_put.__dict__)
+                type_safe_line_items.append({"lineItemNo": line_item_no, **line_item_put.__dict__})
             except Exception as e:
-                return 400, dataclass_error_to_str(e), None
-            
+                return 400, {"detail": dataclass_error_to_str(e)}
+
             if line_item_put.accountNo not in acct_numbers:
-                return 400, f"Line item references invalid account. Line item number: {line_item_put.lineItemNo}", None
+                return 400, {"detail": f"Line item references invalid account. Line item number: {line_item_put.lineItemNo}"}
 
         put.lineItems = type_safe_line_items
 
@@ -79,9 +81,13 @@ def handler(event, context) -> tuple[int, dict]:
                 attachment = AttachmentPost(**attachment)
                 type_safe_attachments.append(attachment.__dict__)
             except Exception as e:
-                return 400, dataclass_error_to_str(e), None
+                return 400, {"detail": dataclass_error_to_str(e)}
 
         put.attachments = type_safe_attachments
+
+
+    if sum_line_items(put.lineItems) != 0:
+        return 400, {"detail": "Line items do not sum to 0."}
 
     # only keep fields present in the initial body, but replace
     # with type safe values from dataclass
@@ -108,3 +114,13 @@ def check_missing_fields(dict_, required):
                 return field
     
     return None
+
+def sum_line_items(line_items):
+    sum = 0
+    for item in line_items:
+        if item["type"] == "CREDIT":
+            sum += item["amount"]
+        else:
+            sum -= item["amount"]
+
+    return sum

@@ -14,7 +14,6 @@ class JournalEntryPost:
     reference: str
     memo: str
     adjustingJournalEntry: bool
-    journalEntryNo: int
     attachments: list = field(default_factory=list)
     lineItems: list = field(default_factory=list)
     isHidden: bool = False
@@ -31,7 +30,6 @@ class JournalEntryPost:
 
 @dataclass
 class LineItemPost:
-    lineItemNo: int
     accountNo: str
     memo: str
     type: str
@@ -39,7 +37,6 @@ class LineItemPost:
     entityId: str
 
     def __post_init__(self):
-        self.lineItemNo = validate_int(self.lineItemNo, "lineItemNo")
         self.accountNo = validate_str(self.accountNo, "accountNo")
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
