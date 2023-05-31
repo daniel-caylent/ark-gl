@@ -28,14 +28,18 @@ class TestAccount(AccountsTestBase):
 
     db = "ARKGL"
 
-    @pytest.mark.skip(reason="failing tests") #TODO fix this failing test
+    
     def test_insert(self, monkeypatch):
-
         import app.v1.layers.database.python.database.account as account
         import app.v1.layers.database.python.database.connection as connection
 
         def get_insert_query(db, input, region_name, secret_name):
-            return (None, None, 'asd-123-456')
+            return (None, None, 'asd-123-456',
+                    {
+                        "fs_mapping_id": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
+                        "fs_name": "FSMapping is used for reporting purposes."
+                    }
+            )
 
         monkeypatch.setattr(account, '__get_insert_query', get_insert_query)
         monkeypatch.setattr(connection, 'get_connection', Mock())
