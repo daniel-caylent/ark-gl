@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	post_date TIMESTAMP,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (ledger_id) REFERENCES ledger (id),
-	CONSTRAINT unique_no_and_ledger_id UNIQUE (journal_entry_no, ledger_id)
+	CONSTRAINT unique_no_and_ledger_id UNIQUE (journal_entry_num, ledger_id)
 );
 
 
