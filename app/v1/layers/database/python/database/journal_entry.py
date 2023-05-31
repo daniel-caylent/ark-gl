@@ -9,7 +9,7 @@ from . import attachment
 app_to_db = {
     "id": "id",
     "journalEntryId": "uuid",
-    "journalEntryNo": "journal_entry_no",
+    "journalEntryNo": "journal_entry_num",
     "ledgerId": "ledger_id",
     "reference": "reference",
     "memo": "memo",
@@ -52,7 +52,7 @@ def __get_insert_query(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_no)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
@@ -74,7 +74,7 @@ def __get_insert_query(
         translated_input.get("adjusting_journal_entry"),
         translated_input.get("state"),
         translated_input.get("is_hidden"),
-        translated_input.get("journal_entry_no"),
+        translated_input.get("journal_entry_num"),
     )
 
     return (query, params, uuid)
@@ -175,7 +175,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
@@ -207,7 +207,7 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
