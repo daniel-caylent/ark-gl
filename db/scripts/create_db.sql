@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 
 CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	journal_entry_no INT,
+	journal_entry_num INT,
 	`uuid` CHAR(36),
 	ledger_id INT NOT NULL,
 	`date` TIMESTAMP,
