@@ -3,8 +3,8 @@ from pathlib import PurePath
 import aws_cdk as cdk
 from constructs import Construct
 
-from ..base_stack import BaseStack
-from ..get_cdk import build_qldb_lambda_function
+from shared.base_stack import BaseStack
+from shared.get_cdk import build_qldb_lambda_function
 from ..layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -12,7 +12,7 @@ from ..layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )
-from ..utils import ACCOUNTS_DIR
+from shared.utils import ACCOUNTS_DIR
 
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'put'))

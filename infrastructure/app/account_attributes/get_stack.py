@@ -2,14 +2,14 @@ from pathlib import Path, PurePath
 
 from constructs import Construct
 
-from tools.base_stack import BaseStack
-from tools.get_cdk import build_lambda_function, build_integration_responses, build_method_response, build_lambda_integration
+from shared.base_stack import BaseStack
+from shared.get_cdk import build_lambda_function, build_integration_responses, build_method_response, build_lambda_integration
 from ..layers import (
     get_shared_layer,
     get_pymysql_layer,
     get_database_layer
 )
-from tools.utils import ACCOUNTS_ATTR_DIR
+from shared.utils import ACCOUNTS_ATTR_DIR
 
 from aws_cdk import aws_apigateway as apigw
 import aws_cdk as cdk
