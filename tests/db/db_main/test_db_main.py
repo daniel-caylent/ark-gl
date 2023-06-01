@@ -8,7 +8,7 @@ class TestDbMain(DbMainTestBase):
     }
 
     def test_trans_app_to_db(self):
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.db_main as db_main
 
         input = {
             'appId': 1,
@@ -24,7 +24,7 @@ class TestDbMain(DbMainTestBase):
         }
 
     def test_trans_db_to_app(self):
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.db_main as db_main
         input = {
             'db_id': 1,
             'db_name': 'ark name',

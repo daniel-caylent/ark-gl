@@ -8,6 +8,7 @@ ROOT_DIR = str(PurePath(THIS_DIRECTORY.parent))
 sys.path.append(ROOT_DIR)
 
 APP_DIR = str(PurePath(ROOT_DIR, 'app', 'v1'))
+LAYERS_DIR = str(PurePath(ROOT_DIR, 'app', 'layers'))
 INFRASTRUCTURE_DIR = str(PurePath(ROOT_DIR, 'infrastructure'))
 ORIGINAL_PATH = sys.path
 

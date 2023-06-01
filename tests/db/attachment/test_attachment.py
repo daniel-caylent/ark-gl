@@ -14,7 +14,7 @@ class TestAttachment(AttachmentTestBase):
     db = "ARKGL"
 
     def test_get_insert_query(self, monkeypatch):
-        import app.v1.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.attachment as attachment
 
         result = attachment.get_insert_query(self.db, self.insert_input, 1)
 
@@ -36,7 +36,7 @@ class TestAttachment(AttachmentTestBase):
         assert wanted_result == result
 
     def test_get_update_query(self):
-        import app.v1.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.attachment as attachment
 
         id = "fb84c7c6-9f62-11ed-8cf5-0ed8d524e123"
         result = attachment.get_update_query(self.db, id, self.update_input)
@@ -60,7 +60,7 @@ class TestAttachment(AttachmentTestBase):
         assert wanted_result == result
 
     def test_get_delete_query(self):
-        import app.v1.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.attachment as attachment
 
         id = "fb84c7c6-9f62-11ed-8cf5-0ed8d524e123"
         result = attachment.get_delete_query(self.db, id)
@@ -78,7 +78,7 @@ class TestAttachment(AttachmentTestBase):
         assert wanted_result == result
 
     def test_get_delete_by_journal_query(self):
-        import app.v1.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.attachment as attachment
 
         journal_id = "1"
         result = attachment.get_delete_by_journal_query(self.db, journal_id)
@@ -96,9 +96,9 @@ class TestAttachment(AttachmentTestBase):
         assert wanted_result == result
 
     def test_select_by_document_id(self, monkeypatch):
-        import app.v1.layers.database.python.database.attachment as attachment
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_single_record_select(conn, params):
             return {
@@ -123,9 +123,9 @@ class TestAttachment(AttachmentTestBase):
         } == result
 
     def test_select_by_journal(self, monkeypatch):
-        import app.v1.layers.database.python.database.attachment as attachment
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_multiple_record_select(conn, params):
             return [
@@ -162,9 +162,9 @@ class TestAttachment(AttachmentTestBase):
         ] == result
 
     def test_select_by_multiple_journals(self, monkeypatch):
-        import app.v1.layers.database.python.database.attachment as attachment
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.attachment as attachment
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_multiple_record_select(conn, params):
             return [

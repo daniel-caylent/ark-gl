@@ -16,10 +16,8 @@ class PipelineDeployStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        # Define the CodeCommit repository
         repo = codecommit.Repository.from_repository_name(self, 'ark-ledger', 'ark-ledger-pipeline-test')
 
-        # Define the CodeBuild project
         build_project = codebuild.PipelineProject(self, 'ark-build-project',
             build_spec=codebuild.BuildSpec.from_object({
                 'version': '0.2',
@@ -52,7 +50,6 @@ class PipelineDeployStack(BaseStack):
             )
         )
 
-        # Define the pipeline
         pipeline = codepipeline.Pipeline(self, 'ark-code-pipeline-deploy',
             pipeline_name=self.STACK_PREFIX + 'ark-code-pipeline-deploy',
             cross_account_keys=False,
@@ -61,7 +58,6 @@ class PipelineDeployStack(BaseStack):
 
         source = codepipeline.Artifact('SourceOutput')
 
-        # Add the CodeCommit source action to the pipeline
         source_action = codepipeline_actions.CodeCommitSourceAction(
             action_name='Source',
             output=source,
@@ -75,7 +71,6 @@ class PipelineDeployStack(BaseStack):
             actions=[source_action]
         )
 
-        # Add the CodeBuild build action to the pipeline
         build_action = codepipeline_actions.CodeBuildAction(
             action_name='Build',
             project=build_project,
