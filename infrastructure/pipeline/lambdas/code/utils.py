@@ -29,6 +29,7 @@ phases:
       - pytest tests
       - pytest --cov=app tests
       - pytest --cov=infrastructure tests
+      - cd infrastructure/scripts && sh synth_apps.sh
 artifacts:
   files:
     - '**/*'"""
