@@ -1,7 +1,8 @@
 aws-cdk-lib==2.69.0
 constructs>=10.0.0,<11.0.0
-boto3==1.26.132
 pymysql==1.0.3
 pytest==7.3.1
 mock==5.0.2
 pytest-cov==4.0.0
+boto3==1.26.143
+cdk-nag==2.12.46

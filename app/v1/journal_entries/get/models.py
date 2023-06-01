@@ -5,7 +5,7 @@ class JournalEntry:
     """Validate a journal entry from internal DB"""
     ledgerId: str
     journalEntryId: str
-    journalEntryNo: str
+    journalEntryNum: str
     reference: str
     memo: str
     adjustingJournalEntry: bool

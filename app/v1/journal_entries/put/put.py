@@ -70,7 +70,7 @@ def handler(event, context) -> tuple[int, dict]:
                 return 400, {"detail": dataclass_error_to_str(e)}
 
             if line_item_put.accountNo not in acct_numbers:
-                return 400, {"detail": f"Line item references invalid account. Line item number: {line_item_put.lineItemNo}"}
+              return 400, {"detail": f"Line item references invalid account: {line_item_put.accountNo}"}
 
         put.lineItems = type_safe_line_items
 

@@ -18,10 +18,6 @@ def validate_new_journal_entry(journal_entry):
     if ledger is None:
         return 400, "Specified ledger does not exist.", None
 
-    # check uniqueness of journal entry
-    journal_entries_ = journal_entries.select_by_ledger_id(post.ledgerId)
-    post.journalEntryNo = get_journal_entry_no(journal_entries_)
-
     accts = accounts.select_by_fund_id(ledger["fundId"])
     acct_numbers = [acct["accountNo"] for acct in accts]
 
@@ -36,7 +32,7 @@ def validate_new_journal_entry(journal_entry):
             return 400, dataclass_error_to_str(e), None
         
         if line_item_post.accountNo not in acct_numbers:
-            return 400, f"Line item references invalid account. Line item number: {line_item_post.lineItemNo}", None
+            return 400, f"Line item references invalid account: {line_item_post.accountNo}", None
   
     post.lineItems = type_safe_line_items
 
@@ -55,9 +51,6 @@ def validate_new_journal_entry(journal_entry):
 
     return 201, '', {'state': "DRAFT", **post.__dict__}
 
-
-def validate_unique_journal_entry(journal_entries_):
-    return max([entry["journalEntryNo"] for entry in journal_entries_]) + 1
 
 def sum_line_items(line_items):
     sum = 0
