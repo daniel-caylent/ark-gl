@@ -11,19 +11,7 @@ from ..layers import (
     get_awswrangler_layer,
 )
 
-# setting path
-current = os.path.dirname(os.path.realpath(__file__))
-
-# Getting the parent directory name
-# where the current directory is present.
-parent = os.path.dirname(current)
-
-# adding the parent directory to
-# the sys.path.
-sys.path.append(parent)
-
-from app.base_stack import BaseStack
-
+from ..base_stack import BaseStack
 from ..utils import DR_DIR
 
 RESTORE_CODE_DIR = str(PurePath(DR_DIR, "restore"))
@@ -35,7 +23,7 @@ class LambdaRestoreStack(BaseStack):
                  queue: cdk.aws_sqs.Queue,
                  **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-        
+
         shared_layer = get_shared_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)

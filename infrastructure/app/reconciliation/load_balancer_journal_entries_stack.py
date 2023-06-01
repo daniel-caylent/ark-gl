@@ -13,7 +13,7 @@ from ..layers import (
     get_pyqldb_layer,
 )
 from ..utils import RECONCILIATION_DIR
-from env import ENV
+from ...env import ENV
 
 
 CODE_DIR = str(PurePath(RECONCILIATION_DIR, "load_balancer"))
@@ -28,7 +28,7 @@ class LoadBalancerJournalEntriesStack(BaseStack):
         db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
-      
+
         self.lambda_function = build_decorated_qldb_lambda_function(
             self,
             CODE_DIR,

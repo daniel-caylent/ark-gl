@@ -13,20 +13,19 @@ from ..layers import (
 )
 
 # setting path
-current = os.path.dirname(os.path.realpath(__file__))
+#current = os.path.dirname(os.path.realpath(__file__))
 
 # Getting the parent directory name
 # where the current directory is present.
-parent = os.path.dirname(current)
+#parent = os.path.dirname(current)
 
 # adding the parent directory to
 # the sys.path.
-sys.path.append(parent)
+#sys.path.append(parent)
 
-from app.base_stack import BaseStack
-from app.utils import get_stack_prefix
+from ..base_stack import BaseStack
+from ..utils import get_stack_prefix
 
-# sys.path.append('../')
 from env import ENV
 from ..utils import DR_DIR
 
@@ -88,7 +87,7 @@ class DRStack(BaseStack):
             policy_name="ark-dr-export-policy",
             statements=[dr_actions_statement, dr_actions_statement2],
         )
-        
+
         qldb_role.attach_inline_policy(dr_policy)
         shared_layer = get_shared_layer(self)
         # pymysql_layer = get_pymysql_layer(self)
@@ -105,7 +104,7 @@ class DRStack(BaseStack):
             env={
                 "ROLE_ARN": qldb_role.role_arn,
                 "DR_BUCKET_NAME": dr_bucket_name,
-                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
+                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour,
                 "LOG_LEVEL": "INFO",
             },
             name="export"
@@ -141,7 +140,7 @@ class DRStack(BaseStack):
             env={
                 "ROLE_ARN": qldb_role.role_arn,
                 "DR_BUCKET_NAME": dr_bucket_name,
-                "SQS_QUEUE_URL": self.queue.queue_url, 
+                "SQS_QUEUE_URL": self.queue.queue_url,
                 "LOG_LEVEL": "INFO",
             },
             name="distribute-export"
