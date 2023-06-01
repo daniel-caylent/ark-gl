@@ -1,7 +1,12 @@
 import aws_cdk as cdk
 from constructs import Construct
-
-from ..app.base_stack import BaseStack
+import os
+import sys
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+parent_2 = os.path.dirname(parent)
+sys.path.append(parent_2)
+from infrastructure.app.base_stack import BaseStack
 from env import ENV
 
 class QldbStack(BaseStack):

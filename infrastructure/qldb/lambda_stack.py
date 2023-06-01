@@ -2,17 +2,25 @@ import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
 import os
+import sys
+current = os.path.dirname(os.path.realpath(__file__))
+parent = os.path.dirname(current)
+parent_2 = os.path.dirname(parent)
+ 
+# adding the parent directory to
+# the sys.path.
+sys.path.append(parent_2)
 
-from ..app.base_stack import BaseStack
+from infrastructure.app.base_stack import BaseStack
 from env import ENV
-from ..app.utils import get_stack_prefix, QLDB_DIR
+from infrastructure.app.utils import get_stack_prefix, QLDB_DIR
 
-from ..app.layers import (
+from infrastructure.app.layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )
 
-from ..app.get_cdk import (
+from infrastructure.app.get_cdk import (
     get_vpc,
     get_subnets
 )
