@@ -1,9 +1,9 @@
 from constructs import Construct
 from datetime import datetime
 
-from ..base_stack import BaseStack
+from shared.base_stack import BaseStack
 
-from ..get_cdk import (
+from shared.get_cdk import (
     build_api_gateway,
     build_api_gateway_deployment,
     build_api_gateway_stage
