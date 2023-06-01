@@ -50,9 +50,9 @@ class LambdaTriggerStack(BaseStack):
 
         ledger_arn = (
             "arn:aws:qldb:"
-            + os.getenv("AWS_REGION")
+            + kwargs["env"].region
             + ":"
-            + os.getenv("AWS_ACCOUNT")
+            + kwargs["env"].account
             + ":ledger/"
             + ledger_name
         )
