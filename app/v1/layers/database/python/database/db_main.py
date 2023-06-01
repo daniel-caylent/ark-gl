@@ -19,6 +19,7 @@ def translate_to_db(app_to_db: dict, input: dict) -> dict:
     """
     return dict((app_to_db[key], value) for (key, value) in input.items())
 
+
 def translate_to_app(app_to_db: dict, input: dict) -> dict:
     """
     This function translates the input from db-format fields to app-format.
@@ -150,8 +151,6 @@ def get_new_uuid(connection: Connection) -> str:
     A string with the generated UUID
     """
     params = ("SELECT UUID() as id;", None)
-
-    # conn = connection.get_connection(db, region_name, secret_name, 'ro')
 
     record = execute_single_record_select(connection, params)
 
