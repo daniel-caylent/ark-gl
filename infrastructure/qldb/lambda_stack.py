@@ -6,9 +6,6 @@ import sys
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 parent_2 = os.path.dirname(parent)
- 
-# adding the parent directory to
-# the sys.path.
 sys.path.append(parent_2)
 
 from infrastructure.app.base_stack import BaseStack
