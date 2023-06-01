@@ -1,8 +1,8 @@
 from constructs import Construct
 
-from ..base_nested_stack import BaseNestedStack
+from shared.base_nested_stack import BaseNestedStack
 
-from ..get_cdk import (
+from shared.get_cdk import (
     get_api_gateway_from_attributes,
     get_lambda_function_from_arn,
     build_lambda_integration,
@@ -76,7 +76,7 @@ class LedgerNestedStack(BaseNestedStack):
         method = resource.add_method(
             "POST",
             lambda_integration)
-        
+
         self.methods.append(method)
 
     def __register_ledger_put_method(self, resource):
@@ -92,7 +92,7 @@ class LedgerNestedStack(BaseNestedStack):
         method = resource.add_method(
             "PUT",
             lambda_integration)
-        
+
         self.methods.append(method)
 
     def __register_ledger_delete_method(self, resource):
@@ -108,7 +108,7 @@ class LedgerNestedStack(BaseNestedStack):
         method = resource.add_method(
             "DELETE",
             lambda_integration)
-        
+
         self.methods.append(method)
 
     def __register_ledger_state_method(self, resource):
@@ -124,5 +124,5 @@ class LedgerNestedStack(BaseNestedStack):
         method = resource.add_method(
             "PUT",
             lambda_integration)
-        
+
         self.methods.append(method)

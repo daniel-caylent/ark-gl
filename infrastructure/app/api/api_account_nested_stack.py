@@ -1,8 +1,8 @@
 from constructs import Construct
 
-from ..base_nested_stack import BaseNestedStack
+from shared.base_nested_stack import BaseNestedStack
 
-from ..get_cdk import (
+from shared.get_cdk import (
     get_api_gateway_from_attributes,
     get_lambda_function_from_arn,
     build_lambda_integration,
