@@ -1,10 +1,10 @@
 import aws_cdk as cdk
 from constructs import Construct
 
-from ..base_stack import BaseStack
-from ..utils import get_stack_prefix
+from shared.base_stack import BaseStack
+from shared.utils import get_stack_prefix
 
-from ...env import ENV
+from env import ENV
 
 
 class StepFunctionStack(BaseStack):
