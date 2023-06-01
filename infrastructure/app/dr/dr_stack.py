@@ -93,6 +93,7 @@ class DRStack(BaseStack):
                 "QLDB_EXPORT_TRIGGER_HOUR": cron_hour,
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"],
             name="export"
         )
 
@@ -129,6 +130,7 @@ class DRStack(BaseStack):
                 "SQS_QUEUE_URL": self.queue.queue_url,
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"],
             name="distribute-export"
         )
 

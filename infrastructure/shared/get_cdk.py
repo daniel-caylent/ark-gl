@@ -53,7 +53,6 @@ def build_lambda_function(
         context,
         f"db-secret-{name}",
         "/secret/arkgl_poc-??????"
-        # context, "db-secret", 'ark/db-password-??????'
     )
 
     secret_policy = cdk.aws_iam.PolicyStatement(
@@ -72,16 +71,16 @@ def build_lambda_function(
     return function
 
 def build_dr_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, cdk_env={}, **kwargs
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
     role_arn = env['ROLE_ARN']
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
         "arn:aws:qldb:"
-        + os.getenv("AWS_REGION")
+        + cdk_env.region
         + ":"
-        + os.getenv("AWS_ACCOUNT")
+        + cdk_env.account
         + ":ledger/"
         + ledger_name
     )
@@ -116,16 +115,16 @@ def build_dr_lambda_function(
     return function
 
 def build_qldb_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, cdk_env={}, **kwargs
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
 
     ledger_name = ENV["ledger_name"]
     ledger_arn = (
         "arn:aws:qldb:"
-        + os.getenv("AWS_REGION")
+        + cdk_env.region
         + ":"
-        + os.getenv("AWS_ACCOUNT")
+        + cdk_env.account
         + ":ledger/"
         + ledger_name
     )
@@ -161,18 +160,18 @@ def build_qldb_lambda_function(
 
 
 def build_decorated_qldb_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, **kwargs
+    context, code_dir: str, handler: str, name="main", env={}, cdk_env={}, **kwargs
 ):
     function = build_qldb_lambda_function(
-        context, code_dir, handler, name, env, **kwargs
+        context, code_dir, handler, name, env, cdk_env, **kwargs
     )
 
     sqs_name = ENV["sqs_name"]
     sqs_arn = (
         "arn:aws:sqs:"
-        + os.getenv("AWS_REGION")
+        + cdk_env.region
         + ":"
-        + os.getenv("AWS_ACCOUNT")
+        + cdk_env.account
         + ":"
         + get_stack_prefix()
         + sqs_name

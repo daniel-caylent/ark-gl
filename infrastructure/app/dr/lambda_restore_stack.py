@@ -37,6 +37,7 @@ class LambdaRestoreStack(BaseStack):
             env={
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )
 
         bucket.grant_read(self.restore_function.role)

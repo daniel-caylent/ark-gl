@@ -39,4 +39,5 @@ class LedgersReconciliationStack(BaseStack):
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )

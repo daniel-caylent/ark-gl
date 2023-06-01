@@ -41,6 +41,7 @@ class JournalEntriesReconciliationStack(BaseStack):
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )
 
         # Adding sqs queue as source for this function
