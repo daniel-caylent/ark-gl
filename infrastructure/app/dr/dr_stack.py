@@ -1,33 +1,19 @@
 import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
-import sys
-import os
+
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from ..get_cdk import build_dr_lambda_function, get_vpc
-from ..layers import (
+from shared.get_cdk import build_dr_lambda_function, get_vpc
+from app.layers import (
     get_shared_layer,
     get_qldb_layer,
     get_pyqldb_layer,
 )
-
-# setting path
-#current = os.path.dirname(os.path.realpath(__file__))
-
-# Getting the parent directory name
-# where the current directory is present.
-#parent = os.path.dirname(current)
-
-# adding the parent directory to
-# the sys.path.
-#sys.path.append(parent)
-
-from ..base_stack import BaseStack
-from ..utils import get_stack_prefix
+from shared.base_stack import BaseStack
+from shared.utils import get_stack_prefix, DR_DIR
 
 from env import ENV
-from ..utils import DR_DIR
 
 EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
 

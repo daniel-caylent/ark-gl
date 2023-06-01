@@ -20,7 +20,7 @@ class TestLambdaRestoreStack(DrTestBase):
     )
 
     def test_lambda_restore_stack_created(self):
-        from infrastructure.app.dr import LambdaRestoreStack
+        from app.dr import LambdaRestoreStack
 
         app = core.App()
         fake_stack = DrFakeStack(app, "fake-stack", env=self.__class__.cdk_env)
