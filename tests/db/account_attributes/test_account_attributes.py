@@ -28,7 +28,7 @@ class TestAccountAttributes(AccountAttributesTestBase):
 
     def test_get_id(self, monkeypatch):
 
-        import app.v1.layers.database.python.database.account_attribute as account_attribute
+        import app.layers.database.python.database.account_attribute as account_attribute
 
         def mock_select_by_uuid(db, uuid, region_name, secret_name):
             return {

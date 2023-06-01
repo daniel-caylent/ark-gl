@@ -14,7 +14,7 @@ class TestFs(FsTestBase):
     db = "ARKGL"
 
     def test_get_insert_query(self, monkeypatch):
-        import app.v1.layers.database.python.database.fs as fs
+        import app.layers.database.python.database.fs as fs
 
         result = fs.get_insert_query(self.db, self.insert_input)
 
@@ -35,7 +35,7 @@ class TestFs(FsTestBase):
         assert wanted_result == result
 
     def test_get_update_query(self):
-        import app.v1.layers.database.python.database.fs as fs
+        import app.layers.database.python.database.fs as fs
 
         id = "fb84c7c6-9f62-11ed-8cf5-0ed8d524e123"
         result = fs.get_update_query(self.db, id, self.update_input)
@@ -59,7 +59,7 @@ class TestFs(FsTestBase):
         assert wanted_result == result
 
     def test_get_delete_query(self):
-        import app.v1.layers.database.python.database.fs as fs
+        import app.layers.database.python.database.fs as fs
 
         id = "fb84c7c6-9f62-11ed-8cf5-0ed8d524e123"
         result = fs.get_delete_query(self.db, id)
@@ -77,9 +77,9 @@ class TestFs(FsTestBase):
         assert wanted_result == result
 
     def test_select_by_fs_mapping_id(self, monkeypatch):
-        import app.v1.layers.database.python.database.fs as fs
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.fs as fs
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_single_record_select(conn, params):
             return {

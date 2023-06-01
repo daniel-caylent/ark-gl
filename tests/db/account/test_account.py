@@ -30,8 +30,8 @@ class TestAccount(AccountsTestBase):
 
     
     def test_insert(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
 
         def get_insert_query(db, input, region_name, secret_name):
             return (None, None, 'asd-123-456',
@@ -51,8 +51,8 @@ class TestAccount(AccountsTestBase):
 
     def test_delete(self, monkeypatch):
 
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
 
         def get_delete_query(db, id):
             return (None, None)
@@ -67,8 +67,8 @@ class TestAccount(AccountsTestBase):
 
     def test_update(self, monkeypatch):
 
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
 
         def get_update_query(db, id, input, region_name, secret_name):
             return (None, None)
@@ -82,9 +82,9 @@ class TestAccount(AccountsTestBase):
 
 
     def test_select_by_number(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_single_record_select(conn, params):
             return {'uuid':'abcde', 'id':123, 'name':'account'}
@@ -98,7 +98,7 @@ class TestAccount(AccountsTestBase):
 
 
     def test_get_id(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
+        import app.layers.database.python.database.account as account
 
         def select_by_number(db, account_number, region_name, secret_name):
             return {'uuid':'abcde', 'id':123, 'name':'account'}
@@ -111,9 +111,9 @@ class TestAccount(AccountsTestBase):
 
 
     def test_select_by_uuid(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_single_record_select(conn, params):
             return {'uuid':'abcde', 'id':123, 'name':'account'}
@@ -127,9 +127,9 @@ class TestAccount(AccountsTestBase):
 
 
     def test_select_by_fund(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_multiple_record_select(conn, params):
             return [{'uuid':'abcde', 'id':123, 'name':'account'}]
@@ -143,9 +143,9 @@ class TestAccount(AccountsTestBase):
 
 
     def test_select_by_name(self, monkeypatch):
-        import app.v1.layers.database.python.database.account as account
-        import app.v1.layers.database.python.database.connection as connection
-        import app.v1.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account as account
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
 
         def execute_single_record_select(conn, params):
             return {'uuid':'abcde', 'id':123, 'name':'account'}

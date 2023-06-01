@@ -60,9 +60,9 @@ class TestJournalEntry(JournalEntryTestBase):
     db = "ARKGL"
 
     def test_insert(self, monkeypatch):
-        import app.v1.layers.database.python.database.journal_entry as journal_entry
-        import app.v1.layers.database.python.database.line_item as line_item
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.journal_entry as journal_entry
+        import app.layers.database.python.database.line_item as line_item
+        import app.layers.database.python.database.connection as connection
 
         def get_inserted_query(db, debit_entry, journal_entry_id, type, region_name, secret_name):
             return (None, None)
@@ -80,9 +80,9 @@ class TestJournalEntry(JournalEntryTestBase):
 
 
     def test_delete(self, monkeypatch):
-        import app.v1.layers.database.python.database.journal_entry as journal_entry
-        import app.v1.layers.database.python.database.line_item as line_item
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.journal_entry as journal_entry
+        import app.layers.database.python.database.line_item as line_item
+        import app.layers.database.python.database.connection as connection
 
         def get_delete_by_journal_query(db, id):
             return (None, None)
@@ -101,9 +101,9 @@ class TestJournalEntry(JournalEntryTestBase):
 
     def test_update(self, monkeypatch):
 
-        import app.v1.layers.database.python.database.journal_entry as journal_entry
-        import app.v1.layers.database.python.database.line_item as line_item
-        import app.v1.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.journal_entry as journal_entry
+        import app.layers.database.python.database.line_item as line_item
+        import app.layers.database.python.database.connection as connection
 
         def select_numbers_by_journal(db, id, region_name, secret_name):
             return [{"line_number": 1, "data": "test"}, {"line_number": 2, "data": "test2"}]
