@@ -9,7 +9,7 @@ from shared.base_stack import BaseStack
 from shared.utils import get_stack_prefix, QLDB_DIR
 
 
-from layers import (
+from shared.layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )

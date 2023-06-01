@@ -5,7 +5,7 @@ from pathlib import PurePath
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
 from shared.get_cdk import build_dr_lambda_function, get_vpc
-from app.layers import (
+from shared.layers import (
     get_shared_layer,
     get_qldb_layer,
     get_pyqldb_layer,

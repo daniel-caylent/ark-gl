@@ -4,7 +4,7 @@ from constructs import Construct
 
 from shared.base_stack import BaseStack
 from shared.get_cdk import build_lambda_function, build_integration_responses, build_method_response, build_lambda_integration
-from layers import (
+from shared.layers import (
     get_shared_layer,
     get_pymysql_layer,
     get_database_layer

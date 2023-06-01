@@ -5,7 +5,7 @@ from constructs import Construct
 from shared.base_stack import BaseStack
 
 from shared.get_cdk import build_decorated_qldb_lambda_function
-from layers import (
+from shared.layers import (
     get_pymysql_layer,
     get_database_layer,
     get_qldb_layer,

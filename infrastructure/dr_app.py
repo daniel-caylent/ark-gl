@@ -5,7 +5,7 @@ import aws_cdk as cdk
 from env import ENV
 
 from app.dr import DRStack, LambdaRestoreStack
-from app.vpc_stack import VpcStack
+from shared.vpc_stack import VpcStack
 
 
 
