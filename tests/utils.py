@@ -9,10 +9,8 @@ sys.path.append(ROOT_DIR)
 
 APP_DIR = str(PurePath(ROOT_DIR, 'app', 'v1'))
 LAYERS_DIR = str(PurePath(ROOT_DIR, 'app', 'layers'))
+APP_SHARED_LAYER = str(PurePath(LAYERS_DIR, 'shared', 'python'))
 INFRASTRUCTURE_DIR = str(PurePath(ROOT_DIR, 'infrastructure'))
-INFRASTRUCTURE_APP_DIR = str(PurePath(ROOT_DIR, 'infrastructure', 'app'))
-
-sys.path.insert(0, INFRASTRUCTURE_APP_DIR)
 
 ORIGINAL_PATH = sys.path
 

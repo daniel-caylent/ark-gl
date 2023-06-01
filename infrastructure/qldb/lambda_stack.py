@@ -3,18 +3,18 @@ from constructs import Construct
 from pathlib import PurePath
 import os
 
-from env import ENV
+from infrastructure.env import ENV
 
-from ..app.base_stack import BaseStack
-from ..app.utils import get_stack_prefix, QLDB_DIR
+from infrastructure.app.base_stack import BaseStack
+from infrastructure.app.utils import get_stack_prefix, QLDB_DIR
 
 
-from ..app.layers import (
+from infrastructure.app.layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )
 
-from ..app.get_cdk import (
+from infrastructure.app.get_cdk import (
     get_vpc,
     get_subnets
 )

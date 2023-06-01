@@ -6,10 +6,10 @@ from tests.app.data import (
     LambdaContext
 )
 from tests.test_base import TestBase
-from tests.utils import APP_DIR
+from tests.utils import APP_DIR, APP_SHARED_LAYER
 
 MODELS = str(PurePath(APP_DIR, 'journal_entries', 'delete'))
-PATHS = [MODELS]
+PATHS = [MODELS, APP_SHARED_LAYER]
 
 class TestJournalEntriesDelete(TestBase(PATHS)):
 

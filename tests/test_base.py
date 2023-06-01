@@ -13,5 +13,7 @@ def TestBase(paths: list[str]) -> object:
             remove_from_path(paths)
             if sys.modules.get('models'):
                 sys.modules.pop('models')
+            if sys.modules.get('shared'):
+                sys.modules.pop('shared')
 
     return TestBaseClass

@@ -1,8 +1,8 @@
 import aws_cdk as cdk
 from constructs import Construct
 
-from ..app.base_stack import BaseStack
-from env import ENV
+from infrastructure.app.base_stack import BaseStack
+from infrastructure.env import ENV
 
 class QldbStack(BaseStack):
 
