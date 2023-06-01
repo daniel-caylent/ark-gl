@@ -9,7 +9,7 @@ from . import attachment
 app_to_db = {
     "id": "id",
     "journalEntryId": "uuid",
-    "journalEntryNo": "journal_entry_no",
+    "journalEntryNo": "journal_entry_num",
     "ledgerId": "ledger_id",
     "reference": "reference",
     "memo": "memo",
@@ -19,7 +19,7 @@ app_to_db = {
     "postDate": "post_date",
     "date": "date",
     "attachments": "attachments",
-    "lineItems": "line_items"
+    "lineItems": "line_items",
 }
 
 
@@ -52,7 +52,7 @@ def __get_insert_query(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_no)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
@@ -66,6 +66,11 @@ def __get_insert_query(
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
     uuid = db_main.get_new_uuid(ro_conn)
 
+    # Getting max journal_entry_num +1 by ledger_id
+    journal_entry_num = select_max_number_by_ledger(
+        db, ledger_id, region_name, secret_name
+    )
+
     params = (
         uuid,
         ledger_id,
@@ -74,7 +79,7 @@ def __get_insert_query(
         translated_input.get("adjusting_journal_entry"),
         translated_input.get("state"),
         translated_input.get("is_hidden"),
-        translated_input.get("journal_entry_no"),
+        journal_entry_num,
     )
 
     return (query, params, uuid)
@@ -175,7 +180,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
@@ -207,7 +212,7 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT je.id, je.journal_entry_no, je.uuid, le.uuid as ledger_id,
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at
     FROM """
@@ -397,11 +402,17 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         if "lineItems" in input:
             for item in input["lineItems"]:
                 type_ = item.pop("type")
+                line_number_ = str(input["lineItems"].index(item) + 1)
                 entry_params = line_item.get_insert_query(
-                    db, item, journal_entry_id, type_, region_name, secret_name
+                    db,
+                    item,
+                    journal_entry_id,
+                    line_number_,
+                    type_,
+                    region_name,
+                    secret_name,
                 )
                 cursor.execute(entry_params[0], entry_params[1])
-
 
         # Also, insert attachments
         if "attachments" in input:
@@ -530,11 +541,17 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         if "lineItems" in input:
             for item in input["lineItems"]:
                 type_ = item.pop("type")
+                line_number_ = str(input["lineItems"].index(item) + 1)
                 entry_params = line_item.get_insert_query(
-                    db, item, journal_entry_id, type_, region_name, secret_name
+                    db,
+                    item,
+                    journal_entry_id,
+                    line_number_,
+                    type_,
+                    region_name,
+                    secret_name,
                 )
                 cursor.execute(entry_params[0], entry_params[1])
-
 
         # Also, insert attachments
         if "attachments" in input:
@@ -603,3 +620,63 @@ def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> 
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def __get_max_number_by_ledger_query(db: str, ledger_id: str) -> tuple:
+    """
+    This function creates the select max journal number by ledger_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_id: string
+    This parameter specifies the ledger_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT IFNULL(MAX(je.journal_entry_num),0) AS journal_entry_num
+    FROM """
+        + db
+        + """.journal_entry je
+    where je.ledger_id = %s;"""
+    )
+
+    params = (ledger_id,)
+
+    return (query, params)
+
+
+def select_max_number_by_ledger(
+    db: str, ledger_id: str, region_name: str, secret_name: str
+) -> str:
+    """
+    This function returns the record from the result of the "select max number by ledger" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_id: string
+    This parameter specifies the ledger_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A string containing the new max journal entry number by the upcoming ledger
+    """
+    params = __get_max_number_by_ledger_query(db, ledger_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    new_num = int(record.get("journal_entry_num")) + 1
+
+    return str(new_num)

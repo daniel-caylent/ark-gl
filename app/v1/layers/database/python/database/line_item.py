@@ -9,7 +9,7 @@ app_to_db = {
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
-    "entityId": "entity_id"
+    "entityId": "entity_id",
 }
 
 
@@ -17,6 +17,7 @@ def get_insert_query(
     db: str,
     input: dict,
     journal_entry_id: str,
+    line_number: str,
     posting_type: str,
     region_name: str,
     secret_name: str,
@@ -65,7 +66,7 @@ def get_insert_query(
         uuid,
         account_id,
         journal_entry_id,
-        translated_input.get("line_number"),
+        line_number,
         translated_input.get("memo"),
         posting_type,
         translated_input.get("amount"),
