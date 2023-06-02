@@ -30,8 +30,11 @@ This variable dictates what VPC, Subnets and Secrets should be used per environm
 All the configurations resides in the file `infrastructure/app/env.py`.
 
 Note:
+
     - If the `DEPLOYMENT_ENV=prod`, the cdk will be deployed using the production resource ids
+
     - If the `DEPLOYMENT_ENV=qa`, the cdk will be deployed using the qa resource ids
+
     - If any other value is set up for the `DEPLOYMENT_ENV`, the cdk will be deployed using the dev resource ids
 
 
@@ -48,7 +51,8 @@ Make sure your python version is 3.10+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r dev-requirements.txt
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 python --version
 ```
