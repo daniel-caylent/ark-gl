@@ -4,7 +4,6 @@ import aws_cdk.assertions as assertions
 
 from .api_base_test import ApiTestBase
 
-
 class AccountsFakeStack(core.Stack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         from infrastructure.app.api.api_account_nested_stack import AccountNestedStack

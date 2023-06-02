@@ -16,7 +16,7 @@ class TestAccountsState(AccountsTestBase):
         result = handler({}, LambdaContext())
         json.dumps(result)
 
-    
+
     def test_bad_body(self):
       from app.v1.accounts.put.state import handler
       request = {

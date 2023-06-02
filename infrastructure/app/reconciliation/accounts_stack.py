@@ -2,23 +2,20 @@ from pathlib import PurePath
 
 from constructs import Construct
 
-from ..base_stack import BaseStack
+from shared.base_stack import BaseStack
 
-from ..get_cdk import build_qldb_lambda_function, build_decorated_qldb_lambda_function
-from ..layers import (
+from shared.get_cdk import build_decorated_qldb_lambda_function
+from shared.layers import (
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
     get_pyqldb_layer,
 )
-from ..utils import RECONCILIATION_DIR
+from shared.utils import RECONCILIATION_DIR
 from env import ENV
-import aws_cdk as cdk
-
 
 CODE_DIR = str(PurePath(RECONCILIATION_DIR, "accounts"))
-
 
 class AccountsReconciliationStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
@@ -39,4 +36,5 @@ class AccountsReconciliationStack(BaseStack):
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )

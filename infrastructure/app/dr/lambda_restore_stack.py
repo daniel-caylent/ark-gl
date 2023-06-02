@@ -1,17 +1,17 @@
 import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
-from ..get_cdk import build_qldb_lambda_function
-from ..layers import (
+
+from shared.get_cdk import build_qldb_lambda_function
+from shared.layers import (
     get_shared_layer,
     get_qldb_layer,
     get_pyqldb_layer,
     get_awswrangler_layer,
 )
 
-from ..base_stack import BaseStack
-
-from ..utils import DR_DIR
+from shared.base_stack import BaseStack
+from shared.utils import DR_DIR
 
 RESTORE_CODE_DIR = str(PurePath(DR_DIR, "restore"))
 
@@ -37,6 +37,7 @@ class LambdaRestoreStack(BaseStack):
             env={
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )
 
         bucket.grant_read(self.restore_function.role)

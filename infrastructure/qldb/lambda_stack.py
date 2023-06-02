@@ -2,22 +2,19 @@ import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
 import os
-import sys
-current = os.path.dirname(os.path.realpath(__file__))
-parent = os.path.dirname(current)
-parent_2 = os.path.dirname(parent)
-sys.path.append(parent_2)
 
-from infrastructure.app.base_stack import BaseStack
 from env import ENV
-from infrastructure.app.utils import get_stack_prefix, QLDB_DIR
 
-from infrastructure.app.layers import (
+from shared.base_stack import BaseStack
+from shared.utils import get_stack_prefix, QLDB_DIR
+
+
+from shared.layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )
 
-from infrastructure.app.get_cdk import (
+from shared.get_cdk import (
     get_vpc,
     get_subnets
 )
@@ -53,9 +50,9 @@ class LambdaTriggerStack(BaseStack):
 
         ledger_arn = (
             "arn:aws:qldb:"
-            + os.getenv("AWS_REGION")
+            + kwargs["env"].region
             + ":"
-            + os.getenv("AWS_ACCOUNT")
+            + kwargs["env"].account
             + ":ledger/"
             + ledger_name
         )

@@ -3,16 +3,16 @@ from pathlib import PurePath
 import aws_cdk as cdk
 from constructs import Construct
 
-from ..base_stack import BaseStack
-from ..get_cdk import build_qldb_lambda_function
-from ..layers import (
+from shared.base_stack import BaseStack
+from shared.get_cdk import build_qldb_lambda_function
+from shared.layers import (
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
     get_pyqldb_layer
 )
-from ..utils import ACCOUNTS_DIR
+from shared.utils import ACCOUNTS_DIR
 
 
 CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'put'))
@@ -32,7 +32,8 @@ class AccountsStateStack(BaseStack):
             handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts state",
-            exclude=["put.py"]
+            exclude=["put.py"],
+            cdk_env=kwargs["env"]
         )
 
         cdk.CfnOutput(

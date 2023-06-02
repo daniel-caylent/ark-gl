@@ -1,9 +1,8 @@
 import aws_cdk as cdk
 from constructs import Construct
 
-from ..base_stack import BaseStack
-
 from env import ENV
+from shared.base_stack import BaseStack
 
 
 class SQSStack(BaseStack):

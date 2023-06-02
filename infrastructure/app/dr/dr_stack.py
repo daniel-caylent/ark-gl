@@ -1,19 +1,17 @@
 import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
-import sys
-import os
+
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from ..get_cdk import build_dr_lambda_function, get_vpc
-from ..layers import (
+from shared.get_cdk import build_dr_lambda_function, get_vpc
+from shared.layers import (
     get_shared_layer,
     get_qldb_layer,
     get_pyqldb_layer,
 )
-
-from ..base_stack import BaseStack
-from ..utils import get_stack_prefix, DR_DIR
+from shared.base_stack import BaseStack
+from shared.utils import get_stack_prefix, DR_DIR
 
 from env import ENV
 
@@ -95,6 +93,7 @@ class DRStack(BaseStack):
                 "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"],
             name="export"
         )
 
@@ -131,6 +130,7 @@ class DRStack(BaseStack):
                 "SQS_QUEUE_URL": self.queue.queue_url, 
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"],
             name="distribute-export"
         )
 

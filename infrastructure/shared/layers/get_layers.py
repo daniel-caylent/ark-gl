@@ -1,8 +1,8 @@
 from pathlib import PurePath
 
-from ..get_cdk import build_lambda_layer, get_lambda_layer_from_arn
+from shared.get_cdk import build_lambda_layer, get_lambda_layer_from_arn
 
-from ..utils import LAYERS_DIR, LOCAL_LAYERS_DIR
+from shared.utils import LAYERS_DIR, LOCAL_LAYERS_DIR
 
 def get_shared_layer(context):
     dir = str(PurePath(LAYERS_DIR, 'shared'))
