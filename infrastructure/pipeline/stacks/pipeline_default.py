@@ -18,7 +18,7 @@ from pipeline.aspects.key_rotation_aspect import KeyRotationAspect
 from pipeline.resources.standard_bucket import S3Construct
 from pipeline.stacks.iam_stack import IAMPipelineStack
 
-from app.base_stack import BaseStack
+from shared.base_stack import BaseStack
 
 
 class DefaultPipelineStack(BaseStack):

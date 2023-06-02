@@ -2,17 +2,17 @@ from pathlib import PurePath
 
 from constructs import Construct
 
-from ..base_stack import BaseStack
+from shared.base_stack import BaseStack
 
-from ..get_cdk import build_decorated_qldb_lambda_function
-from ..layers import (
+from shared.get_cdk import build_decorated_qldb_lambda_function
+from shared.layers import (
     get_pymysql_layer,
     get_database_layer,
     get_qldb_layer,
     get_pyqldb_layer,
     get_shared_layer
 )
-from ..utils import RECONCILIATION_DIR 
+from shared.utils import RECONCILIATION_DIR
 from env import ENV
 
 
@@ -39,4 +39,5 @@ class LedgersReconciliationStack(BaseStack):
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
+            cdk_env=kwargs["env"]
         )

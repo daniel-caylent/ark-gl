@@ -26,9 +26,8 @@ phases:
       - npm install -g aws-cdk && pip install -r dev-requirements.txt
   build:
     commands:
-      - pytest tests
-      - pytest --cov=app tests
-      - pytest --cov=infrastructure tests
+      - pytest --cov=infrastructure --cov=app tests
+      - cd infrastructure/scripts && sh synth_apps.sh
 artifacts:
   files:
     - '**/*'"""

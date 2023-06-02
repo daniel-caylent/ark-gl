@@ -27,11 +27,17 @@ class Driver:
             boto3_session=boto3_session if boto3_session else None,
         )
 
+    def __execute_query(self, query: str, *args) -> BufferedCursor:
+        cursor = self.qldb_driver.execute_lambda(
+            lambda x: x.execute_statement(query, *args)
+        )
+
+        return cursor
+
     def create_table(self, table_name: str) -> None:
         logger.info("Creating the table " + table_name)
-        self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement("CREATE TABLE " + table_name)
-        )
+        query = "CREATE TABLE " + table_name
+        self.__execute_query(query)
 
     def create_index(self, table_name: str, fields: list) -> None:
         fields_str = ",".join(fields)
@@ -40,17 +46,14 @@ class Driver:
             "Creating index on table " + table_name + " to fields " + fields_str
         )
 
-        self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement(
-                "CREATE INDEX ON " + table_name + "(" + fields_str + ")"
-            )
-        )
+        query = "CREATE INDEX ON " + table_name + "(" + fields_str + ")"
+
+        self.__execute_query(query)
 
     def insert_document(self, table_name: str, document: dict) -> None:
         logger.info("Inserting a document into table " + table_name)
-        self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement("INSERT INTO " + table_name + " ?", document)
-        )
+        query = "INSERT INTO " + table_name + " ?"
+        self.__execute_query(query, document)
 
     def read_documents(
         self, table_name: str, where_clause: str = None
@@ -62,46 +65,39 @@ class Driver:
 
         logger.info("Querying the table " + table_name)
 
-        cursor = self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement(sql_query)
-        )
+        cursor = self.__execute_query(sql_query)
 
         return cursor
-    
+
     def read_document_fields(
         self, table_name: str, fields: list, where_clause: str = None
     ):
         if fields == []:
             fields_str = "*"
         else:
-            fields_str = ','.join(fields)
-        
+            fields_str = ",".join(fields)
+
         if where_clause:
-            sql_query = "SELECT "+fields_str+" FROM " + table_name + " WHERE " + where_clause
+            sql_query = (
+                "SELECT "
+                + fields_str
+                + " FROM "
+                + table_name
+                + " WHERE "
+                + where_clause
+            )
         else:
-            sql_query = "SELECT "+fields_str+" FROM " + table_name
+            sql_query = "SELECT " + fields_str + " FROM " + table_name
 
         print("Querying the table " + table_name)
 
-        cursor = self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement(sql_query)
-        )
+        cursor = self.__execute_query(sql_query)
 
         return cursor
 
-    def execute_custom_query(self, sql_query: str) -> BufferedCursor:
+    def execute_custom_query(self, sql_query: str, *args) -> BufferedCursor:
         logger.info("Executing custom query: " + sql_query)
-        cursor = self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement(sql_query)
-        )
-
-        return cursor
-
-    def execute_custom_query_with_params(self, sql_query: str, *args) -> BufferedCursor:
-        logger.info("Executing custom query: " + sql_query)
-        cursor = self.qldb_driver.execute_lambda(
-            lambda x: x.execute_statement(sql_query, *args)
-        )
+        cursor = self.__execute_query(sql_query, *args)
 
         return cursor
 

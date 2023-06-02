@@ -37,7 +37,7 @@ from app.journal_entries import (
 )
 
 from env import ENV
-from app.vpc_stack import VpcStack
+from shared.vpc_stack import VpcStack
 from app.api.api_stack import ApiStack
 
 from constructs import DependencyGroup

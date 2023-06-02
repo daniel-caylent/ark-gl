@@ -2,11 +2,7 @@ import aws_cdk as cdk
 
 import os
 
-import sys
- 
-# setting path
-#sys.path.append('../')
-from app.vpc_stack import VpcStack
+from shared.vpc_stack import VpcStack
 from app.reconciliation import (
     SQSStack,
     AccountsReconciliationStack,

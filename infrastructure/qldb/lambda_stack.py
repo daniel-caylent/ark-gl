@@ -3,16 +3,18 @@ from constructs import Construct
 from pathlib import PurePath
 import os
 
-from app.base_stack import BaseStack
 from env import ENV
-from app.utils import get_stack_prefix, QLDB_DIR
 
-from app.layers import (
+from shared.base_stack import BaseStack
+from shared.utils import get_stack_prefix, QLDB_DIR
+
+
+from shared.layers import (
     get_qldb_layer,
     get_pyqldb_layer
 )
 
-from app.get_cdk import (
+from shared.get_cdk import (
     get_vpc,
     get_subnets
 )
@@ -48,9 +50,9 @@ class LambdaTriggerStack(BaseStack):
 
         ledger_arn = (
             "arn:aws:qldb:"
-            + os.getenv("AWS_REGION")
+            + kwargs["env"].region
             + ":"
-            + os.getenv("AWS_ACCOUNT")
+            + kwargs["env"].account
             + ":ledger/"
             + ledger_name
         )

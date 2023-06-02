@@ -6,10 +6,10 @@ from tests.app.data import (
 
 
 from tests.test_base import TestBase
-from tests.utils import APP_DIR
+from tests.utils import APP_DIR, APP_SHARED_LAYER
 
 MODELS = str(PurePath(APP_DIR, 'accounts', 'post'))
-PATHS = [MODELS]
+PATHS = [MODELS, APP_SHARED_LAYER]
 
 class TestAccountsPost(TestBase(PATHS)):
 

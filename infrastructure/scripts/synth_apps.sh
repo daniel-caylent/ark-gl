@@ -1,0 +1,11 @@
+#! /bin/sh
+set -e
+export AWS_ACCOUNT=319244063014
+export AWS_REGION=us-east-1
+export AWS_ACCESS_KEY_ID=dummy_access_key
+export AWS_SECRET_ACCESS_KEY=dummy_secret_key
+cdk synth -c "@aws-cdk/aws-ec2:UseLocalGatewayMacAddresses=true" -c "@aws-cdk/aws-ec2:UseLocalRouteTableIds=true" -c "@aws-cdk/aws-ec2:UseLocalVpcCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalSubnetCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalAvailabilityZones=true" -c "@aws-cdk/aws-ec2:UseLocalPublicDnsEnabled=true" -c "@aws-cdk/aws-ec2:UseLocalNatGateways=true" --app "python3 ../app.py"
+cdk synth -c "@aws-cdk/aws-ec2:UseLocalGatewayMacAddresses=true" -c "@aws-cdk/aws-ec2:UseLocalRouteTableIds=true" -c "@aws-cdk/aws-ec2:UseLocalVpcCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalSubnetCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalAvailabilityZones=true" -c "@aws-cdk/aws-ec2:UseLocalPublicDnsEnabled=true" -c "@aws-cdk/aws-ec2:UseLocalNatGateways=true" --app "python3 ../dr_app.py"
+cdk synth -c "@aws-cdk/aws-ec2:UseLocalGatewayMacAddresses=true" -c "@aws-cdk/aws-ec2:UseLocalRouteTableIds=true" -c "@aws-cdk/aws-ec2:UseLocalVpcCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalSubnetCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalAvailabilityZones=true" -c "@aws-cdk/aws-ec2:UseLocalPublicDnsEnabled=true" -c "@aws-cdk/aws-ec2:UseLocalNatGateways=true" --app "python3 ../reconciliation_app.py"
+cdk synth -c "@aws-cdk/aws-ec2:UseLocalGatewayMacAddresses=true" -c "@aws-cdk/aws-ec2:UseLocalRouteTableIds=true" -c "@aws-cdk/aws-ec2:UseLocalVpcCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalSubnetCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalAvailabilityZones=true" -c "@aws-cdk/aws-ec2:UseLocalPublicDnsEnabled=true" -c "@aws-cdk/aws-ec2:UseLocalNatGateways=true" --app "python3 ../pipeline_default_app.py"
+cdk synth -c "@aws-cdk/aws-ec2:UseLocalGatewayMacAddresses=true" -c "@aws-cdk/aws-ec2:UseLocalRouteTableIds=true" -c "@aws-cdk/aws-ec2:UseLocalVpcCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalSubnetCidrBlock=true" -c "@aws-cdk/aws-ec2:UseLocalAvailabilityZones=true" -c "@aws-cdk/aws-ec2:UseLocalPublicDnsEnabled=true" -c "@aws-cdk/aws-ec2:UseLocalNatGateways=true" --app "python3 ../qldb_app.py"
