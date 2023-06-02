@@ -47,14 +47,17 @@ def __get_insert_query(
     A tuple containing the query on the first element, and the params on the second
     one to avoid SQL Injections
     """
-    query = """
-        INSERT INTO """ + db + """.account
+    query = (
+        """
+        INSERT INTO """
+        + db
+        + """.account
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
             state, is_hidden, is_taxable, is_entity_required, fs_mapping_id)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s);"""
-    
+    )
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
@@ -484,7 +487,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
                 fs_params = fs.get_insert_query(db, fs_dict)
             else:
                 fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
-            
+
             cursor.execute(fs_params[0], fs_params[1])
 
         conn.commit()
@@ -573,7 +576,7 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
                 fs_params = fs.get_insert_query(db, fs_dict)
             else:
                 fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
-            
+
             cursor.execute(fs_params[0], fs_params[1])
 
         conn.commit()
