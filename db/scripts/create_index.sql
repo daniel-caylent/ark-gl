@@ -12,5 +12,6 @@ CREATE INDEX ledger_post_date_idx ON ARKGL.ledger(post_date);
 CREATE INDEX journal_post_date_idx ON ARKGL.journal_entry(post_date);
 CREATE INDEX account_post_date_idx ON ARKGL.account(post_date);
 
-
+CREATE INDEX line_item_je_id_idx ON ARKGL.line_item(journal_entry_id);
+CREATE INDEX attachment_je_id_idx ON ARKGL.attachment(journal_entry_id);
 
