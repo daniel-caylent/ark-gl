@@ -68,11 +68,11 @@ sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end) as "CREDIT",
 sum(case when li.posting_type = 'DEBIT' then li.amount else 0 end) as "DEBIT"
 from 
 fund_entity fe
-inner join account acc on fe.id = acc.fund_entity_id
-inner join line_item li on li.account_id = acc.id
-inner join ledger le on le.fund_entity_id = fe.id
+left join account acc on fe.id = acc.fund_entity_id
+left join line_item li on  acc.id = li.account_id
+left join ledger le on fe.id = le.fund_entity_id 
 inner join account_attribute acc_att on acc_att.id = account_attribute_id
-inner join journal_entry je on le.id = je.ledger_id
+left join journal_entry je on le.id = je.ledger_id
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?
