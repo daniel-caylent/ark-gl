@@ -33,6 +33,7 @@ CREATE OR REPLACE VIEW INCOME_STATEMENT_VW AS
 SELECT fe.uuid fund_uuid,
 fe.client_id,
 fe.fund_id,
+acc.id as acc_id,
 acc.uuid acc_uuid,
 acc.account_no,
 acc.parent_id, 
@@ -42,19 +43,22 @@ le.uuid le_uuid,
 le.name le_name,
 le.currency,
 li.posting_type,
+je.date,
+CONCAT(QUARTER(je.date), " ", YEAR(je.date)) as "QUARTER",
 sum(li.amount)
 FROM 
 fund_entity fe
-inner join account acc on fe.id = acc.fund_entity_id
-inner join line_item li on li.account_id = acc.id
-inner join ledger le on le.fund_entity_id = fe.id
+left join account acc on fe.id = acc.fund_entity_id
+left join line_item li on  acc.id = li.account_id
+left join ledger le on fe.id = le.fund_entity_id 
 inner join account_attribute acc_att on acc_att.id = account_attribute_id
+left join journal_entry je on le.id = je.ledger_id
 where acc_att.account_type not in ('Assets', 'Liabilities','Partners Capital')
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
-group by 1,2,3,4,5,6,7,8,9,10,11,12;
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15;
 
 CREATE OR REPLACE VIEW TRIAL_BALANCE_VW AS
 SELECT
@@ -68,11 +72,11 @@ sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end) as "CREDIT",
 sum(case when li.posting_type = 'DEBIT' then li.amount else 0 end) as "DEBIT"
 from 
 fund_entity fe
-inner join account acc on fe.id = acc.fund_entity_id
-inner join line_item li on li.account_id = acc.id
-inner join ledger le on le.fund_entity_id = fe.id
+left join account acc on fe.id = acc.fund_entity_id
+left join line_item li on  acc.id = li.account_id
+left join ledger le on fe.id = le.fund_entity_id 
 inner join account_attribute acc_att on acc_att.id = account_attribute_id
-inner join journal_entry je on le.id = je.ledger_id
+left join journal_entry je on le.id = je.ledger_id
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?

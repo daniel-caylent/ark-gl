@@ -139,8 +139,8 @@ cdk.out
 .vscode
 
 # App
-infrastructure/app/layers/pymysql/python/
-infrastructure/app/layers/pyqldb/python/
+infrastructure/shared/layers/pymysql/python/
+infrastructure/shared/layers/pyqldb/python/
 
 # Mac
 .DS_Store

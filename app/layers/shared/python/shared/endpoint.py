@@ -15,7 +15,7 @@ def endpoint(func):
 
             return response(code, context.aws_request_id, **data)
         except Exception as e:
-            return response(503, context.aws_request_id, detail=f"Internal Server Error: {str(e)}")
+            return response(500, context.aws_request_id, detail=f"Internal Server Error")
 
 
     return wrapper
