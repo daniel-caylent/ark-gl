@@ -32,11 +32,23 @@ phases:
 
 def handler(event, context):
     logger.info(event)
-    reference_type = event['detail']['referenceType']
+
+    lambda_config = get_lambda_config()
+
+    logger.info(lambda_config)
+
+    codebuild_name_prefix, artifact_bucket_name, role_arn, account_id, region  = \
+        itemgetter(
+            "codebuild_name_prefix",
+            "artifact_bucket_name",
+            "role_arn",
+            "account_id",
+            "region"
+        )(lambda_config)
 
     try:
-        if reference_type == 'branch':
-            branch = event['detail']['referenceName']
+        if event['detail']['isMerged'] == "False" and \
+            event['detail']['pullRequestStatus'] == "Open":
 
             # TODO to be done
     except Exception as e:

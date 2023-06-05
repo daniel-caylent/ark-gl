@@ -70,7 +70,7 @@ def get_update_query(db: str, fs_mapping_id: str, input: dict) -> tuple:
         SET """
     )
     where_clause = "WHERE fs_mapping_id = %s;"
-    
+
     set_clause = ""
     params = ()
     for key in input.keys():
@@ -144,7 +144,9 @@ def __get_select_by_fs_mapping_id_query(db: str, fs_mapping_id: str) -> tuple:
     return (query, params)
 
 
-def select_by_fs_mapping_id(db: str, fs_mapping_id: str, region_name: str, secret_name: str) -> dict:
+def select_by_fs_mapping_id(
+    db: str, fs_mapping_id: str, region_name: str, secret_name: str
+) -> dict:
     """
     This function returns the record from the result of the "select by fs_mapping_id" query with its parameters.
 

@@ -23,7 +23,7 @@ env:
 phases:
   pre_build:
     commands:
-      - npm install -g aws-cdk && pip install -r requirements.txt && pip install -r dev-requirements.txt
+      - npm install -g aws-cdk && pip install -r requirements.txt && pip install -r requirements-dev.txt
       - ./infrastructure/scripts/build.sh
   build:
     commands:

@@ -10,6 +10,7 @@ app_to_db = {
     "memo": "memo",
     "type": "posting_type",
     "entityId": "entity_id",
+    "journal_entry_id": "journal_entry_id",
 }
 
 
@@ -354,13 +355,13 @@ def get_delete_by_journal_query(db: str, journal_entry_id: str) -> tuple:
 
 def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
     """
-    This function creates the select line_number, uuid by journal_entry_id query with its parameters.
+    This function creates the select by multiple journal_entry_id query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    journal_entry_id: string
-    This parameter specifies the journal_entry_id that will be used for this query
+    journal_entry_ids: string
+    This parameter specifies the list of journal_entry_ids that will be used for this query
 
     return
     A tuple containing the query on the first element, and the params on the second
@@ -375,7 +376,7 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         + """.line_item where journal_entry_id IN (%s);""" % format_strings
     )
 
-    params = (tuple(journal_entry_ids),)
+    params = tuple(journal_entry_ids)
 
     return (query, params)
 
@@ -390,7 +391,7 @@ def select_by_multiple_journals(
     This parameter specifies the db name where the query will be executed
 
     journal_entry_id: string
-    This parameter specifies the journal_entry_ids that will be used for this query
+    This parameter specifies the list of journal_entry_ids that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed
