@@ -18,13 +18,12 @@ sum(case when li.posting_type = 'DEBIT' then li.amount*(-1) else 0 end) as "DEBI
 sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end) +
 sum(case when li.posting_type = 'DEBIT' then li.amount*(-1) else 0 end) as "TOTAL"
 FROM 
-fund_entity fe
-left join account acc on fe.id = acc.fund_entity_id
-left join line_item li on  acc.id = li.account_id
-left join ledger le on fe.id = le.fund_entity_id 
-inner join account_attribute acc_att on acc_att.id = account_attribute_id
-left join journal_entry je on le.id = je.ledger_id
--- where fe.client_id = ?
+line_item li 
+inner join journal_entry je on li.journal_entry_id  = je.id
+ inner join ledger le on le.id = je.ledger_id  
+ inner join fund_entity fe on le.fund_entity_id = fe.id
+ inner join account acc on acc.id = li.account_id 
+ inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
 -- and le.uuid = ?
 -- and account.post_date between ? and ?
 group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14;
