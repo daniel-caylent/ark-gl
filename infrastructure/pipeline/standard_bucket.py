@@ -9,7 +9,6 @@ class S3Construct(Construct):
     def __init__(self, app: App, id: str, bucket_args: dict, **kwargs):
         super().__init__(app, id, **kwargs)
 
-        # kms key
         if not bucket_args['encryption']:
             bucket_key = Key(self, f"{id}Key",
                              description=f"Key used for {id} template",
@@ -19,13 +18,11 @@ class S3Construct(Construct):
             bucket_args["encryption_key"] = bucket_key
             bucket_args["encryption"] = BucketEncryption.KMS
 
-        # bucket
         bucket_args["block_public_access"] = BlockPublicAccess.BLOCK_ALL
         bucket_args["versioned"] = True
 
         bucket = Bucket(self, f"{id}Bucket", **bucket_args)
 
-        # bucket policy
         bucket.add_to_resource_policy(
             PolicyStatement(sid='AllowSSLRequestsOnly',
                             actions=['s3:*'],
