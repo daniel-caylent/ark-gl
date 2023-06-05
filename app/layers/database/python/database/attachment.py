@@ -5,6 +5,7 @@ from . import connection
 app_to_db = {
     "documentId": "uuid",
     "documentMemo": "memo",
+    "journal_entry_id": "journal_entry_id",
 }
 
 
@@ -286,7 +287,7 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         + """.attachment where journal_entry_id IN (%s);""" % format_strings
     )
 
-    params = (tuple(journal_entry_ids),)
+    params = tuple(journal_entry_ids)
 
     return (query, params)
 
@@ -302,65 +303,6 @@ def select_by_multiple_journals(
 
     journal_entry_id: string
     This parameter specifies the journal_entry_ids that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A dict containing the attachments that match with the upcoming journal_entry_ids
-    """
-    params = __get_by_multiple_journals_query(db, journal_entry_ids)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    return records
-
-
-def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
-    """
-    This function creates the select by multiple journal_entry_id query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    journal_entry_ids: string
-    This parameter specifies the list of journal_entry_ids that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    format_strings = ",".join(["%s"] * len(journal_entry_ids))
-
-    query = (
-        """SELECT *
-    FROM """
-        + db
-        + """.attachment where journal_entry_id IN (%s);""" % format_strings
-    )
-
-    params = (tuple(journal_entry_ids),)
-
-    return (query, params)
-
-
-def select_by_multiple_journals(
-    db: str, journal_entry_ids: list, region_name: str, secret_name: str
-) -> list:
-    """
-    This function returns the record from the result of the "select by multiple journals" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    journal_entry_id: string
-    This parameter specifies the list of journal_entry_ids that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed

@@ -10,6 +10,7 @@ app_to_db = {
     "memo": "memo",
     "type": "posting_type",
     "entityId": "entity_id",
+    "journal_entry_id": "journal_entry_id",
 }
 
 
@@ -375,7 +376,7 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         + """.line_item where journal_entry_id IN (%s);""" % format_strings
     )
 
-    params = (tuple(journal_entry_ids),)
+    params = tuple(journal_entry_ids)
 
     return (query, params)
 
