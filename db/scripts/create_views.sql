@@ -46,12 +46,12 @@ je.date,
 CONCAT(QUARTER(je.date), " ", YEAR(je.date)) as "QUARTER",
 sum(li.amount)
 FROM 
-fund_entity fe
-left join account acc on fe.id = acc.fund_entity_id
-left join line_item li on  acc.id = li.account_id
-left join ledger le on fe.id = le.fund_entity_id 
-inner join account_attribute acc_att on acc_att.id = account_attribute_id
-left join journal_entry je on le.id = je.ledger_id
+line_item li 
+inner join journal_entry je on li.journal_entry_id  = je.id
+ inner join ledger le on le.id = je.ledger_id  
+ inner join fund_entity fe on le.fund_entity_id = fe.id
+ inner join account acc on acc.id = li.account_id 
+ inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
 where acc_att.account_type not in ('Assets', 'Liabilities','Partners Capital')
 -- and fe.client_id = ?
 -- and le.uuid = ?
@@ -70,12 +70,12 @@ je.state je_state,
 sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end) as "CREDIT",
 sum(case when li.posting_type = 'DEBIT' then li.amount else 0 end) as "DEBIT"
 from 
-fund_entity fe
-left join account acc on fe.id = acc.fund_entity_id
-left join line_item li on  acc.id = li.account_id
-left join ledger le on fe.id = le.fund_entity_id 
-inner join account_attribute acc_att on acc_att.id = account_attribute_id
-left join journal_entry je on le.id = je.ledger_id
+line_item li 
+inner join journal_entry je on li.journal_entry_id  = je.id
+ inner join ledger le on le.id = je.ledger_id  
+ inner join fund_entity fe on le.fund_entity_id = fe.id
+ inner join account acc on acc.id = li.account_id 
+ inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?
