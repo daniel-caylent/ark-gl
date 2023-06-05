@@ -23,7 +23,8 @@ class IAMPipelineStack(Construct):
         create_branch_role.add_to_policy(PolicyStatement(
             actions=[
                 'codebuild:CreateProject',
-                'codebuild:StartBuild'
+                'codebuild:StartBuild',
+                'codebuild:DeleteProject'
             ],
             resources=[f'arn:aws:codebuild:{region}:{account}:project/{codebuild_prefix}*']
         ))

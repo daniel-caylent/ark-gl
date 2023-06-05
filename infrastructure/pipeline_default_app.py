@@ -21,7 +21,7 @@ config = {
     "branch": "main",
     "default_branch": "main",
     "region": "us-east-1",
-    "codebuild_prefix": "ark-gl-codebuild",
+    "codebuild_prefix": "ark-gl-codebuild-pr-",
     "repository_name": "ark-ledger"
 }
 

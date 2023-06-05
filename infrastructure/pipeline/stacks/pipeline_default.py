@@ -75,10 +75,9 @@ class DefaultPipelineStack(BaseStack):
             environment=environment,
             role=iam_stack.create_branch_role)
 
-
-        repo.on_reference_created(
-            self.STACK_PREFIX + 'ark-gl-repo-on-reference-created',
-            description="AWS CodeCommit reference created event.",
+        repo.on_pull_request_state_change(
+            self.STACK_PREFIX + 'ark-gl-repo-on_pull_request_state_change',
+            description="AWS CodeCommit Pull Request State Change event.",
             target=LambdaFunction(create_branch_func))
 
         destroy_branch_func = Function(
@@ -95,18 +94,3 @@ class DefaultPipelineStack(BaseStack):
             self.STACK_PREFIX + 'ark-gl-repo-on-reference-deleted',
             description="AWS CodeCommit reference deleted event.",
             target=LambdaFunction(destroy_branch_func))
-
-        update_branch_func = Function(
-            self,
-            self.STACK_PREFIX + 'ark-gl-lambda-update-build',
-            runtime=Runtime.PYTHON_3_9,
-            function_name=self.STACK_PREFIX + 'ark-gl-lambda-update-build',
-            handler='update_branch.handler',
-            role=iam_stack.delete_branch_role,
-            environment=environment,
-            code=LAMBDA_DIR)
-
-        repo.on_reference_updated(
-            self.STACK_PREFIX + 'ark-gl-repo-on-reference-updated',
-            description="AWS CodeCommit reference updated event.",
-            target=LambdaFunction(update_branch_func))
