@@ -17,8 +17,8 @@ def handler(event, context) -> tuple[int, dict]:
     if result is None:
         return 404, {'detail': "No journal entry found."}
 
-    if result['state'] == 'COMMITTED':
-        return 400, {'detail': "COMMITTED journal entry cannot be deleted."}
+    if result['state'] == 'POSTED':
+        return 400, {'detail': "POSTED journal entry cannot be deleted."}
 
     try:
         journal_entries.delete_by_id(journal_entry_id)

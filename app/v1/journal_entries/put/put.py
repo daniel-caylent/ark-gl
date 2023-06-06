@@ -50,10 +50,10 @@ def handler(event, context) -> tuple[int, dict]:
     # verify ledger exists
     ledger = ledgers.select_by_id(journal_entry["ledgerId"])
 
-    if journal_entry['state'] == 'COMMITTED':
+    if journal_entry['state'] == 'POSTED':
         for key in body.keys():
             if key not in COMMITED_CHANGEABLE:
-                return 400, {'detail': f"COMMITTED ledger property cannot be modified: {key}."}
+                return 400, {'detail': f"POSTED ledger property cannot be modified: {key}."}
 
     # Validate that line items reference real accounts within the fund
     accts = accounts.select_by_fund_id(ledger["fundId"])

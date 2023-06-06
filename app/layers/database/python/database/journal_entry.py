@@ -229,7 +229,7 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     return (query, params)
 
 
-def __get_select_committed_between_dates_query(
+def __get_select_posted_between_dates_query(
     db: str, start_date: str, end_date: str
 ) -> tuple:
     """
@@ -251,7 +251,7 @@ def __get_select_committed_between_dates_query(
     query = (
         "SELECT * FROM "
         + db
-        + ".journal_entry where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+        + ".journal_entry where state = 'POSTED' and (post_date BETWEEN %s and %s);"
     )
 
     params = (
@@ -322,7 +322,7 @@ def select_by_ledger_uuid(
     return records
 
 
-def select_committed_between_dates(
+def select_posted_between_dates(
     db: str, start_date: str, end_date: str, region_name: str, secret_name: str
 ) -> list:
     """
@@ -347,7 +347,7 @@ def select_committed_between_dates(
     return
     A dict containing the journal entry that matches with the upcoming uuid
     """
-    params = __get_select_committed_between_dates_query(db, start_date, end_date)
+    params = __get_select_posted_between_dates_query(db, start_date, end_date)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 

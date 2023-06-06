@@ -134,7 +134,7 @@ class TestJournalEntriesPut(TestBase(PATHS)):
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
 
-    def test_update_committed(self):
+    def test_update_posted(self):
         from app.v1.journal_entries.put.put import handler
         request = {
             "body": """{

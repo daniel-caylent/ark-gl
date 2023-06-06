@@ -61,7 +61,7 @@ class TestJournalEntriesDelete(TestBase(PATHS)):
         assert 400 == result['statusCode']
 
 
-    def test_delete_committed(self):
+    def test_delete_posted(self):
         from app.v1.journal_entries.delete.delete import handler
         request = {
             "pathParameters": {

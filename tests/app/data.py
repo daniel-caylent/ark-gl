@@ -117,7 +117,7 @@ put_with_parent_id = {
 }
 
 commit_account = {
-  "body": "{\"state\": \"COMMITTED\"}",
+  "body": "{\"state\": \"POSTED\"}",
   "pathParameters": {
     "accountId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
   },

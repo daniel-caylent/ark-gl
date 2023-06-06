@@ -17,8 +17,8 @@ def handler(event, context) -> tuple[int, dict]:
     if result is None:
         return 404, {'detail': "No ledger found."}
 
-    if result['state'] == 'COMMITTED':
-        return 400, {'detail': "COMMITTED ledger cannot be deleted."}
+    if result['state'] == 'POSTED':
+        return 400, {'detail': "POSTED ledger cannot be deleted."}
 
     try:
         ledgers.delete_by_id(ledger_id)

@@ -16,7 +16,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_good_api_request(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"COMMITTED\"}",
+            "body": "{\"state\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
             }
@@ -28,7 +28,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_invalid(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"POSTED\"}",
+            "body": "{\"state\": \"POST\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df1"
             }
@@ -40,7 +40,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_bad_id_request(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"COMMITTED\"}",
+            "body": "{\"state\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df"
             }
@@ -53,7 +53,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_missing_id(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"COMMITTED\"}",
+            "body": "{\"state\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryI": "a92bde1e-7825-429d-aaae-909f2d7a8df"
             }
@@ -67,7 +67,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_missing_path_params(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"COMMITTED\"}",
+            "body": "{\"state\": \"POSTED\"}",
         }
 
         result = handler(request, LambdaContext())
@@ -75,10 +75,10 @@ class TestJournalEntriesState(TestBase(PATHS)):
         assert 400 == result['statusCode']
 
 
-    def test_commit_committed(self):
+    def test_commit_POSTED(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "{\"state\": \"COMMITTED\"}",
+            "body": "{\"state\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df2"
             }
@@ -91,7 +91,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_invalid_body(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "\"state\": \"COMMITTED\"}",
+            "body": "\"state\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df2"
             }
@@ -104,7 +104,7 @@ class TestJournalEntriesState(TestBase(PATHS)):
     def test_no_state(self):
         from app.v1.journal_entries.put.state import handler
         request = {
-            "body": "\"stat\": \"COMMITTED\"}",
+            "body": "\"stat\": \"POSTED\"}",
             "pathParameters": {
                 "journalEntryId": "a92bde1e-7825-429d-aaae-909f2d7a8df2"
             }

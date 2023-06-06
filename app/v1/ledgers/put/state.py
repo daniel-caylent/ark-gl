@@ -6,7 +6,7 @@ from shared import (                        # pylint: disable=import-error
     validate_uuid
 )
 
-VALID_STATES = ["COMMITTED"]
+VALID_STATES = ["POSTED"]
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
@@ -35,12 +35,12 @@ def handler(event, context) -> tuple[int, dict]:
     if ledger is None:
         return 404, {'detail': "No ledger found."}
 
-    if ledger['state'] == "COMMITTED":
-        return 400, {'detail': "Ledger is already committed."}
+    if ledger['state'] == "POSTED":
+        return 400, {'detail': "Ledger is already POSTED."}
     
     if state not in VALID_STATES:
         return 400, {'detail': "State is invalid."}
     
     # hard coding the state so there's no chance of tampering
-    ledgers.update_by_id(ledger_id, {'state': 'COMMITTED'})
+    ledgers.update_by_id(ledger_id, {'state': 'POSTED'})
     return 200, {}

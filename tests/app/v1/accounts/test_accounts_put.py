@@ -44,7 +44,7 @@ class TestAccountsPut(AccountsTestBase):
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
 
-    def test_put_with_committed_account(self):
+    def test_put_with_posted_account(self):
         from app.v1.accounts.put.put import handler
         request = {
             "body": "{\"accountNo\": 101,\"accountName\": \"unique\",\"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false,\"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\",\"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}",
@@ -56,7 +56,7 @@ class TestAccountsPut(AccountsTestBase):
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
 
-    def test_put_with_committed_account_allowed(self):
+    def test_put_with_posted_account_allowed(self):
         from app.v1.accounts.put.put import handler
         request = {
             "body": "{\"fsName\": \"fsName\",\"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}",

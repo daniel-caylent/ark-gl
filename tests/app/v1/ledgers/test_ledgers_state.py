@@ -15,7 +15,7 @@ class TestLedgersState(TestBase(PATHS)):
     def test_good_state(self):
       from app.v1.ledgers.put.state import handler
       body = {
-         "state": "COMMITTED"
+         "state": "POSTED"
       }
 
       request = {

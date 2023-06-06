@@ -45,10 +45,10 @@ def handler(event, context) -> tuple[int, dict]:
     if acct is None:
         return 404, {'detail': "No account found."}
 
-    if acct['state'] == 'COMMITTED':
+    if acct['state'] == 'POSTED':
         for key in body.keys():
             if key not in COMMITED_CHANGEABLE:
-                return 400, {'detail': f"COMMITTED account property cannot be modified: {key}."}
+                return 400, {'detail': f"POSTED account property cannot be modified: {key}."}
 
     # validate no other accounts exist with number or name
     accts = accounts.select_by_fund_id(acct['fundId'])
