@@ -1,5 +1,5 @@
 from models import JournalEntryPost, LineItemPost, AttachmentPost
-from arkdb import accounts, journal_entries, ledgers
+from arkdb import accounts, ledgers
 from shared import dataclass_error_to_str
 
 def validate_new_journal_entry(journal_entry):

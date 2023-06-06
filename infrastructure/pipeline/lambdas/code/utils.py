@@ -21,8 +21,8 @@ env:
     PROD_ACCOUNT_ID: {account_id}
     REGION: {region}
   parameter-store:
-    AWS_CODEBUILD_USER_SECRET_KEY: “CAYLENT_CODEBUILD_USER_SECRET_KEY”
-    AWS_CODEBUILD_USER_ACCESS_KEY: “CAYLENT_CODEBUILD_USER_ACCESS_KEY”
+      AWS_CODEBUILD_USER_ACCESS_KEY: CAYLENT_CODEBUILD_USER_ACCESSKEY
+      AWS_CODEBUILD_USER_SECRET_KEY: CAYLENT_CODEBUILD_USER_SECRETKEY
 phases:
   pre_build:
     commands:
@@ -31,8 +31,8 @@ phases:
   build:
     commands:
       - pytest --cov=infrastructure --cov=app tests
-      - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
       - aws configure set aws_secret_access_key $AWS_CODEBUILD_USER_SECRET_KEY
+      - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
       - cd infrastructure/scripts && sh synth_apps.sh
 artifacts:
   files:

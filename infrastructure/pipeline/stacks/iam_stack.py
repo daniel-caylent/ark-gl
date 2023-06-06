@@ -59,6 +59,13 @@ class IAMPipelineStack(Construct):
                 f'arn:aws:logs:{region}:{account}:log-group:/aws/codebuild/{codebuild_prefix}-*:*']
         ))
         code_build_role.add_to_policy(PolicyStatement(
+            actions=['ssm:GetParameters'],
+            resources=[
+                f'arn:aws:ssm:{region}:{account}:parameter/CAYLENT_CODEBUILD_USER_ACCESSKEY',
+                f'arn:aws:ssm:{region}:{account}:parameter/CAYLENT_CODEBUILD_USER_SECRETKEY'
+            ]
+        ))
+        code_build_role.add_to_policy(PolicyStatement(
             actions=['codecommit:Get*', 'codecommit:List*', 'codecommit:GitPull'],
             resources=[f'arn:aws:codecommit:{region}:{account}:{repo_name}']
         ))

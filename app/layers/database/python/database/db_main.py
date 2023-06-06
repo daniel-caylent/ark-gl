@@ -70,7 +70,6 @@ def execute_dml(connection: Connection, query_list: list[tuple]) -> None:
         raise e
     finally:
         cursor.close()
-        connection.close()
 
     return
 
@@ -101,7 +100,6 @@ def execute_single_record_select(connection: Connection, query_params: tuple) ->
         raise
     finally:
         cursor.close()
-        connection.close()
 
     return record
 
@@ -134,7 +132,6 @@ def execute_multiple_record_select(
         raise
     finally:
         cursor.close()
-        connection.close()
 
     return record_list
 
