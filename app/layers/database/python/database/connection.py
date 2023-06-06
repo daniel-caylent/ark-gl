@@ -52,7 +52,9 @@ def get_connection(
     if db_type == "ro":
         if secret_dict.get("host-ro") is not None:
             host = secret_dict["host-ro"]
-        read_conn = pymysql.connect(host=host, user=user, password=password, db=db_name, autocommit=True)
+        read_conn = pymysql.connect(
+            host=host, user=user, password=password, db=db_name, autocommit=True
+        )
         return read_conn
 
     conn = pymysql.connect(host=host, user=user, password=password, db=db_name)

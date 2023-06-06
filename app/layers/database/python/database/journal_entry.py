@@ -677,3 +677,135 @@ def select_max_number_by_ledger(
     new_num = int(record.get("journal_entry_num")) + 1
 
     return str(new_num)
+
+
+def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
+    """
+    This function creates the select by fund query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_id: string
+    This parameter specifies the fund_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+    where fe.fund_id = %s;"""
+    )
+
+    params = (fund_id,)
+
+    return (query, params)
+
+
+def select_by_fund_id(
+    db: str, fund_id: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by fund id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_id: string
+    This parameter specifies the fund_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_select_by_fund_id_query(db, fund_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
+def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
+    """
+    This function creates the select by client query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    client_id: string
+    This parameter specifies the client_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+    where fe.client_id = %s;"""
+    )
+
+    params = (client_id,)
+
+    return (query, params)
+
+
+def select_by_client_id(
+    db: str, client_id: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by client id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    client_id: string
+    This parameter specifies the client_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_select_by_client_id_query(db, client_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
