@@ -481,7 +481,6 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
         raise e
     finally:
         cursor.close()
-        conn.close()
 
     return
 
@@ -564,7 +563,6 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         raise e
     finally:
         cursor.close()
-        conn.close()
 
     return
 
