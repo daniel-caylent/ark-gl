@@ -13,6 +13,9 @@ def validate_new_journal_entry(journal_entry):
     except Exception as e:
         return 400, dataclass_error_to_str(e), None
 
+    if len(post.lineItems) == 0:
+        return 400, "Journal entry is missing line items.", None
+
     # validate that the ledger exists
     ledger = ledgers.select_by_id(post.ledgerId)
     if ledger is None:

@@ -1,6 +1,6 @@
 """Journal entries get by ledgerId handler"""
 
-from arkdb import journal_entries, ledgers  # pylint: disable=import-error
+from arkdb import journal_entries, ledgers, funds  # pylint: disable=import-error
 from shared import (
     endpoint,
     validate_uuid,
@@ -15,20 +15,44 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters"}
 
+
+    client_id = event["queryStringParameters"].get("clientId", None)
+    fund_id = event["queryStringParameters"].get("fundId", None)
     ledger_id = event["queryStringParameters"].get("ledgerId", None)
-    if not ledger_id:
-        return 400, {"detail": "No ledger ID specified."}
 
-    if not validate_uuid(ledger_id):
-        return 400, {"detail": "Invalid ledger UUID provided."}
+    results = []
+    if ledger_id:
+        if not validate_uuid(ledger_id):
+            return 400, {"detail": "Invalid ledger UUID provided."}
 
-    # validate that the fund exists and client has access to it
-    ledger = ledgers.select_by_id(ledger_id)
-    if ledger is None:
-        return 400, {"detail": "Specified ledger does not exist."}
+        # validate that the fund exists and client has access to it
+        ledger = ledgers.select_by_id(ledger_id)
+        if ledger is None:
+            return 400, {"detail": "Specified ledger does not exist."}
 
-    # get and format the ledgers
-    results = journal_entries.select_by_ledger_id(ledger_id)
+        # get and format the ledgers
+        results = journal_entries.select_by_ledger_id(ledger_id)
+
+    elif fund_id:
+        if not validate_uuid(fund_id):
+            return 400, {"detail": "Invalid fund UUID provided."}
+
+        # validate that the fund exists and client has access to it
+        fund = funds.select_by_uuid(fund_id)
+        if fund is None:
+            return 400, {"detail": "Specified fund does not exist."}
+
+        # get and format the ledgers
+        results = journal_entries.select_by_fund_id(fund_id)
+
+    elif client_id:
+        if not validate_uuid(client_id):
+            return 400, {"detail": "Invalid client UUID provided."}
+
+        # get and format the ledgers
+        results = journal_entries.select_by_client_id(client_id)
+    else:
+        return 400, {"detail": "No searchable IDs provided."}
 
     if results:
         id_list = [str(journal["id"]) for journal in results]

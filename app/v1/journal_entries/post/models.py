@@ -20,7 +20,7 @@ class JournalEntryPost:
 
     def __post_init__(self):
         self.ledgerId = check_uuid(self.ledgerId, "ledgerId")
-        self.reference = validate_str(self.reference, "reference")
+        self.reference = validate_str(self.reference, "reference", max_len=64)
         self.memo = validate_str(self.memo, "memo")
         self.adjustingJournalEntry = validate_bool(
             self.adjustingJournalEntry, "adjustingJournalEntry"
@@ -40,7 +40,7 @@ class LineItemPost:
         self.accountNo = validate_str(self.accountNo, "accountNo")
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
-        self.amount = validate_int(self.amount, "amount")
+        self.amount = validate_int(self.amount, "amount", min=0)
         self.entityId = validate_str(self.entityId, "entityId")
 
 @dataclass
@@ -49,5 +49,5 @@ class AttachmentPost:
     documentMemo: str
 
     def __post_init__(self):
-        self.documentId = validate_str(self.documentId, "documentId")
+        self.documentId = validate_str(self.documentId, "documentId", min_len=1, max_len=64)
         self.documentMemo = validate_str(self.documentMemo, "documentMemo")

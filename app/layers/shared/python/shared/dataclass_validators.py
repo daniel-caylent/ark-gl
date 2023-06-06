@@ -17,12 +17,18 @@ def check_uuid(uuid, name) -> str:
     return uuid
 
 
-def validate_bool(bool_, name):
+def validate_bool(bool_, name, strict=False):
     """Validate a boolean exists for this value"""
     if bool_ is None:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
             f"Required argument is missing: {name}."
         )
+
+    if strict:
+        if type(bool_) is not bool:
+            raise Exception(
+                f"{name} is not a boolean."
+            )
 
     try:
         bool_ = bool(bool_)
@@ -33,7 +39,7 @@ def validate_bool(bool_, name):
     return bool_
 
 
-def validate_str(str_, name, min_len=0, max_len=255, allowed: list = None) -> str:
+def validate_str(str_, name, min_len=0, max_len=256, allowed: list = None) -> str:
     """Validate a string exists for this value"""
     if str_ is None:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
@@ -47,11 +53,11 @@ def validate_str(str_, name, min_len=0, max_len=255, allowed: list = None) -> st
 
     if len(str_) < min_len:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
-            f"{name} does not meet min length required of {min_len} characters."
+            f"{name} does not meet min length requirement of {min_len} characters."
         )
     if len(str_) > max_len:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
-            f"{name} does not meet max length required of {max_len} characters."
+            f"{name} does not meet max length requirement of {max_len} characters."
         )
     
     if allowed:
@@ -61,12 +67,17 @@ def validate_str(str_, name, min_len=0, max_len=255, allowed: list = None) -> st
     return str_
 
 
-def validate_int(int_, name: str, min: int = None, max: int = None, allowed: list = None) -> int:
+def validate_int(int_, name: str, min: int=None, max: int=None, allowed: list=None) -> int:
     """Validate an integer exists for this value"""
 
     if int_ is None:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
             f"Required argument is missing: {name}."
+        )
+    
+    if "." in str(int_):
+        raise Exception(
+            f"{name} contains an invalid integer: {int_}"
         )
 
     try:

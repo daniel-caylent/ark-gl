@@ -34,14 +34,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
                       \"accountNo\": \"5555\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1000\",
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   }
               ]
           }""",
@@ -76,14 +76,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
                       \"accountNo\": \"5555\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   }
               ]
           }""",
@@ -115,14 +115,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
                       \"accountNo\": \"5555\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",
-                      \"entityId\": \"1234123\"
+                      \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   }
               ]
           }""",

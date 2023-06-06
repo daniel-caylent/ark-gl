@@ -3,6 +3,8 @@ from database.journal_entry import (
     select_by_uuid,
     select_count_with_post_date,
     select_by_ledger_uuid,
+    select_by_client_id as __select_by_client_id,
+    select_by_fund_id as __select_by_fund_id,
     insert,
     update,
     delete,
@@ -39,6 +41,32 @@ def select_by_id(uuid: str) -> dict:
 
 def select_by_ledger_id(uuid: str) -> dict:
     results = select_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+
+    if results is None:
+        return results
+
+    translated = [translate_to_app(journal_app_to_db, result) for result in results]
+    filtered = [
+        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+    ]
+
+    return filtered
+
+def select_by_fund_id(uuid: str) -> dict:
+    results = __select_by_fund_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+
+    if results is None:
+        return results
+
+    translated = [translate_to_app(journal_app_to_db, result) for result in results]
+    filtered = [
+        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+    ]
+
+    return filtered
+
+def select_by_client_id(uuid: str) -> dict:
+    results = __select_by_client_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if results is None:
         return results

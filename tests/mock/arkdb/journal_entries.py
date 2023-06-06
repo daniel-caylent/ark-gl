@@ -38,7 +38,7 @@ def get_line_items(id):
             "accountNo": "5555602528",
             "lineItemNo": 1,
             "memo": "memo",
-            "entityId": "1234123",
+            "entityId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             "type": "CREDIT",
             "amount": 1000
         },
@@ -46,7 +46,7 @@ def get_line_items(id):
             "accountNo": "5555602528",
             "lineItemNo": 2,
             "memo": "memo",
-            "entityId": "1234123",
+            "entityId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             "type": "DEBIT",
             "amount": 1000
         }
@@ -112,7 +112,7 @@ def select_lines_by_journals(id):
             "journal_entry_id" : 12,
             "line_number" : 1,
             "memo" : "memo",
-            "entity_id" : "1234123",
+            "entity_id" : "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             "posting_type" : "credit",
             "amount" : 1000.0,
             "created_at" : "2023-05-26 21:11:22",
