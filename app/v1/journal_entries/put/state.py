@@ -1,6 +1,8 @@
 import json
 
 from arkdb import journal_entries                  # pylint: disable=import-error
+import ark_qldb
+
 from shared import (                        # pylint: disable=import-error
     endpoint,
     validate_uuid
@@ -43,4 +45,11 @@ def handler(event, context) -> tuple[int, dict]:
 
     # hard coding the state so there's no chance of tampering
     journal_entries.update_by_id(journal_entry_id, {'state': 'POSTED'})
+    journal_entry = journal_entries.select_by_id(journal_entry_id)
+    try:
+        ark_qldb.post("journal-entry", journal_entry)
+    except Exception as e:
+        journal_entries.update_by_id(journal_entry_id, {'state': 'DRAFT'})
+        return 500, {"detail": f"An error occurred when committing to QLDB: {str(e)}"}
+
     return 200, {}

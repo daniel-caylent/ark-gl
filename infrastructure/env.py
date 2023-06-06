@@ -36,9 +36,9 @@ dev = {
     'subnets': ["subnet-059b26abb21e13281", "subnet-01f9e2bc3dced4993"],
     'deploy': {
       'DB_NAME': 'ARKGL',
-      'DB_SECRET_NAME': '/secret/arkgl_poc'
+      'DB_SECRET_NAME': '/secret/arkgl_poc',
+      'LEDGER_NAME': 'ARKGL'
     },
-    'ledger_name': 'ARKGL',
     'sqs_name': 'ark-sqs-reconciliation',
     'sns_name': 'ark-sns-notifications',
     'reconciliation_trigger_hour': 1,

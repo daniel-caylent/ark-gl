@@ -4,7 +4,7 @@ import aws_cdk as cdk
 from constructs import Construct
 
 from shared.base_stack import BaseStack
-from shared.get_cdk import build_lambda_function
+from shared.get_cdk import build_qldb_lambda_function
 from shared.layers import (
     get_pymysql_layer,
     get_shared_layer,
@@ -28,10 +28,11 @@ class LedgersStateStack(BaseStack):
         pyqldb_layer = get_pyqldb_layer(self)
         qldb_layer = get_qldb_layer(self)
 
-        lambda_function = build_lambda_function(self, CODE_DIR,
+        lambda_function = build_qldb_lambda_function(self, CODE_DIR,
             handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, pyqldb_layer, qldb_layer],
             description="ledgers state",
+            cdk_env=kwargs["env"],
             exclude=["put.py"]
         )
 

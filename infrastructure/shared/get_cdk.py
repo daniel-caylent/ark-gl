@@ -75,7 +75,7 @@ def build_dr_lambda_function(
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
     role_arn = env['ROLE_ARN']
-    ledger_name = ENV["ledger_name"]
+    ledger_name = ENV["deploy"]["LEDGER_NAME"]
     ledger_arn = (
         "arn:aws:qldb:"
         + cdk_env.region
@@ -110,8 +110,6 @@ def build_dr_lambda_function(
 
     function.role.attach_inline_policy(dr_policy)
 
-    function.add_environment("LEDGER_NAME", ledger_name)
-
     return function
 
 def build_qldb_lambda_function(
@@ -119,7 +117,7 @@ def build_qldb_lambda_function(
 ):
     function = build_lambda_function(context, code_dir, handler, name, env, **kwargs)
 
-    ledger_name = ENV["ledger_name"]
+    ledger_name = ENV["deploy"]["LEDGER_NAME"]
     ledger_arn = (
         "arn:aws:qldb:"
         + cdk_env.region
@@ -153,8 +151,6 @@ def build_qldb_lambda_function(
     )
 
     function.role.attach_inline_policy(qldb_policy)
-
-    function.add_environment("LEDGER_NAME", ledger_name)
 
     return function
 

@@ -1,6 +1,8 @@
 import json
 
 from arkdb import ledgers                  # pylint: disable=import-error
+import ark_qldb
+
 from shared import (                        # pylint: disable=import-error
     endpoint,
     validate_uuid
@@ -43,4 +45,11 @@ def handler(event, context) -> tuple[int, dict]:
     
     # hard coding the state so there's no chance of tampering
     ledgers.update_by_id(ledger_id, {'state': 'POSTED'})
+    ledger = ledgers.select_by_id(ledger_id)
+    try:
+        ark_qldb.post("ledger", ledger)
+    except Exception as e:
+        ledgers.update_by_id(ledger_id, {'state': 'DRAFT'})
+        return 500, {"detail": f"An error occurred when committing to QLDB: {str(e)}"}
+        
     return 200, {}
