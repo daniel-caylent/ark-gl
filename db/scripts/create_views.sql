@@ -63,7 +63,9 @@ CREATE OR REPLACE VIEW TRIAL_BALANCE_VW AS
 SELECT
 fe.uuid fe_uuid,
 acc.uuid acc_uuid,
+acc.account_no,
 acc.name name,
+concat(acc.name, ' ', acc.account_no) acc_app_name,
 le.uuid le_uuid,
 je.date je_date,
 je.state je_state,
@@ -80,4 +82,4 @@ inner join journal_entry je on li.journal_entry_id  = je.id
 -- and le.uuid = ?
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
-group by 1,2,3,4,5,6;
+group by 1,2,3,4,5,6,7,8;
