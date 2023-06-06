@@ -3,6 +3,8 @@ import pymysql
 import boto3
 import json
 
+conn = None
+read_conn = None
 
 def get_connection(
     db_name: str, region_name: str, secret_name: str, db_type: str = None
@@ -28,6 +30,18 @@ def get_connection(
     return
     A pymysql.connect that represents the actual connection
     """
+    global conn, read_conn
+
+    if db_type == "ro" and read_conn is not None:
+        read_conn.ping(reconnect=True)
+        if read_conn.open:
+            return read_conn
+
+    elif db_type != "ro" and conn is not None:
+        conn.ping(reconnect=True)
+        if conn.open:
+            return conn
+
     secret_dict = json.loads(__get_secret(region_name, secret_name))
     host = secret_dict["host"]
     user = secret_dict["username"]
@@ -36,6 +50,8 @@ def get_connection(
     if db_type == "ro":
         if secret_dict.get("host-ro") is not None:
             host = secret_dict["host-ro"]
+        read_conn = pymysql.connect(host=host, user=user, password=password, db=db_name)
+        return read_conn
 
     conn = pymysql.connect(host=host, user=user, password=password, db=db_name)
 

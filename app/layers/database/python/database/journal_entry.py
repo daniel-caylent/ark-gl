@@ -426,7 +426,6 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         raise e
     finally:
         cursor.close()
-        conn.close()
 
     return uuid
 
