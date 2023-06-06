@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.line_item (
 	memo VARCHAR(255),
     entity_id CHAR(36),	
 	posting_type VARCHAR(30),
-	amount DOUBLE,
+	amount BIGINT,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (journal_entry_id) REFERENCES journal_entry(id),
 	FOREIGN KEY (account_id) REFERENCES account(id)
