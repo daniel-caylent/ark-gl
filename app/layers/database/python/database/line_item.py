@@ -370,10 +370,16 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
     format_strings = ",".join(["%s"] * len(journal_entry_ids))
 
     query = (
-        """SELECT *
-    FROM """
+        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        li.line_number, li.memo, li.entity_id,
+        li.posting_type, li.amount, li.created_at
+        FROM """
         + db
-        + """.line_item where journal_entry_id IN (%s);""" % format_strings
+        + """.line_item li
+        INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
+        where li.journal_entry_id IN (%s);""" % format_strings
     )
 
     params = tuple(journal_entry_ids)
