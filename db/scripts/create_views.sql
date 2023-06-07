@@ -142,8 +142,7 @@ li.memo,
 li.entity_id li_entity_id,
 je.date je_date,
 je.state je_state,
-sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end)+
-sum(case when li.posting_type = 'DEBIT' then li.amount*(-1) else 0 end) as "TOTAL"
+case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "TOTAL"
 from 
 line_item li 
 inner join journal_entry je on li.journal_entry_id  = je.id
@@ -155,4 +154,3 @@ inner join journal_entry je on li.journal_entry_id  = je.id
 -- and le.uuid = ?
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
-group by 1,2,3,4,5,6,7;
