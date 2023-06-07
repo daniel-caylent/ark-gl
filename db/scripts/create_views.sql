@@ -137,7 +137,7 @@ CREATE OR REPLACE VIEW DETAILED_1099_VW AS
 SELECT
 fe.uuid fe_uuid,
 le.uuid le_uuid,
-li.line_number,
+je.journal_entry_num,
 li.memo,
 li.entity_id li_entity_id,
 je.date je_date,
