@@ -96,26 +96,30 @@ def delete_by_id(id):
     delete(DB_NAME, id, REGION_NAME, SECRET_NAME)
 
 
-def get_line_items(journal_id):
+def get_line_items(journal_id, translate=True):
     results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
-    translated = [translate_to_app(line_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
+    if translate:
+        translated = [translate_to_app(line_app_to_db, result) for result in results]
+        filtered = [
+            {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+        ]
+        return filtered
 
-    return filtered
+    return results
 
 
-def get_attachments(journal_id):
+def get_attachments(journal_id, translate=True):
     results = select_attachments(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
-    translated = [translate_to_app(attachment_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
+    if translate:
+        translated = [translate_to_app(attachment_app_to_db, result) for result in results]
+        filtered = [
+            {k: each[k] for k in each if not k.startswith("missing")} for each in translated
+        ]
+        return filtered
 
-    return filtered
+    return results
 
 
 def select_count_commited_journals() -> str:

@@ -528,16 +528,13 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
             # Executing update of journal entry first
             cursor.execute(query, q_params)
 
-        # Once updated, delete all its line_items and attachments
-        # and keep only the upcoming ones (if these exist)
-        del_entry_params = line_item.get_delete_by_journal_query(db, journal_entry_id)
-        cursor.execute(del_entry_params[0], del_entry_params[1])
-
-        del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
-        cursor.execute(del_att_params[0], del_att_params[1])
-
         # Then, insert debit and credit entries
         if "lineItems" in input:
+            # Once updated, delete all its line_items and attachments
+            # and keep only the upcoming ones (if these exist)
+            del_entry_params = line_item.get_delete_by_journal_query(db, journal_entry_id)
+            cursor.execute(del_entry_params[0], del_entry_params[1])
+
             for item in input["lineItems"]:
                 type_ = item.pop("type")
                 line_number_ = str(input["lineItems"].index(item) + 1)
@@ -554,6 +551,9 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
 
         # Also, insert attachments
         if "attachments" in input:
+            del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
+            cursor.execute(del_att_params[0], del_att_params[1])
+
             for att in input["attachments"]:
                 att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])

@@ -51,6 +51,8 @@ def handler(event, context) -> tuple[int, dict]:
     # hard coding the state so there's no chance of tampering
     journal_entries.update_by_id(journal_entry_id, {'state': 'POSTED'})
     journal_entry = journal_entries.select_by_id(journal_entry_id, translate=False)
+    journal_entry["line_items"] = journal_entries.get_line_items(journal_entry["id"], translate=False)
+    journal_entry["attachments"] = journal_entries.get_attachments(journal_entry["id"], translate=False)
     try:
         ark_qldb.post("journal-entry", journal_entry)
     except Exception as e:
