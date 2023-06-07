@@ -149,12 +149,11 @@ inner join journal_entry je on li.journal_entry_id  = je.id
  inner join ledger le on le.id = je.ledger_id  
  inner join fund_entity fe on le.fund_entity_id = fe.id
  inner join account acc on acc.id = li.account_id 
- inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
+ inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id;
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
-
 CREATE OR REPLACE VIEW BALANCE_FOR_DETAILED_1099_VW AS
 SELECT
 le.uuid le_uuid,
