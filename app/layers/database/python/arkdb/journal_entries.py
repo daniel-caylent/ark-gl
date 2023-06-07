@@ -29,16 +29,18 @@ from database.db_main import translate_to_app
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
-def select_by_id(uuid: str) -> dict:
+def select_by_id(uuid: str, translate=True) -> dict:
     result = select_by_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if result is None:
         return result
 
-    translated = translate_to_app(journal_app_to_db, result)
-    filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
+    if translate:
+        translated = translate_to_app(journal_app_to_db, result)
+        filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
+        return filtered
 
-    return filtered
+    return result
 
 
 def select_by_ledger_id(uuid: str) -> dict:

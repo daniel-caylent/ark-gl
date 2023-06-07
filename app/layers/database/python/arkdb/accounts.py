@@ -24,16 +24,18 @@ def select_by_fund_id(fund_id: str) -> list:
     return filtered
 
 
-def select_by_id(account_uuid: str) -> dict:
+def select_by_id(account_uuid: str, translate=True) -> dict:
     result = select_by_uuid(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
 
     if result is None:
         return result
 
-    translated = translate_to_app(app_to_db, result)
-    filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
+    if translate:
+        translated = translate_to_app(app_to_db, result)
+        filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
+        return filtered
 
-    return filtered
+    return result
 
 
 def create_new(account: dict) -> str:

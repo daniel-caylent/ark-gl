@@ -4,6 +4,7 @@ import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
+import ark_qldb
 from shared import endpoint, validate_uuid
 # pylint: enable=import-error
 
@@ -45,4 +46,11 @@ def handler(event, context) -> tuple[int, dict]:
 
     # hard coding the state so there's no chance of tampering
     accounts.update_by_id(account_id, {'state': 'POSTED'})
+    account = accounts.select_by_id(account_id, translate=False)
+    try:
+        ark_qldb.post("account", account)
+    except Exception as e:
+        accounts.update_by_id(account_id, {'state': 'DRAFT'})
+        return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
+        
     return 200, {}

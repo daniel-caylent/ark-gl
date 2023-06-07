@@ -53,11 +53,11 @@ def handler(event, context) -> tuple[int, dict]:
 
     # hard coding the state so there's no chance of tampering
     ledgers.update_by_id(ledger_id, {'state': 'POSTED'})
-    ledger = ledgers.select_by_id(ledger_id)
+    ledger = ledgers.select_by_id(ledger_id, translate=False)
     try:
         ark_qldb.post("ledger", ledger)
     except Exception as e:
         ledgers.update_by_id(ledger_id, {'state': 'DRAFT'})
-        return 500, {"detail": f"An error occurred when committing to QLDB: {str(e)}"}
-
+        return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
+        
     return 200, {}
