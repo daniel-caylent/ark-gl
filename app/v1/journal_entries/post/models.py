@@ -21,8 +21,8 @@ class JournalEntryPost:
     reference: str
     memo: str
     adjustingJournalEntry: bool
+    lineItems: list
     attachments: list = field(default_factory=list)
-    lineItems: list = field(default_factory=list)
     isHidden: bool = False
     # pylint: enable=invalid-name;
 

@@ -30,6 +30,7 @@ from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
 def select_by_id(uuid: str, translate=True) -> dict:
+    """Select a journal entry by uuid"""
     result = select_by_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if result is None:
@@ -44,6 +45,7 @@ def select_by_id(uuid: str, translate=True) -> dict:
 
 
 def select_by_ledger_id(uuid: str) -> dict:
+    """Select a list of journal entries by ledger ID"""
     results = select_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if results is None:
@@ -57,6 +59,7 @@ def select_by_ledger_id(uuid: str) -> dict:
     return filtered
 
 def select_by_fund_id(uuid: str) -> dict:
+    """Select a list of journal entries by fund ID"""
     results = __select_by_fund_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if results is None:
@@ -70,6 +73,7 @@ def select_by_fund_id(uuid: str) -> dict:
     return filtered
 
 def select_by_client_id(uuid: str) -> dict:
+    """Select a list of journal entries by client ID"""
     results = __select_by_client_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     if results is None:
@@ -84,19 +88,23 @@ def select_by_client_id(uuid: str) -> dict:
 
 
 def create_new(journal_entry):
+    """Create a new journal entry"""
     id = insert(DB_NAME, journal_entry, REGION_NAME, SECRET_NAME)
     return id
 
 
 def update_by_id(id, updated):
+    """Update a journal entry by ID"""
     update(DB_NAME, id, updated, REGION_NAME, SECRET_NAME)
 
 
 def delete_by_id(id):
+    """Delete a journal entry by ID"""
     delete(DB_NAME, id, REGION_NAME, SECRET_NAME)
 
 
 def get_line_items(journal_id, translate=True):
+    """Get line items for an existing Journal Entry"""
     results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
     if translate:
@@ -110,6 +118,7 @@ def get_line_items(journal_id, translate=True):
 
 
 def get_attachments(journal_id, translate=True):
+    """Get Attachments for an existing journal entry"""
     results = select_attachments(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
     if translate:
@@ -123,11 +132,13 @@ def get_attachments(journal_id, translate=True):
 
 
 def select_count_commited_journals() -> str:
+    """Count committed journals"""
     result = select_count_with_post_date(DB_NAME, REGION_NAME, SECRET_NAME)
     return result
 
 
 def select_lines_by_journals(journal_ids: list) -> list:
+    """Select line items from multiple journals"""
     results = select_by_multiple_journals(
         DB_NAME, journal_ids, REGION_NAME, SECRET_NAME
     )
@@ -140,6 +151,7 @@ def select_lines_by_journals(journal_ids: list) -> list:
 
 
 def select_line_by_number_journal(line_number: str, journal_id: str) -> list:
+    """Select line items by line item number"""
     results = select_by_number_journal(
         DB_NAME, line_number, journal_id, REGION_NAME, SECRET_NAME
     )
@@ -152,6 +164,7 @@ def select_line_by_number_journal(line_number: str, journal_id: str) -> list:
 
 
 def select_attachments_by_journals(journal_ids: list) -> list:
+    """Select attachments for multiple journals"""
     results = select_by_multiple_journals_att(
         DB_NAME, journal_ids, REGION_NAME, SECRET_NAME
     )

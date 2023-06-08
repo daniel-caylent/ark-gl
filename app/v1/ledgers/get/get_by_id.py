@@ -17,6 +17,7 @@ def handler(event, context) -> tuple[int, dict]:
 
     context: LambdaContext
     Context about the instance of the lambda function
+    
     """
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}

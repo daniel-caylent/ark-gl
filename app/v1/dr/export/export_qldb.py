@@ -1,11 +1,16 @@
 """
-This Lambda is responsible for exporting the Journal from the ARK QLDB database to S3
+This Lambda is responsible for exporting the Ledger from the ARK QLDB database to S3
 """
 import os
 from datetime import datetime, timedelta
-
 import boto3
-from shared import endpoint, logging # pylint: disable=import-error; Lambda layer dependency
+
+# pylint: disable=import-error; Lambda layer dependency
+from shared import (
+    endpoint,
+    logging,
+)
+# pylint: enable=import-error
 
 
 @endpoint
@@ -54,7 +59,7 @@ def handler(event, context) -> tuple[int, dict]:
     # Print the export job ID
     export_job_id = response["ExportId"]
     logging.write_log(
-        event, context, "Notice", "DR Export Infor", "Export Job ID:" + export_job_id
-    )  # record exists in QLDB and not in Aurora. Someone deleted it)
+        event, context, "Notice", "DR Export Info", "Export Job ID:" + export_job_id
+    )
 
     return 200, {}

@@ -42,7 +42,7 @@ def select_by_name(name):
 def create_new(account):
     return "a92bde1e-7825-429d-aaae-909f2d7a8df1"
 
-def select_by_id(id):
+def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df1":
         return {
                 'accountNo': '5',

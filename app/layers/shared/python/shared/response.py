@@ -6,11 +6,7 @@ from .dataclass_encoder import encode
 
 
 def response(code: int, id: str, data=None, **kwargs):
-    """
-    Generate json encodable and consistent responses for lambda functions
-
-    code:
-    """
+    """Generate json encodable and consistent responses for lambda functions"""
 
     response_ = {
         "statusCode": code,

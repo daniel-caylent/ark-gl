@@ -35,7 +35,7 @@ def select_by_fund_id(fund_id):
 def select_by_client_id(client_id):
     return select_by_fund_id(None)
 
-def select_by_id(id):
+def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return None
 

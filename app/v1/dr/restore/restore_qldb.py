@@ -1,20 +1,21 @@
-# TODO - consider a meaningful description for this file
 """
-This Lambda is responsible for
+This Lambda is responsible for restoring the Ledger from the S3 backup bucket to ARK QLDB database
 """
 import os
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
 import awswrangler as wr
-from shared import logging
+from shared import endpoint, logging
 from ark_qldb import qldb
+
 # pylint: enable=import-error
 
 region = os.getenv("AWS_REGION")
 ledger_name = os.getenv("LEDGER_NAME")
 
-# TODO - missing endpoint decorator
+
+@endpoint
 def handler(event, context) -> tuple[int, dict]:
     """
     Lambda entry point
@@ -32,9 +33,8 @@ def handler(event, context) -> tuple[int, dict]:
     for record in event["Records"]:
         s3_path = record["body"]
 
-        # TODO: consider renaming `df` to a more meaningful name
-        df = wr.s3.read_json(path=s3_path, lines=True)
-        df_to_json_array = json.loads(df.to_json(orient="records"))
+        file_dataframe = wr.s3.read_json(path=s3_path, lines=True)
+        df_to_json_array = json.loads(file_dataframe.to_json(orient="records"))
 
         docs_to_insert = []
         for item in df_to_json_array:

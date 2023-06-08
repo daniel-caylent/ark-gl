@@ -2,13 +2,14 @@
 This Lambda is responsible for preforming the reconciliation process of Ledgers
 """
 
-from ark_qldb import qldb # pylint: disable=import-error; Lambda layer dependency
-from arkdb import ledgers # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
+from ark_qldb import qldb
+from arkdb import ledgers
+from shared import logging
 
+# pylint: enable=import-error
 
-def handler(
-    event, context # pylint: disable=unused-argument; Required lambda parameters
-) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]:
     """
     Lambda entry point
 
@@ -33,25 +34,36 @@ def handler(
 
         aurora_record = ledgers.select_by_id(current_uuid)
         if aurora_record is None:
-            # TODO: add standard logging mechanism
-            print(
-                "Error"
-            )  # record exists in QLDB and not in Aurora. Someone deleted it
+            logging.write_log(
+                event,
+                context,
+                "Error",
+                "Reconciliation error",
+                "Error on record "
+                + str(aurora_record)
+                + ".\nRecord exists in QLDB and not in Aurora",
+            )
             processed_success = False
         else:
             for current_key in current_row.keys():
                 if aurora_record.get(current_key) is None:
-                    # TODO: add standard logging mechanism
-                    print(
-                        "Key " + current_key + " does not exist in Aurora "
-                    )  # key does not exist in Aurora
+                    logging.write_log(
+                        event,
+                        context,
+                        "Error",
+                        "Reconciliation error",
+                        "Key " + current_key + " does not exist in Aurora",
+                    )
                     processed_success = False
                 else:
                     if aurora_record[current_key] != current_row[current_key]:
-                        # TODO: add standard logging mechanism
-                        print(
-                            "Error on value for key " + current_key
-                        )  # record value mistmatch. Someone tampered with the DB
+                        logging.write_log(
+                            event,
+                            context,
+                            "Error",
+                            "Reconciliation error",
+                            "Error on value for key " + current_key,
+                        )
                         processed_success = False
 
         processed_list.append(current_row)
@@ -62,12 +74,15 @@ def handler(
 
     ledger_count = ledgers.select_count_commited_ledgers()
     if ledger_count["count(*)"] != len(processed_list):
-        # TODO: add standard logging mechanism
-        print(
+        logging.write_log(
+            event,
+            context,
+            "Error",
+            "Reconciliation error",
             "Error on amount of records on Aurora "
             + str(ledger_count["count(*)"])
             + " vs QLDB "
-            + str(len(processed_list))
-        )  # distinct amount of ledgers in the QLDB than the DB
+            + str(len(processed_list)),
+        )
 
-    return 200, {} #
+    return 200, {}

@@ -16,6 +16,7 @@ def handler(event, context) -> tuple[int, dict]:
 
     context: LambdaContext
     Context about the instance of the lambda function
+    
     """
 
     if not event.get("queryStringParameters"):

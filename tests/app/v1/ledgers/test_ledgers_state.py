@@ -5,10 +5,10 @@ from tests.app.data import (
     LambdaContext
 )
 from tests.test_base import TestBase
-from tests.utils import APP_DIR, APP_SHARED_LAYER
+from tests.utils import APP_DIR, APP_SHARED_LAYER, MOCK_DIR
 
 MODELS = str(PurePath(APP_DIR, 'ledgers', 'state'))
-PATHS = [MODELS, APP_SHARED_LAYER]
+PATHS = [MODELS, APP_SHARED_LAYER, MOCK_DIR]
 
 class TestLedgersState(TestBase(PATHS)):
 

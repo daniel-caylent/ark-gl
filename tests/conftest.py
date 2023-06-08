@@ -2,13 +2,12 @@ import sys
 
 from pathlib import PurePath
 
-from tests.utils import APP_DIR, TEST_DIR, LAYERS_DIR
+from tests.utils import APP_DIR, TEST_DIR, LAYERS_DIR, MOCK_DIR
 
 
 def pytest_configure(config):
 
-    mock_dir = str(PurePath(TEST_DIR, 'mock'))
 
     sys.path.append(APP_DIR)
-    sys.path.append(mock_dir)
+    sys.path.append(MOCK_DIR)
     sys.path.append(LAYERS_DIR)

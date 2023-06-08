@@ -8,7 +8,7 @@ from shared import (
 )
 # pylint: enable=import-error
 
-from .models import JournalEntry
+from models import JournalEntry
 
 
 @endpoint

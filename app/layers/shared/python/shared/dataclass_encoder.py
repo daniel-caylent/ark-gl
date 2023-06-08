@@ -4,6 +4,7 @@ import dataclasses
 
 
 def encode(obj):
+    """Convert dataclass objects to dicts"""
     if dataclasses.is_dataclass(obj):
         return dataclasses.asdict(obj)
 

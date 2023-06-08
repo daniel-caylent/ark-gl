@@ -12,7 +12,7 @@ def select_all():
         }
     ]
 
-def select_by_id(id):
+def select_by_id(id, translate=True):
     return {
             'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'accountType': "Assets",
