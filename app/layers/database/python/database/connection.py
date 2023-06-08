@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for the connection methods"""
+
 import pymysql
 import boto3
 import json

@@ -1,11 +1,14 @@
-"""Journal entries get by ledgerId handler"""
+"""Lambda that will perform the GET for JournalEntries"""
 
-from arkdb import journal_entries, ledgers, funds  # pylint: disable=import-error
+# pylint: disable=import-error; Lambda layer dependency
+from arkdb import journal_entries, ledgers, funds
 from shared import (
     endpoint,
     validate_uuid,
-)  # pylint: disable=import-error, no-name-in-module
-from models import JournalEntry
+)
+# pylint: enable=import-error
+
+from .models import JournalEntry
 
 
 @endpoint

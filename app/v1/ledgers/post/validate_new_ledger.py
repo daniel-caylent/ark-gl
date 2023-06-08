@@ -1,5 +1,10 @@
+"""Validations for Ledgers POST"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from arkdb import funds, ledgers
 from models import LedgerPost
+# pylint: enable=import-error
+
 
 def validate_new_ledger(ledger: dict) -> tuple[int, str, LedgerPost]:
     """Validate a new ledger against business rules"""
@@ -9,9 +14,9 @@ def validate_new_ledger(ledger: dict) -> tuple[int, str, LedgerPost]:
         post = LedgerPost(**ledger)
     except Exception as e:
         remove_str = "__init__() got an "
-        error_str = str(e).replace(remove_str, '')
+        error_str = str(e).replace(remove_str, "")
         remove_str = "__init__() "
-        error_str = str(e).replace(remove_str, '')
+        error_str = str(e).replace(remove_str, "")
 
         return 400, error_str[0].upper() + error_str[1:], None
 
@@ -26,14 +31,14 @@ def validate_new_ledger(ledger: dict) -> tuple[int, str, LedgerPost]:
     if unique is False:
         return 409, "Ledger name already exists in this fund.", None
 
-    return 201, '', {'state': "UNUSED", **post.__dict__}
+    return 201, "", {"state": "UNUSED", **post.__dict__}
 
 
 def validate_unique_ledger(ledger: LedgerPost, existing_ledgers):
     """Validate the incoming ledger has a unique name and number"""
 
     for e_ledger in existing_ledgers:
-        if e_ledger['glName'].lower() == ledger.glName.lower():
+        if e_ledger["glName"].lower() == ledger.glName.lower():
             return False
 
     return True

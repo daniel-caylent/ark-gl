@@ -5,7 +5,6 @@ import jsii
 
 @jsii.implements(cdk.IAspect)
 class KeyRotationAspect:
-
-  def visit(self, node):
-    if isinstance(node, kms.CfnKey):
-      node.enable_key_rotation = True
+    def visit(self, node):
+        if isinstance(node, kms.CfnKey):
+            node.enable_key_rotation = True

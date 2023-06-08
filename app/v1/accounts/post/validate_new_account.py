@@ -1,12 +1,15 @@
+"""Validations for Accounts POST"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, account_attributes, funds
 from models import AccountPost
+# pylint: enable=import-error
 
 def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
-    
     # Check for missing details
-    if account.get('fundId') is None:
+    if account.get("fundId") is None:
         return 400, "No fund specified.", None
-    if account.get('attributeId') is None:
+    if account.get("attributeId") is None:
         return 400, "No attribute specified.", None
 
     # validate the POST contents
@@ -14,7 +17,7 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
         post = AccountPost(**account)
     except Exception as e:
         remove_str = "__init__() got an "
-        error_str = str(e).replace(remove_str, '')
+        error_str = str(e).replace(remove_str, "")
         return 400, error_str[0].upper() + error_str[1:], None
 
     # validate that the fund exists and client has access to it
@@ -44,31 +47,35 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
     if attribute is None:
         return 400, "Specified account attribute does not exist.", None
 
-    return 201, '', {'state': "UNUSED", **post.__dict__}
+    return 201, "", {"state": "UNUSED", **post.__dict__}
 
 
 def validate_unique_account(account: AccountPost, existing_accounts):
     """Validate the incoming account has a unique name and number"""
 
     for acct in existing_accounts:
-        if (acct['accountName'].lower() == account.accountName.lower()
-                or acct['accountNo'] == account.accountNo):
+        if (
+            acct["accountName"].lower() == account.accountName.lower()
+            or acct["accountNo"] == account.accountNo
+        ):
             return False
 
     return True
 
+
 def validate_parent_account(account: AccountPost, existing_accounts):
     """Validate the parent id supplied for this account exists"""
     for existing_account in existing_accounts:
-        if account.parentAccountId == existing_account['accountId']:
+        if account.parentAccountId == existing_account["accountId"]:
             return True
 
     return False
 
+
 def validate_fs_account(account: AccountPost, existing_accounts):
     """Validate the parent id supplied for this account exists"""
     for existing_account in existing_accounts:
-        if account.fsMappingId == existing_account['accountId']:
+        if account.fsMappingId == existing_account["accountId"]:
             return True
 
     return False

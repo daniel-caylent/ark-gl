@@ -10,16 +10,16 @@ from shared.layers import (
     get_database_layer,
     get_qldb_layer,
     get_pyqldb_layer,
-    get_shared_layer
+    get_shared_layer,
 )
 from shared.utils import RECONCILIATION_DIR
 from env import ENV
 
 
-CODE_DIR = str(PurePath(RECONCILIATION_DIR, 'ledgers'))
+CODE_DIR = str(PurePath(RECONCILIATION_DIR, "ledgers"))
+
 
 class LedgersReconciliationStack(BaseStack):
-
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -33,11 +33,11 @@ class LedgersReconciliationStack(BaseStack):
             self,
             CODE_DIR,
             handler="ledger.handler",
-            layers=[shared_layer,pymysql_layer, db_layer, qldb_layer, qldb_reqs],
+            layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="ledgers reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
-            cdk_env=kwargs["env"]
+            cdk_env=kwargs["env"],
         )

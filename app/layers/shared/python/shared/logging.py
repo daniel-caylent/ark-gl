@@ -1,3 +1,5 @@
+"""Standard logging module"""
+
 from functools import wraps
 import logging
 import json

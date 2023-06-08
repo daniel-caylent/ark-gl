@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for fund entities"""
+
 from . import db_main
 from . import connection
 

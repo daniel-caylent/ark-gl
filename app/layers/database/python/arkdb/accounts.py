@@ -1,3 +1,5 @@
+"""This module adapts specifc methos to access the Aurora MySQL database for accounts"""
+
 from database.account import (
     app_to_db,
     select_by_fund,

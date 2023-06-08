@@ -1,4 +1,10 @@
-def sort_accounts_for_insert(source_accounts: list[dict], parent_id_field='parentAccountId', child_id_field='accountId') -> list[dict]:
+"""Sorting for Accounts POST"""
+
+def sort_accounts_for_insert(
+    source_accounts: list[dict],
+    parent_id_field="parentAccountId",
+    child_id_field="accountId",
+) -> list[dict]:
     """
     Sort accounts into an order where children are inserted
     immedietly after their parent

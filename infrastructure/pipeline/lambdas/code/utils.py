@@ -3,11 +3,11 @@ import os
 
 def get_lambda_config() -> str:
     return {
-        "region": os.environ['AWS_REGION'],
-        "account_id": os.environ['ACCOUNT_ID'],
-        "role_arn": os.environ['CODE_BUILD_ROLE_ARN'],
-        "artifact_bucket_name": os.environ['ARTIFACT_BUCKET'],
-        "codebuild_name_prefix": os.environ['CODEBUILD_NAME_PREFIX']
+        "region": os.environ["AWS_REGION"],
+        "account_id": os.environ["ACCOUNT_ID"],
+        "role_arn": os.environ["CODE_BUILD_ROLE_ARN"],
+        "artifact_bucket_name": os.environ["ARTIFACT_BUCKET"],
+        "codebuild_name_prefix": os.environ["CODEBUILD_NAME_PREFIX"],
     }
 
 
@@ -40,6 +40,6 @@ artifacts:
 
 
 def get_codebuild_project_name(codebuild_name_prefix, branch):
-    branch_formatted = branch.replace('/', '')
-    project_name = f'{codebuild_name_prefix}-{branch_formatted}-create'
+    branch_formatted = branch.replace("/", "")
+    project_name = f"{codebuild_name_prefix}-{branch_formatted}-create"
     return project_name

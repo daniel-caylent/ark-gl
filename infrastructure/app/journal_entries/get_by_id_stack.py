@@ -32,7 +32,7 @@ class JournalEntriesGetByIdStack(BaseStack):
             handler="get_by_id.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries get by id",
-            exclude=["get.py"]
+            exclude=["get.py"],
         )
 
         cdk.CfnOutput(

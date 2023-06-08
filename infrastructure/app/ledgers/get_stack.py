@@ -4,19 +4,15 @@ from constructs import Construct
 
 from shared.base_stack import BaseStack
 from shared.get_cdk import build_lambda_function
-from shared.layers import (
-    get_pymysql_layer,
-    get_shared_layer,
-    get_database_layer
-)
+from shared.layers import get_pymysql_layer, get_shared_layer, get_database_layer
 from shared.utils import LEDGERS_DIR
 
 import aws_cdk as cdk
 
-CODE_DIR = str(PurePath(LEDGERS_DIR, 'get'))
+CODE_DIR = str(PurePath(LEDGERS_DIR, "get"))
+
 
 class LedgersGetStack(BaseStack):
-
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -24,15 +20,18 @@ class LedgersGetStack(BaseStack):
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
 
-        lambda_function = build_lambda_function(self, CODE_DIR,
+        lambda_function = build_lambda_function(
+            self,
+            CODE_DIR,
             handler="get.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="ledgers get",
-            exclude=["get_by_id.py"]
+            exclude=["get_by_id.py"],
         )
 
         cdk.CfnOutput(
-            self, "ark-ledger-get-function-arn",
+            self,
+            "ark-ledger-get-function-arn",
             value=lambda_function.function_arn,
-            export_name= self.STACK_PREFIX + "ark-ledger-get-function-arn"
+            export_name=self.STACK_PREFIX + "ark-ledger-get-function-arn",
         )

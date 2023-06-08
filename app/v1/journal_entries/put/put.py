@@ -1,46 +1,43 @@
+"""Lambda that will perform the PUT for JournalEntries"""
+
 import json
 
+# pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, journal_entries, ledgers
-from shared import (
-    endpoint,
-    validate_uuid,
-    update_dict,
-    dataclass_error_to_str
-  )
+from shared import endpoint, validate_uuid, update_dict, dataclass_error_to_str
 from models import JournalEntryPut, LineItemPost, AttachmentPost
+# pylint: enable=import-error
 
 COMMITED_CHANGEABLE = []
-REQUIRED_FIELDS = [    
-    'date', 'reference', 'memo', 'adjustingJournalEntry'
-]
+REQUIRED_FIELDS = ["date", "reference", "memo", "adjustingJournalEntry"]
+
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
-    if not event.get('pathParameters'):
-        return 400, {'detail': "Missing path parameters"}
+    if not event.get("pathParameters"):
+        return 400, {"detail": "Missing path parameters"}
 
-    journal_entry_id = event['pathParameters'].get('journalEntryId', None)
+    journal_entry_id = event["pathParameters"].get("journalEntryId", None)
     if journal_entry_id is None:
-        return 400, {'detail': "No journal entry specified."}
+        return 400, {"detail": "No journal entry specified."}
 
     if not validate_uuid(journal_entry_id):
-        return 400, {'detail': "Invalid journal entry UUID."}
+        return 400, {"detail": "Invalid journal entry UUID."}
 
     # validate the request body
     try:
-        body = json.loads(event['body'])
-    except:
-        return 400, {'detail': "Body does not contain valid json."}
+        body = json.loads(event["body"])
+    except Exception:
+        return 400, {"detail": "Body does not contain valid json."}
 
     if len(body.keys()) == 0:
-        return 400, {'detail': "Body does not contain content."}
+        return 400, {"detail": "Body does not contain content."}
 
     # validate the PUT contents
     try:
         put = JournalEntryPut(**body)
     except Exception as e:
-        return 400, {'detail': dataclass_error_to_str(e)}
-
+        return 400, {"detail": dataclass_error_to_str(e)}
 
     # verify journal entry exists
     journal_entry = journal_entries.select_by_id(journal_entry_id)
@@ -65,12 +62,16 @@ def handler(event, context) -> tuple[int, dict]:
             line_item_no += 1
             try:
                 line_item_put = LineItemPost(**item)
-                type_safe_line_items.append({"lineItemNo": line_item_no, **line_item_put.__dict__})
+                type_safe_line_items.append(
+                    {"lineItemNo": line_item_no, **line_item_put.__dict__}
+                )
             except Exception as e:
                 return 400, {"detail": dataclass_error_to_str(e)}
 
             if line_item_put.accountNo not in acct_numbers:
-              return 400, {"detail": f"Line item references invalid account: {line_item_put.accountNo}"}
+                return 400, {
+                    "detail": f"Line item references invalid account: {line_item_put.accountNo}"
+                }
 
         put.lineItems = type_safe_line_items
 
@@ -85,8 +86,7 @@ def handler(event, context) -> tuple[int, dict]:
 
         put.attachments = type_safe_attachments
 
-
-    if sum_line_items(put.lineItems) != 0:
+    if __sum_line_items(put.lineItems) != 0:
         return 400, {"detail": "Line items do not sum to 0."}
 
     # only keep fields present in the initial body, but replace
@@ -95,10 +95,11 @@ def handler(event, context) -> tuple[int, dict]:
 
     missing = check_missing_fields(type_safe_body, REQUIRED_FIELDS)
     if missing is not None:
-        return 400, {'detail': f"{missing} cannot be null or empty."}
+        return 400, {"detail": f"{missing} cannot be null or empty."}
 
     journal_entries.update_by_id(journal_entry_id, type_safe_body)
     return 200, {}
+
 
 def check_missing_fields(dict_, required):
     """
@@ -110,17 +111,19 @@ def check_missing_fields(dict_, required):
         if field in keys:
             value = dict_[field]
 
-            if value is None or value == '':
+            if value is None or value == "":
                 return field
-    
+
     return None
 
-def sum_line_items(line_items):
-    sum = 0
+
+def __sum_line_items(line_items):
+    """Sum all lines considering credit/debit"""
+    total = 0
     for item in line_items:
         if item["type"] == "CREDIT":
-            sum += item["amount"]
+            total += item["amount"]
         else:
-            sum -= item["amount"]
+            total -= item["amount"]
 
-    return sum
+    return total

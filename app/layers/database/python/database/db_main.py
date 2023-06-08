@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for the common methods for all entities"""
+
 from pymysql import Connection, cursors
 
 

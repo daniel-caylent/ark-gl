@@ -1,12 +1,17 @@
+"""
+This Lambda is responsible for serving the journal entries POST request
+"""
 import json
 
-from arkdb import journal_entries  # pylint: disable=import-error
+ # pylint: disable=import-error; Lambda layer dependency
+from arkdb import journal_entries
 from validate_new_journal_entry import validate_new_journal_entry
 from shared import endpoint
+# pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the journal entries POST request
 
     event: dict
@@ -20,7 +25,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception: # pylint: disable=broad-exception-caught; Unhandled exception is not allowed
         return 400, {"detail": "Body does not contain valid json."}
 
     code, detail, post = validate_new_journal_entry(body)

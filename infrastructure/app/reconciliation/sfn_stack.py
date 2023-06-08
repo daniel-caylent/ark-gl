@@ -54,15 +54,18 @@ class StepFunctionStack(BaseStack):
                 destination=cdk.aws_logs.LogGroup(
                     self,
                     get_stack_prefix() + "ark-reconciliation-sfn-lg",
-                    log_group_name=get_stack_prefix() + "ark-reconciliation-sfn-lg"),
-                level=cdk.aws_stepfunctions.LogLevel.ALL
-            )
+                    log_group_name=get_stack_prefix() + "ark-reconciliation-sfn-lg",
+                ),
+                level=cdk.aws_stepfunctions.LogLevel.ALL,
+            ),
         )
 
         eventbridge_cron = cdk.aws_events.Rule(
             self,
             get_stack_prefix() + "ark-reconciliation-trigger",
-            schedule=cdk.aws_events.Schedule.cron(minute=str(cron_minute), hour=str(cron_hour)),
+            schedule=cdk.aws_events.Schedule.cron(
+                minute=str(cron_minute), hour=str(cron_hour)
+            ),
             rule_name=get_stack_prefix() + "ark-reconciliation-trigger",
         )
 

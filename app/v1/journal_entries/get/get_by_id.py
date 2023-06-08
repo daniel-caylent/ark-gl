@@ -1,11 +1,18 @@
-"""Journal entries get-by-id"""
+"""Lambda that will perform the GET for JournalEntries searching by Id"""
 
-from arkdb import journal_entries  # pylint: disable=import-error
-from shared import endpoint, validate_uuid  # pylint: disable=import-error, no-name-in-module
-from models import JournalEntry
+# pylint: disable=import-error; Lambda layer dependency
+from arkdb import journal_entries
+from shared import (
+    endpoint,
+    validate_uuid,
+)
+# pylint: enable=import-error
+
+from .models import JournalEntry
+
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument
+def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument
     """Journal Entried get-by-id handler"""
 
     if not event.get("pathParameters"):

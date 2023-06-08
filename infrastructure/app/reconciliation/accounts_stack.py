@@ -17,6 +17,7 @@ from env import ENV
 
 CODE_DIR = str(PurePath(RECONCILIATION_DIR, "accounts"))
 
+
 class AccountsReconciliationStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
@@ -30,11 +31,11 @@ class AccountsReconciliationStack(BaseStack):
             self,
             CODE_DIR,
             handler="account.handler",
-            layers=[shared_layer,pymysql_layer, db_layer, qldb_layer, qldb_reqs],
+            layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
-            cdk_env=kwargs["env"]
+            cdk_env=kwargs["env"],
         )

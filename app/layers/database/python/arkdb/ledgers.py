@@ -1,3 +1,6 @@
+"""This module adapts specifc methos to access the Aurora MySQL database for ledgers"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from database.ledger import (
     app_to_db,
     delete,
@@ -9,8 +12,9 @@ from database.ledger import (
     select_count_with_post_date,
 )
 from database.db_main import translate_to_app
+# pylint: enable=import-error
 
-from .utils import DB_NAME, REGION_NAME, SECRET_NAME
+from utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
 def delete_by_id(uuid) -> None:

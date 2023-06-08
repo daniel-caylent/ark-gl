@@ -10,15 +10,15 @@ from shared.layers import (
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
-    get_pyqldb_layer
+    get_pyqldb_layer,
 )
 from shared.utils import ACCOUNTS_DIR
 
 
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, 'put'))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, "put"))
+
 
 class AccountsStateStack(BaseStack):
-
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -28,16 +28,19 @@ class AccountsStateStack(BaseStack):
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
 
-        lambda_function = build_qldb_lambda_function(self, CODE_DIR,
+        lambda_function = build_qldb_lambda_function(
+            self,
+            CODE_DIR,
             handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts state",
             exclude=["put.py"],
-            cdk_env=kwargs["env"]
+            cdk_env=kwargs["env"],
         )
 
         cdk.CfnOutput(
-            self, "ark-account-state-function-arn",
+            self,
+            "ark-account-state-function-arn",
             value=lambda_function.function_arn,
-            export_name= self.STACK_PREFIX + "ark-account-state-function-arn"
+            export_name=self.STACK_PREFIX + "ark-account-state-function-arn",
         )

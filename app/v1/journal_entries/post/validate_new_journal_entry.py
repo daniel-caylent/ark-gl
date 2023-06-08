@@ -1,16 +1,29 @@
+"""
+Module that validates a journal entry
+"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from models import JournalEntryPost, LineItemPost, AttachmentPost
 from arkdb import accounts, ledgers
 from shared import dataclass_error_to_str
+# pylint: enable=import-error
+
 
 def validate_new_journal_entry(journal_entry):
+    """
+    Function that validates a journal entry
+
+    journal_entry: dict
+    Journal Entry object
+    """
     # Check for missing details
-    if journal_entry.get('ledgerId') is None:
+    if journal_entry.get("ledgerId") is None:
         return 400, "No ledger specified.", None
 
     # validate the POST contents
     try:
         post = JournalEntryPost(**journal_entry)
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
         return 400, dataclass_error_to_str(e), None
 
     if len(post.lineItems) == 0:
@@ -30,13 +43,19 @@ def validate_new_journal_entry(journal_entry):
         line_item_no += 1
         try:
             line_item_post = LineItemPost(**item)
-            type_safe_line_items.append({"lineItemNo": line_item_no, **line_item_post.__dict__})
-        except Exception as e:
+            type_safe_line_items.append(
+                {"lineItemNo": line_item_no, **line_item_post.__dict__}
+            )
+        except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
             return 400, dataclass_error_to_str(e), None
-        
+
         if line_item_post.accountNo not in acct_numbers:
-            return 400, f"Line item references invalid account: {line_item_post.accountNo}", None
-  
+            return (
+                400,
+                f"Line item references invalid account: {line_item_post.accountNo}",
+                None,
+            )
+
     post.lineItems = type_safe_line_items
 
     type_safe_attachments = []
@@ -44,23 +63,24 @@ def validate_new_journal_entry(journal_entry):
         try:
             attachment = AttachmentPost(**attachment)
             type_safe_attachments.append(attachment.__dict__)
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
             return 400, dataclass_error_to_str(e), None
-        
+
     post.attachments = type_safe_attachments
 
-    if sum_line_items(type_safe_line_items) != 0:
+    if __sum_line_items(type_safe_line_items) != 0:
         return 400, "Line items do not sum to 0.", None
 
-    return 201, '', {'state': "DRAFT", **post.__dict__}
+    return 201, "", {"state": "DRAFT", **post.__dict__}
 
 
-def sum_line_items(line_items):
-    sum = 0
+def __sum_line_items(line_items):
+    """Sum all lines considering credit/debit"""
+    total = 0
     for item in line_items:
         if item["type"] == "CREDIT":
-            sum += item["amount"]
+            total += item["amount"]
         else:
-            sum -= item["amount"]
+            total -= item["amount"]
 
-    return sum
+    return total
