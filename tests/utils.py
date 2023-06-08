@@ -3,6 +3,7 @@ import sys
 
 THIS_DIRECTORY = Path(__file__).parent.absolute()
 TEST_DIR = str(PurePath(THIS_DIRECTORY))
+MOCK_DIR = str(PurePath(TEST_DIR, 'mock'))
 ROOT_DIR = str(PurePath(THIS_DIRECTORY.parent))
 
 sys.path.append(ROOT_DIR)

@@ -9,7 +9,7 @@ class QldbStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        ledger_name = ENV["ledger_name"]
+        ledger_name = ENV["deploy"]["LEDGER_NAME"]
 
         ledger = cdk.aws_qldb.CfnLedger(
             self,

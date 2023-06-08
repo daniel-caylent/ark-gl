@@ -15,5 +15,7 @@ def TestBase(paths: list[str]) -> object:
                 sys.modules.pop('models')
             if sys.modules.get('shared'):
                 sys.modules.pop('shared')
+            if sys.modules.get('ark_qldb'):
+                sys.modules.pop('ark_qldb')
 
     return TestBaseClass

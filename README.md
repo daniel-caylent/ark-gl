@@ -42,6 +42,7 @@ There are other environments that should be set up
 ```bash
 AWS_ACCOUNT=aws_account_id
 AWS_REGION=aws_region
+AWS_DEFAULT_REGION=aws_region
 ```
 
 #### Creating a virtual environment

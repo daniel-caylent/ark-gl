@@ -24,7 +24,7 @@ class DRStack(BaseStack):
         cron_hour = ENV["QLDB_EXPORT_TRIGGER_HOUR"]
         vpc = get_vpc(self)
         dr_bucket_name = get_stack_prefix() + ENV["DR_BUCKET_NAME"]
-        ledger_name = ENV["ledger_name"]
+        ledger_name = ENV["deploy"]["LEDGER_NAME"]
         self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
