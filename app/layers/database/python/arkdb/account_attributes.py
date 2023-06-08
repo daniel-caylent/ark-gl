@@ -5,12 +5,14 @@ from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
 def select_all() -> list[dict]:
+    """Select all account attributes"""
     results = select_all_(DB_NAME, REGION_NAME, SECRET_NAME)
 
     return results
 
 
 def select_by_id(id) -> dict:
+    """Select a specific account attribute by ID"""
     results = select_by_uuid(DB_NAME, id, REGION_NAME, SECRET_NAME)
 
     return results

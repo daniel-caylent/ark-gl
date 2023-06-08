@@ -44,12 +44,15 @@ def use_logging(func):
             logger.error(f"context: {context}")
             logger.error(err_msg)
 
+            write_log(event, context, "Warning", "API", err_msg)
             raise Exception(err_msg)
 
     return wrapper
 
 
 def write_log(event, context, severity: str, alert_type: str, alert_message: str):
+    """Write a standardized error message"""
+
     func_dict = {
         "Emergency": logger.error,
         "Alert": logger.warning,

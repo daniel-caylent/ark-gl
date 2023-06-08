@@ -1,6 +1,8 @@
 """Module that contains util methods for dataclasses errors"""
 
 def dataclass_error_to_str(error):
+    """Convert dataclass errors to readable strings"""
+
     remove_str = "__init__() got an "
     error_str = str(error).replace(remove_str, "")
 
