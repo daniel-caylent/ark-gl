@@ -35,7 +35,6 @@ def validate_new_journal_entry(journal_entry):
         return 400, "Specified ledger does not exist.", None
 
     accts = accounts.select_by_fund_id(ledger["fundId"])
-    acct_numbers = [acct["accountNo"] for acct in accts]
 
     type_safe_line_items = []
     line_item_no = 0
@@ -49,12 +48,8 @@ def validate_new_journal_entry(journal_entry):
         except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
             return 400, dataclass_error_to_str(e), None
 
-        if line_item_post.accountNo not in acct_numbers:
-            return (
-                400,
-                f"Line item references invalid account: {line_item_post.accountNo}",
-                None,
-            )
+        if not __validate_line_items_vs_accounts(type_safe_line_items, accts):
+            return 400, "Line items are invalid", None
 
     post.lineItems = type_safe_line_items
 
@@ -82,5 +77,20 @@ def __sum_line_items(line_items):
             total += item["amount"]
         else:
             total -= item["amount"]
-
     return total
+
+def __validate_line_items_vs_accounts(line_items, accts):
+    """Check line-items account connection exists and have entity ids if required"""
+    account_lookup = {}
+    for acct in accts:
+        account_lookup[acct["accountNo"]] = acct
+
+    for line_item in line_items:
+        acct = account_lookup.get(line_item["accountNo"])
+        if not acct:
+            return False
+
+        if acct["isEntityRequired"]:
+            if not line_item.get("entityId"):
+                return False
+    return True

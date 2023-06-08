@@ -86,12 +86,15 @@ def handler(event, context) -> tuple[int, dict]:
 
         put.attachments = type_safe_attachments
 
-    if __sum_line_items(put.lineItems) != 0:
-        return 400, {"detail": "Line items do not sum to 0."}
-
     # only keep fields present in the initial body, but replace
     # with type safe values from dataclass
     type_safe_body = update_dict(body, put.__dict__)
+
+    if type_safe_body.get('lineItems'):
+        if __sum_line_items(type_safe_body.get('lineItems')) != 0:
+            return 400, {"detail": "Line items do not sum to zero."}
+        if len(type_safe_body.get('lineItems')) == 0:
+            return 400, {"detail": "Line items cannot be an empty array."}
 
     missing = check_missing_fields(type_safe_body, REQUIRED_FIELDS)
     if missing is not None:
