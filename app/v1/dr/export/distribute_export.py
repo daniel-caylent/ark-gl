@@ -1,15 +1,20 @@
-# TODO: consider adding a meaningful description to this module
 """
-This Lambda is responsible for
+This Lambda is responsible for splitting up the load from
+the QLDB exports distributes the load to be processed
+by multiple Lambdas instances
 """
 import os
-
 import boto3
-from shared import endpoint # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
+from shared import (
+    endpoint,
+    logging,
+)
+# pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+def handler(event, context) -> tuple[int, dict]:
     """
     Lambda entry point
 
@@ -31,7 +36,17 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     target_queue_url = os.getenv("SQS_QUEUE_URL")
 
     # List all objects in the source bucket
-    response = s3_client.list_objects_v2(Bucket=source_bucket)
+    try:
+        response = s3_client.list_objects_v2(Bucket=source_bucket)
+    except Exception as e:
+        logging.write_log(
+            event,
+            context,
+            "Error",
+            "DR Export Error when listing objects in bucket: " + source_bucket,
+            str(e),
+        )
+        raise
 
     # Check if any objects are present in the bucket
     if "Contents" in response:
@@ -41,10 +56,19 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         # Push each object key to the SQS queue
         for object_key in object_keys:
             if object_key.endswith(".json"):
-                sqs_client.send_message(
-                    QueueUrl=target_queue_url,
-                    MessageBody="s3://" + source_bucket + "/" + object_key,
-                )
-    # TODO: this lambda is not logging its processing, consider adding some
+                try:
+                    sqs_client.send_message(
+                        QueueUrl=target_queue_url,
+                        MessageBody="s3://" + source_bucket + "/" + object_key,
+                    )
+                except Exception as e:
+                    logging.write_log(
+                        event,
+                        context,
+                        "Error",
+                        "DR Export Error when publishing message to SQS queue",
+                        str(e),
+                    )
+                    raise
 
-    return (200, {})
+    return 200, {}

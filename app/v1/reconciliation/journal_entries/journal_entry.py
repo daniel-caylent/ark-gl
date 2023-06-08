@@ -2,70 +2,109 @@
 This Lambda is responsible for preforming the reconciliation process of JournalEntries
 """
 
-from ark_qldb import qldb  # pylint: disable=import-error; Lambda layer dependency
-from arkdb import journal_entries # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
+from ark_qldb import qldb
+from arkdb import journal_entries
+from shared import logging
+
+# pylint: enable=import-error
 
 
-def __validate_journal_entry_key(aurora_record, current_key, current_row):
+def __validate_journal_entry_key(
+    event, context, aurora_record, current_key, current_row
+):
     if aurora_record.get(current_key) is None:
-        # TODO: add standard logging mechanism
-        print(
-            "Key " + current_key + " does not exist in Aurora "
-        )  # key does not exist in Aurora
+        logging.write_log(
+            event,
+            context,
+            "Error",
+            "Reconciliation error",
+            "Key " + current_key + " does not exist in Aurora ",
+        )
         processed_success = False
     else:
         if aurora_record[current_key] != current_row[current_key]:
-            # TODO: add standard logging mechanism
-            print(
-                "Error on value for key " + current_key
-            )  # record value mistmatch. Someone tampered with the DB
+            logging.write_log(
+                event,
+                context,
+                "Error",
+                "Reconciliation error",
+                "Error on value for key " + current_key,
+            )
             processed_success = False
     return processed_success
 
 
-def __validate_journal_entry_item(aurora_line_record, line_item):
+def __validate_journal_entry_item(event, context, aurora_line_record, line_item):
     if aurora_line_record is None:
-        # TODO: add standard logging mechanism
-        print("Error")  # record exists in QLDB and not in Aurora. Someone deleted it
+        logging.write_log(
+            event,
+            context,
+            "Error",
+            "Reconciliation error",
+            "Error on record "
+            + str(aurora_line_record)
+            + ".\nRecord exists in QLDB and not in Aurora",
+        )
         processed_success = False
     else:
         for line_current_key in line_item.keys():
             if line_current_key == "line_items":
                 continue
             if aurora_line_record.get(line_current_key) is None:
-                # TODO: add standard logging mechanism
-                print(
-                    "Key " + line_current_key + " does not exist in Aurora "
-                )  # key does not exist in Aurora
+                logging.write_log(
+                    event,
+                    context,
+                    "Error",
+                    "Reconciliation error",
+                    "Key " + line_current_key + " does not exist in Aurora",
+                )
                 processed_success = False
             else:
                 if aurora_line_record[line_current_key] != line_item[line_current_key]:
-                    # TODO: add standard logging mechanism
-                    print(
-                        "Error on value for key " + line_current_key
-                    )  # record value mistmatch. Someone tampered with the DB
+                    logging.write_log(
+                        event,
+                        context,
+                        "Error",
+                        "Reconciliation error",
+                        "Error on value for key " + line_current_key,
+                    )
                     processed_success = False
     return processed_success
 
 
-def __process_buffer(buffered_cursor, processed_list, processed_succesfully, processed_failure):
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+def __process_buffer(
+    event,
+    context,
+    buffered_cursor,
+    processed_list,
+    processed_succesfully,
+    processed_failure,
+):
     for current_row in buffered_cursor:
         processed_success = True
         current_uuid = current_row["uuid"]
 
         aurora_record = journal_entries.select_by_id(current_uuid)
         if aurora_record is None:
-            # TODO: add standard logging mechanism
-            print(
-                "Error"
-            )  # record exists in QLDB and not in Aurora. Someone deleted it
+            logging.write_log(
+                event,
+                context,
+                "Error",
+                "Reconciliation error",
+                "Error on record "
+                + str(aurora_record)
+                + ".\nRecord does not exist in Aurora",
+            )
             processed_success = False
         else:
             for current_key in current_row.keys():
                 if current_key == "line_items":
                     continue
                 processed_success = __validate_journal_entry_key(
-                    aurora_record, current_key, current_row
+                    event, context, aurora_record, current_key, current_row
                 )
 
             current_row_id = current_row.get("id")
@@ -77,7 +116,7 @@ def __process_buffer(buffered_cursor, processed_list, processed_succesfully, pro
                     line_number, current_row_id
                 )
                 processed_success = __validate_journal_entry_item(
-                    aurora_line_record, line_item
+                    event, context, aurora_line_record, line_item
                 )
 
         processed_list.append(current_row)
@@ -87,9 +126,7 @@ def __process_buffer(buffered_cursor, processed_list, processed_succesfully, pro
             processed_failure.append(current_row)
 
 
-def handler(
-    event, context # pylint: disable=unused-argument; Required lambda parameters
-) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]:
     """
     Lambda entry point
 
@@ -117,16 +154,26 @@ def handler(
         processed_succesfully = []
         processed_failure = []
 
-        __process_buffer(buffered_cursor, processed_list, processed_succesfully, processed_failure)
+        __process_buffer(
+            event,
+            context,
+            buffered_cursor,
+            processed_list,
+            processed_succesfully,
+            processed_failure,
+        )
 
         journal_count = journal_entries.select_count_commited_journals()
         if journal_count["count(*)"] != len(processed_list):
-            # TODO: add standard logging mechanism
-            print(
+            logging.write_log(
+                event,
+                context,
+                "Error",
+                "Reconciliation error",
                 "Error on amount of records on Aurora "
                 + str(journal_count["count(*)"])
                 + " vs QLDB "
-                + str(len(processed_list))
-            )  # distinct amount of journals in the QLDB than the DB
+                + str(len(processed_list)),
+            )
 
-    return 200, {} #
+    return 200, {}

@@ -15,7 +15,7 @@ def __divide_chunks(input_list, chunck_size):
 
 
 def handler(
-    event, context # pylint: disable=unused-argument; Required lambda parameters
+    event, context  # pylint: disable=unused-argument; Required lambda parameters
 ) -> tuple[int, dict]:
     """
     Lambda entry point
