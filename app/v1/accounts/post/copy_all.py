@@ -11,7 +11,7 @@ from sort_accounts_for_insert import sort_accounts_for_insert
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the accounts copy-to POST request
 
     event: dict

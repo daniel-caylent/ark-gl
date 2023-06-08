@@ -8,7 +8,7 @@ from ark_qldb import qldb # pylint: disable=import-error; Lambda layer dependenc
 logger = getLogger(__name__)
 
 
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     ledger_name = os.getenv("LEDGER_NAME")
     region_name = os.getenv("AWS_REGION")
     driver = qldb.Driver(ledger_name, region_name=region_name)

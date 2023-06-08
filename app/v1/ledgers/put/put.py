@@ -13,7 +13,7 @@ REQUIRED_FIELDS = ["fundId", "glName", "currencyName", "currencyDecimal"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for ledgers PUT request
 
     event: dict

@@ -13,7 +13,7 @@ from .csv_ import download_from_s3, convert_csv_to_dicts
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the accounts upload request
 
     event: dict

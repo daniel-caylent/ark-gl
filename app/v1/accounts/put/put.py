@@ -12,7 +12,7 @@ COMMITED_CHANGEABLE = ["fsName", "fsMappingId"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 

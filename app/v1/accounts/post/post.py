@@ -1,7 +1,6 @@
 """Lambda that will perform POST requests for Accounts"""
 
 import json
-"""Lambda that will perform POST requests for Accounts"""
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
@@ -11,7 +10,7 @@ from validate_new_account import validate_new_account
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the accounts POST request
 
     event: dict

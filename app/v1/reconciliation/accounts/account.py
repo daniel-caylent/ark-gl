@@ -11,7 +11,7 @@ from shared import endpoint, logging
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """
     Lambda entry point
 
@@ -37,7 +37,6 @@ def handler(event, context) -> tuple[int, dict]:
         aurora_record = accounts.select_by_id(current_uuid)
         if aurora_record is None:
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "Reconciliation error",
@@ -50,7 +49,6 @@ def handler(event, context) -> tuple[int, dict]:
             for current_key in current_row.keys():
                 if aurora_record.get(current_key) is None:
                     logging.write_log(
-                        event,
                         context,
                         "Notice",
                         "Reconciliation Error",
@@ -60,7 +58,6 @@ def handler(event, context) -> tuple[int, dict]:
                 else:
                     if aurora_record[current_key] != current_row[current_key]:
                         logging.write_log(
-                            event,
                             context,
                             "Notice",
                             "Reconciliation Error",
@@ -77,7 +74,6 @@ def handler(event, context) -> tuple[int, dict]:
     account_count = accounts.select_count_commited_accounts()
     if account_count["count(*)"] != len(processed_list):
         logging.write_log(
-            event,
             context,
             "Notice",
             "Reconciliation Error",

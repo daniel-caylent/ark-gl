@@ -12,7 +12,7 @@ from models import JournalEntry
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument
+def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Journal Entried get-by-id handler"""
 
     if not event.get("pathParameters"):
@@ -33,6 +33,6 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     journal_entry["lineItems"] = journal_entries.get_line_items(journal_entry_id)
     journal_entry["attachments"] = journal_entries.get_attachments(journal_entry_id)
 
-    
+
 
     return 200, {"data": JournalEntry(**journal_entry)}

@@ -12,7 +12,7 @@ from models import JournalEntry
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument
+def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Get journal entries by ledgerId"""
 
     if not event.get("queryStringParameters"):

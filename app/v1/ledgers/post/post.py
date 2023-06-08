@@ -10,7 +10,7 @@ from validate_new_ledger import validate_new_ledger
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the ledgers POST request
 
     event: dict
