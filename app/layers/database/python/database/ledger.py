@@ -658,3 +658,70 @@ def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> 
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def __get_by_multiple_uuids_query(db: str, uuids_list: list) -> tuple:
+    """
+    This function creates the select by multiple uuids query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuids_list: list
+    This parameter specifies the list of uuids that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(uuids_list))
+
+    query = (
+        """
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.decimals, le.created_at
+        FROM """
+        + db
+        + """.ledger le
+        INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        where le.uuid IN (%s);"""
+        % format_strings
+    )
+
+    params = tuple(uuids_list)
+
+    return (query, params)
+
+
+def select_by_multiple_uuids(
+    db: str, uuids_list: list, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by multiple uuids" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuids_list: list
+    This parameter specifies the list of uuids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the ledgers that match with the upcoming uuids
+    """
+    params = __get_by_multiple_uuids_query(db, uuids_list)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records

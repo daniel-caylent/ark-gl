@@ -379,7 +379,8 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         INNER JOIN """
         + db
         + """.account acc ON (li.account_id = acc.id)
-        where li.journal_entry_id IN (%s);""" % format_strings
+        where li.journal_entry_id IN (%s);"""
+        % format_strings
     )
 
     params = tuple(journal_entry_ids)
