@@ -17,6 +17,16 @@ VALID_STATES = ["POSTED"]
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
+    """Handler for ledgers PUT state request
+
+    event: dict
+    POST event passed in from API gateway. The key 'body' should
+    cary the POST request as a JSON string
+
+    context: LambdaContext
+    Context about the instance of the lambda function
+    """
+
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 

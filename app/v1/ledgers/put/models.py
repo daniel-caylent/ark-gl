@@ -7,6 +7,8 @@ from shared.dataclass_validators import validate_str, validate_int # pylint: dis
 
 @dataclass
 class LedgerPut:
+    """Model for ledger PUT request"""
+
     glName: str = None
     glDescription: str = None
     currencyName: str = None

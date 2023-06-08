@@ -27,6 +27,7 @@ def post(table_name: str, contents: dict):
         raise Exception("Invalid table name.")
     
 def process_contents(contents):
+    """Remove keys that should not be POSTED and apply hashes"""
     processed_contents = {}
     for key, item in contents.items():
         if key in IGNORE_NAMES:

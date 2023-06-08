@@ -707,7 +707,7 @@ def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-    where fe.fund_id = %s;"""
+    where fe.uuid = %s;"""
     )
 
     params = (fund_id,)

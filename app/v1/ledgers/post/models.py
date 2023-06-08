@@ -7,6 +7,7 @@ from shared.dataclass_validators import check_uuid, validate_str, validate_int #
 
 @dataclass
 class LedgerPost:
+    """Ledger POST model"""
     fundId: str
     glName: str
     currencyName: str

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Ledger:
+    """GET model for ledgers"""
     fundId: str
     glName: str
     glDescription: str
