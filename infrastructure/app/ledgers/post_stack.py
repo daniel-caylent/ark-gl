@@ -4,20 +4,16 @@ from constructs import Construct
 
 from shared.base_stack import BaseStack
 from shared.get_cdk import build_lambda_function
-from shared.layers import (
-    get_pymysql_layer,
-    get_shared_layer,
-    get_database_layer
-)
+from shared.layers import get_pymysql_layer, get_shared_layer, get_database_layer
 from shared.utils import LEDGERS_DIR
 
 import aws_cdk as cdk
 
 
-CODE_DIR = str(PurePath(LEDGERS_DIR, 'post'))
+CODE_DIR = str(PurePath(LEDGERS_DIR, "post"))
+
 
 class LedgersPostStack(BaseStack):
-
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -25,14 +21,17 @@ class LedgersPostStack(BaseStack):
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
 
-        lambda_function = build_lambda_function(self, CODE_DIR,
+        lambda_function = build_lambda_function(
+            self,
+            CODE_DIR,
             handler="post.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="ledgers post"
+            description="ledgers post",
         )
 
         cdk.CfnOutput(
-            self, "ark-ledger-post-function-arn",
+            self,
+            "ark-ledger-post-function-arn",
             value=lambda_function.function_arn,
-            export_name= self.STACK_PREFIX + "ark-ledger-post-function-arn"
+            export_name=self.STACK_PREFIX + "ark-ledger-post-function-arn",
         )

@@ -9,7 +9,7 @@ from shared.layers import (
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
-    get_pyqldb_layer
+    get_pyqldb_layer,
 )
 from shared.utils import JOURNAL_ENTRIES_DIR
 
@@ -42,6 +42,5 @@ class JournalEntriesStateStack(BaseStack):
             self,
             "ark-journal-entries-state-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX
-            + "ark-journal-entries-state-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-state-function-arn",
         )

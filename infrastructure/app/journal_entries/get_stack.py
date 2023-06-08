@@ -30,13 +30,12 @@ class JournalEntriesGetStack(BaseStack):
             handler="get.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries get",
-            exclude=["get_by_id.py"]
+            exclude=["get_by_id.py"],
         )
 
         cdk.CfnOutput(
             self,
             "ark-journal-entries-get-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX
-            + "ark-journal-entries-get-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-get-function-arn",
         )

@@ -17,12 +17,16 @@ RESTORE_CODE_DIR = str(PurePath(DR_DIR, "restore"))
 
 
 class LambdaRestoreStack(BaseStack):
-    def __init__(self, scope: Construct, id: str,
-                 bucket: cdk.aws_s3.Bucket,
-                 queue: cdk.aws_sqs.Queue,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        scope: Construct,
+        id: str,
+        bucket: cdk.aws_s3.Bucket,
+        queue: cdk.aws_sqs.Queue,
+        **kwargs
+    ) -> None:
         super().__init__(scope, id, **kwargs)
-        
+
         shared_layer = get_shared_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
@@ -37,7 +41,7 @@ class LambdaRestoreStack(BaseStack):
             env={
                 "LOG_LEVEL": "INFO",
             },
-            cdk_env=kwargs["env"]
+            cdk_env=kwargs["env"],
         )
 
         bucket.grant_read(self.restore_function.role)

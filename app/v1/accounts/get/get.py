@@ -1,6 +1,10 @@
-from shared import endpoint, validate_uuid  # pylint: disable=import-error
-from arkdb import accounts, funds  # pylint: disable=import-error
-from models import Account  # pylint: disable=import-error
+"""Lambda that will perform GET requests for Accounts"""
+
+# pylint: disable=import-error; Lambda layer dependency
+from shared import endpoint, validate_uuid
+from arkdb import accounts, funds
+from models import Account
+# pylint: enable=import-error
 
 
 @endpoint
@@ -18,7 +22,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate that the fund exists and client has access to it
     fund = funds.select_by_uuid(fund_id)
     if fund is None:
-        return 400, {'detail': "Specified fund does not exist."}
+        return 400, {"detail": "Specified fund does not exist."}
 
     results = accounts.select_by_fund_id(fund_id)
     accts = [Account(**account) for account in results]

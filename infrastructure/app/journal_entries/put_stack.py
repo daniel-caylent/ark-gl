@@ -29,13 +29,12 @@ class JournalEntriesPutStack(BaseStack):
             CODE_DIR,
             handler="put.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries put"
+            description="journal entries put",
         )
 
         cdk.CfnOutput(
             self,
             "ark-journal-entries-put-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX
-            + "ark-journal-entries-put-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-put-function-arn",
         )

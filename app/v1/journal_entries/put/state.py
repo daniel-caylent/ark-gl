@@ -1,47 +1,52 @@
+"""Lambda that will perform the PUT for JournalEntries / state"""
+
 import json
 
-from arkdb import journal_entries                  # pylint: disable=import-error
+# pylint: disable=import-error; Lambda layer dependency
 import ark_qldb
-
-from shared import (                        # pylint: disable=import-error
+from arkdb import journal_entries
+from shared import (
     endpoint,
     validate_uuid
 )
+# pylint: enable=import-error
+
 
 VALID_STATES = ["POSTED"]
 
+
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
-    if not event.get('pathParameters'):
-        return 400, {'detail': "Missing path parameters"}
+    if not event.get("pathParameters"):
+        return 400, {"detail": "Missing path parameters"}
 
-    journal_entry_id = event['pathParameters'].get('journalEntryId', None)
+    journal_entry_id = event["pathParameters"].get("journalEntryId", None)
     if journal_entry_id is None:
-        return 400, {'detail': "No journal_entry specified."}
+        return 400, {"detail": "No journal_entry specified."}
 
     if not validate_uuid(journal_entry_id):
-        return 400, {'detail': "Invalid UUID provided."}
+        return 400, {"detail": "Invalid UUID provided."}
 
     # validate the request body
     try:
-        body = json.loads(event['body'])
+        body = json.loads(event["body"])
     except Exception:
-        return 400, {'detail': "Body does not contain valid json."}
+        return 400, {"detail": "Body does not contain valid json."}
 
-    state = body.get('state')
+    state = body.get("state")
     if not state:
-        return 400, {'detail': "No state specified."}
+        return 400, {"detail": "No state specified."}
 
     # verify journal_entry exists
     acct = journal_entries.select_by_id(journal_entry_id)
     if acct is None:
-        return 404, {'detail': "No journal entry found."}
+        return 404, {"detail": "No journal entry found."}
 
     if acct['state'] == "POSTED":
         return 400, {'detail': "Journal entry is already POSTED."}
 
     if state not in VALID_STATES:
-        return 400, {'detail': "State is invalid."}
+        return 400, {"detail": "State is invalid."}
 
     # hard coding the state so there's no chance of tampering
     journal_entries.update_by_id(journal_entry_id, {'state': 'POSTED'})

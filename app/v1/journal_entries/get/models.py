@@ -1,8 +1,12 @@
+"""Models for JournalEntries GET"""
+
 from dataclasses import dataclass, field
+
 
 @dataclass
 class JournalEntry:
     """Validate a journal entry from internal DB"""
+
     ledgerId: str
     journalEntryId: str
     journalEntryNum: str

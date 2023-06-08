@@ -5,9 +5,9 @@ from typing import Mapping, Sequence
 
 from .utils import get_stack_id, get_stack_prefix
 
-class BaseNestedStack(NestedStack):
 
-    STACK_PREFIX = ''
+class BaseNestedStack(NestedStack):
+    STACK_PREFIX = ""
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         self.STACK_PREFIX = get_stack_prefix()

@@ -29,13 +29,12 @@ class JournalEntriesPostStack(BaseStack):
             CODE_DIR,
             handler="post.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries post"
+            description="journal entries post",
         )
 
         cdk.CfnOutput(
             self,
             "ark-journal-entries-post-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX
-            + "ark-journal-entries-post-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-post-function-arn",
         )

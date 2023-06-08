@@ -21,9 +21,9 @@ CODE_DIR = str(PurePath(RECONCILIATION_DIR, "journal_entries"))
 
 
 class JournalEntriesReconciliationStack(BaseStack):
-    def __init__(self, scope: Construct, id: str,
-                 queue: cdk.aws_sqs.Queue,
-                 **kwargs) -> None:
+    def __init__(
+        self, scope: Construct, id: str, queue: cdk.aws_sqs.Queue, **kwargs
+    ) -> None:
         super().__init__(scope, id, **kwargs)
 
         shared_layer = get_shared_layer(self)
@@ -35,13 +35,13 @@ class JournalEntriesReconciliationStack(BaseStack):
             self,
             CODE_DIR,
             handler="journal_entry.handler",
-            layers=[shared_layer,pymysql_layer, db_layer, qldb_layer, qldb_reqs],
+            layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="journal entries reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
                 "LOG_LEVEL": "INFO",
             },
-            cdk_env=kwargs["env"]
+            cdk_env=kwargs["env"],
         )
 
         # Adding sqs queue as source for this function

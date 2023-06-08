@@ -6,7 +6,7 @@ from shared.base_stack import BaseStack
 from shared.get_cdk import (
     build_api_gateway,
     build_api_gateway_deployment,
-    build_api_gateway_stage
+    build_api_gateway_stage,
 )
 
 from .api_account_attribute_nested_stack import AccountAttributesNestedStack
@@ -18,42 +18,46 @@ from aws_cdk import aws_apigateway as apigtw, aws_logs as logs
 
 
 class ApiStack(BaseStack):
-
     api_resources = {}
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        self.api = build_api_gateway(self, self.STACK_PREFIX+"ark-gl-rest-api", deploy=False, cloud_watch_role=True)
+        self.api = build_api_gateway(
+            self,
+            self.STACK_PREFIX + "ark-gl-rest-api",
+            deploy=False,
+            cloud_watch_role=True,
+        )
 
         self.api.root.add_method("ANY")
 
-        account_attributes_nested_stack=AccountAttributesNestedStack(
+        account_attributes_nested_stack = AccountAttributesNestedStack(
             self,
             "ark-gl-account-attributes-api-nested",
             self.api.rest_api_id,
             self.api.rest_api_root_resource_id,
         )
 
-        account_nested_stack=AccountNestedStack(
+        account_nested_stack = AccountNestedStack(
             self,
             "ark-gl-account-api-nested",
             self.api.rest_api_id,
-            self.api.rest_api_root_resource_id
+            self.api.rest_api_root_resource_id,
         )
 
-        ledger_nested_stack=LedgerNestedStack(
+        ledger_nested_stack = LedgerNestedStack(
             self,
             "ark-gl-ledger-api-nested",
             self.api.rest_api_id,
-            self.api.rest_api_root_resource_id
+            self.api.rest_api_root_resource_id,
         )
 
-        journal_entries_nested_stack=JournalEntryNestedStack(
+        journal_entries_nested_stack = JournalEntryNestedStack(
             self,
             "ark-gl-journal-entries-api-nested",
             self.api.rest_api_id,
-            self.api.rest_api_root_resource_id
+            self.api.rest_api_root_resource_id,
         )
 
         methods = []
@@ -63,9 +67,8 @@ class ApiStack(BaseStack):
         methods.extend(journal_entries_nested_stack.methods)
 
         deployment = build_api_gateway_deployment(
-            self,
-            'ark-gl-api-deployment-'+datetime.now().isoformat(),
-            api=self.api)
+            self, "ark-gl-api-deployment-" + datetime.now().isoformat(), api=self.api
+        )
 
         if methods:
             for method in methods:
@@ -92,7 +95,7 @@ class ApiStack(BaseStack):
                 response_length=True,
                 status=True,
                 user=True,
-            )
+            ),
         )
 
         self.api.deployment_stage = stage

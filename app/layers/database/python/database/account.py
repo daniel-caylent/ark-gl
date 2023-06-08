@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for accounts"""
+
 from . import db_main
 from . import connection
 from . import account_attribute

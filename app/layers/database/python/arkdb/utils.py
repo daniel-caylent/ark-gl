@@ -1,3 +1,5 @@
+"""This module provides values to perform the database connection"""
+
 import os
 
 DB_NAME = os.getenv("DB_NAME")

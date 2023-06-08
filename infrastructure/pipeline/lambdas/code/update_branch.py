@@ -11,7 +11,8 @@ from utils import get_lambda_config, get_codebuild_project_name
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-client = boto3.client('codebuild')
+client = boto3.client("codebuild")
+
 
 def handler(event, context):
     """Lambda function handler"""
@@ -21,20 +22,17 @@ def handler(event, context):
 
     logger.info(lambda_config)
 
-    reference_type = event['detail']['referenceType']
+    reference_type = event["detail"]["referenceType"]
 
-    codebuild_name_prefix  = \
-        itemgetter(
-            "codebuild_name_prefix",
-        )(lambda_config)
+    codebuild_name_prefix = itemgetter(
+        "codebuild_name_prefix",
+    )(lambda_config)
 
     try:
-        if reference_type == 'branch':
-            branch = event['detail']['referenceName']
+        if reference_type == "branch":
+            branch = event["detail"]["referenceName"]
             project_name = get_codebuild_project_name(codebuild_name_prefix, branch)
 
-            client.start_build(
-                projectName=project_name
-            )
+            client.start_build(projectName=project_name)
     except Exception as e:
         logger.error(e)

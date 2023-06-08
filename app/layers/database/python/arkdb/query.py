@@ -1,3 +1,5 @@
+"""Module that defines a method to query to the Aurora MySQL serverless"""
+
 from .connection import get_db
 from database.db_main import (
     execute_multiple_record_select,

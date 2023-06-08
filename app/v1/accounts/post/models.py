@@ -1,11 +1,15 @@
+"""Models for Accounts POST"""
+
 from dataclasses import dataclass
 
+# pylint: disable=import-error; Lambda layer dependency
 from shared.dataclass_validators import (
     check_uuid,
     validate_int,
     validate_str,
-    validate_bool
+    validate_bool,
 )
+# pylint: enable=import-error
 
 @dataclass
 class AccountPost:
@@ -37,10 +41,12 @@ class AccountPost:
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
         self.parentAccountId = (
-            None if self.parentAccountId is None else
-            check_uuid(self.parentAccountId, "parentAccountId")
+            None
+            if self.parentAccountId is None
+            else check_uuid(self.parentAccountId, "parentAccountId")
         )
         self.fsMappingId = (
-            None if self.fsMappingId is None else
-            check_uuid(self.fsMappingId, "fsMappingId")
+            None
+            if self.fsMappingId is None
+            else check_uuid(self.fsMappingId, "fsMappingId")
         )

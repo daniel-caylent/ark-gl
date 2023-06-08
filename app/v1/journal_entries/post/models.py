@@ -1,14 +1,21 @@
+"""Models for JournalEntries POST"""
+
 from dataclasses import dataclass, field
+
+# pylint: disable=import-error; Lambda layer dependency
 from shared.dataclass_validators import (
     check_uuid,
     validate_bool,
     validate_str,
-    validate_int
+    validate_int,
 )
+# pylint: enable=import-error
 
 @dataclass
 class JournalEntryPost:
     """Validate journal entry data from a post"""
+
+    # pylint: disable=invalid-name; API standard
     ledgerId: str
     date: str
     reference: str
@@ -17,6 +24,7 @@ class JournalEntryPost:
     attachments: list = field(default_factory=list)
     lineItems: list = field(default_factory=list)
     isHidden: bool = False
+    # pylint: enable=invalid-name;
 
     def __post_init__(self):
         self.ledgerId = check_uuid(self.ledgerId, "ledgerId")
@@ -30,11 +38,15 @@ class JournalEntryPost:
 
 @dataclass
 class LineItemPost:
+    """Line Item POST model"""
+
+    # pylint: disable=invalid-name; API standard
     accountNo: str
     memo: str
     type: str
     amount: int
     entityId: str
+    # pylint: enable=invalid-name;
 
     def __post_init__(self):
         self.accountNo = validate_str(self.accountNo, "accountNo")
@@ -43,10 +55,15 @@ class LineItemPost:
         self.amount = validate_int(self.amount, "amount", min=0)
         self.entityId = validate_str(self.entityId, "entityId")
 
+
 @dataclass
 class AttachmentPost:
+    """Attachment POST model"""
+
+    # pylint: disable=invalid-name; API standard
     documentId: str
     documentMemo: str
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.documentId = validate_str(self.documentId, "documentId", min_len=1, max_len=64)

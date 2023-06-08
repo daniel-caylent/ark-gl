@@ -28,7 +28,7 @@ class DRStack(BaseStack):
         self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
-            bucket_name= dr_bucket_name,
+            bucket_name=dr_bucket_name,
             encryption=s3.BucketEncryption.S3_MANAGED,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             versioned=True,
@@ -46,7 +46,10 @@ class DRStack(BaseStack):
             actions=[
                 "s3:*",
             ],
-            resources=[self.source_bucket.bucket_arn, self.source_bucket.bucket_arn+"/*"],
+            resources=[
+                self.source_bucket.bucket_arn,
+                self.source_bucket.bucket_arn + "/*",
+            ],
         )
 
         ledger_arn = (
@@ -73,7 +76,7 @@ class DRStack(BaseStack):
             policy_name="ark-dr-export-policy",
             statements=[dr_actions_statement, dr_actions_statement2],
         )
-        
+
         qldb_role.attach_inline_policy(dr_policy)
         shared_layer = get_shared_layer(self)
         # pymysql_layer = get_pymysql_layer(self)
@@ -90,11 +93,11 @@ class DRStack(BaseStack):
             env={
                 "ROLE_ARN": qldb_role.role_arn,
                 "DR_BUCKET_NAME": dr_bucket_name,
-                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour, 
+                "QLDB_EXPORT_TRIGGER_HOUR": cron_hour,
                 "LOG_LEVEL": "INFO",
             },
             cdk_env=kwargs["env"],
-            name="export"
+            name="export",
         )
 
         self.lambda_function.role.attach_inline_policy(dr_policy)
@@ -102,7 +105,9 @@ class DRStack(BaseStack):
         eventbridge_cron = cdk.aws_events.Rule(
             self,
             get_stack_prefix() + "ark-qldb-export-trigger",
-            schedule=cdk.aws_events.Schedule.cron(minute=str(0), hour="*/"+str(cron_hour)),
+            schedule=cdk.aws_events.Schedule.cron(
+                minute=str(0), hour="*/" + str(cron_hour)
+            ),
             rule_name=get_stack_prefix() + "ark-qldb-export-trigger",
         )
 
@@ -127,11 +132,11 @@ class DRStack(BaseStack):
             env={
                 "ROLE_ARN": qldb_role.role_arn,
                 "DR_BUCKET_NAME": dr_bucket_name,
-                "SQS_QUEUE_URL": self.queue.queue_url, 
+                "SQS_QUEUE_URL": self.queue.queue_url,
                 "LOG_LEVEL": "INFO",
             },
             cdk_env=kwargs["env"],
-            name="distribute-export"
+            name="distribute-export",
         )
 
         sqs_actions_statement = cdk.aws_iam.PolicyStatement(
@@ -145,7 +150,11 @@ class DRStack(BaseStack):
             self,
             "ark-dr-export-policy2",
             policy_name="ark-dr-export-policy2",
-            statements=[dr_actions_statement, dr_actions_statement2, sqs_actions_statement],
+            statements=[
+                dr_actions_statement,
+                dr_actions_statement2,
+                sqs_actions_statement,
+            ],
         )
 
         self.lambda_function_2.role.attach_inline_policy(dr_policy_2)

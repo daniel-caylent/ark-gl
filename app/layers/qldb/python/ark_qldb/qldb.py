@@ -1,3 +1,5 @@
+"""This module adapts specifc methods to access the QLDB database"""
+
 import botocore
 from logging import getLogger
 from pyqldb.config.retry_config import RetryConfig

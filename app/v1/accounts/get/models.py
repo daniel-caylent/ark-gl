@@ -1,4 +1,7 @@
+"""Models for Accounts GET"""
+
 from dataclasses import dataclass
+
 
 @dataclass
 class Account:

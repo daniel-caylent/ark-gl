@@ -1,3 +1,5 @@
+"""This module adapts specifc methos to access the Aurora MySQL database for journal entries"""
+
 from database.journal_entry import (
     app_to_db as journal_app_to_db,
     select_by_uuid,

@@ -1,7 +1,5 @@
 from pathlib import PurePath
 
-import pytest
-
 from tests.app.data import (
     LambdaContext
 )

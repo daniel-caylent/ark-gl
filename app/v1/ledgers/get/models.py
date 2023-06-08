@@ -1,4 +1,7 @@
+"""Models for Ledgers GET"""
+
 from dataclasses import dataclass
+
 
 @dataclass
 class Ledger:
@@ -13,5 +16,3 @@ class Ledger:
 
     def __post_init__(self):
         self.isHidden = bool(self.isHidden)
-
-

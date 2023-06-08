@@ -10,12 +10,15 @@ class S3Construct(Construct):
         super().__init__(app, id, **kwargs)
 
         # kms key
-        if not bucket_args['encryption']:
-            bucket_key = Key(self, f"{id}Key",
-                             description=f"Key used for {id} template",
-                             alias=f"{id}Bucket",
-                             enable_key_rotation=True,
-                             removal_policy=RemovalPolicy.RETAIN)
+        if not bucket_args["encryption"]:
+            bucket_key = Key(
+                self,
+                f"{id}Key",
+                description=f"Key used for {id} template",
+                alias=f"{id}Bucket",
+                enable_key_rotation=True,
+                removal_policy=RemovalPolicy.RETAIN,
+            )
             bucket_args["encryption_key"] = bucket_key
             bucket_args["encryption"] = BucketEncryption.KMS
 
@@ -27,19 +30,14 @@ class S3Construct(Construct):
 
         # bucket policy
         bucket.add_to_resource_policy(
-            PolicyStatement(sid='AllowSSLRequestsOnly',
-                            actions=['s3:*'],
-                            effect=Effect.DENY,
-                            resources=[
-                                bucket.bucket_arn,
-                                f"{bucket.bucket_arn}/*"
-                            ],
-                            conditions={
-                                "Bool": {
-                                    "aws:SecureTransport": "false"
-                                }
-                            },
-                            principals=[AnyPrincipal()])
+            PolicyStatement(
+                sid="AllowSSLRequestsOnly",
+                actions=["s3:*"],
+                effect=Effect.DENY,
+                resources=[bucket.bucket_arn, f"{bucket.bucket_arn}/*"],
+                conditions={"Bool": {"aws:SecureTransport": "false"}},
+                principals=[AnyPrincipal()],
+            )
         )
 
         self.bucket = bucket

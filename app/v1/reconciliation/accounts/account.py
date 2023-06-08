@@ -1,14 +1,32 @@
-import json
+"""
+This Lambda is responsible for preforming the reconciliation process of Accounts
+"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from ark_qldb import qldb
-from random import random
 from arkdb import accounts
 from shared import endpoint, logging
+# pylint: enable=import-error
 
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]:
+    """
+    Lambda entry point
+
+    event: object
+    Event passed when the lambda is triggered
+
+    context: object
+    Lambda Context
+
+    return: tuple[int, dict]
+    Success code and an empty object
+    """
     driver = qldb.Driver("ARKGL", region_name="us-east-1")
-    buffered_cursor = driver.read_documents("test_account2")
+    buffered_cursor = driver.read_documents(
+        "test_account2" # TODO: we need to setup a proper table
+    )
     processed_list = []
     processed_succesfully = []
     processed_failure = []
@@ -64,4 +82,4 @@ def handler(event, context) -> tuple[int, dict]:
             + str(len(processed_list)),
         )  # distintc amount of accounts in the QLDB than the DB
 
-    return 200, {}
+    return 200, {} #

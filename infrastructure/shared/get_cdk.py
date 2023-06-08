@@ -8,7 +8,14 @@ from env import ENV
 
 
 def build_lambda_function(
-    context, code_dir: str, handler: str, name="main", env={}, timeout=60, exclude=[], **kwargs
+    context,
+    code_dir: str,
+    handler: str,
+    name="main",
+    env={},
+    timeout=60,
+    exclude=[],
+    **kwargs,
 ):
     """
     Returns a Lambda Function with default configs + any customizations
@@ -50,9 +57,7 @@ def build_lambda_function(
 
     # Secrets Manager permission
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
-        context,
-        f"db-secret-{name}",
-        "/secret/arkgl_poc-??????"
+        context, f"db-secret-{name}", "/secret/arkgl_poc-??????"
     )
 
     secret_policy = cdk.aws_iam.PolicyStatement(
@@ -69,6 +74,7 @@ def build_lambda_function(
     )
 
     return function
+
 
 def build_dr_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, cdk_env={}, **kwargs
@@ -105,12 +111,13 @@ def build_dr_lambda_function(
         context,
         f"ark-dr-policy-{name}",
         policy_name="ark-dr-policy",
-        statements=[ dr_actions_statement, dr_actions_statement2],
+        statements=[dr_actions_statement, dr_actions_statement2],
     )
 
     function.role.attach_inline_policy(dr_policy)
 
     return function
+
 
 def build_qldb_lambda_function(
     context, code_dir: str, handler: str, name="main", env={}, cdk_env={}, **kwargs
@@ -173,7 +180,6 @@ def build_decorated_qldb_lambda_function(
         + sqs_name
     )
 
-
     sqs_actions_statement = cdk.aws_iam.PolicyStatement(
         actions=[
             "sqs:DeleteMessage",
@@ -211,11 +217,7 @@ def build_lambda_layer(context, code_dir, name="layer", **kwargs):
 
 
 def get_lambda_layer_from_arn(context, id, arn):
-    return cdk.aws_lambda.LayerVersion.from_layer_version_arn(
-        context,
-        id,
-        arn
-    )
+    return cdk.aws_lambda.LayerVersion.from_layer_version_arn(context, id, arn)
 
 
 def build_lambda_integration(
@@ -249,7 +251,9 @@ def build_api_gateway(context, id: str, **kwargs) -> cdk.aws_apigateway.IRestApi
     return cdk.aws_apigateway.RestApi(context, id, **kwargs)
 
 
-def build_api_gateway_deployment(context, id: str, **kwargs) -> cdk.aws_apigateway.Deployment:
+def build_api_gateway_deployment(
+    context, id: str, **kwargs
+) -> cdk.aws_apigateway.Deployment:
     return cdk.aws_apigateway.Deployment(context, id, **kwargs)
 
 

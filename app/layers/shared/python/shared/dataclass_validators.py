@@ -1,4 +1,7 @@
+"""Module that contains util methods for dataclasses validations"""
+
 from .validate_uuid import validate_uuid
+
 
 def check_uuid(uuid, name) -> str:
     """Validate a uuid"""
@@ -49,7 +52,9 @@ def validate_str(str_, name, min_len=0, max_len=256, allowed: list = None) -> st
     try:
         str_ = str_.strip()
     except:
-        raise Exception(f"{name} is invalid.")  # pylint: disable=broad-exception-raised,raise-missing-from
+        raise Exception(
+            f"{name} is invalid."
+        )  # pylint: disable=broad-exception-raised,raise-missing-from
 
     if len(str_) < min_len:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
@@ -59,22 +64,26 @@ def validate_str(str_, name, min_len=0, max_len=256, allowed: list = None) -> st
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
             f"{name} does not meet max length requirement of {max_len} characters."
         )
-    
+
     if allowed:
         if str_ not in allowed:
-            raise Exception(f"{name} is not one of allowed: {str(allowed).strip('[]')}.")
+            raise Exception(
+                f"{name} is not one of allowed: {str(allowed).strip('[]')}."
+            )
 
     return str_
 
 
-def validate_int(int_, name: str, min: int=None, max: int=None, allowed: list=None) -> int:
+def validate_int(
+    int_, name: str, min: int=None, max: int=None, allowed: list=None
+) -> int:
     """Validate an integer exists for this value"""
 
     if int_ is None:
         raise Exception(  # pylint: disable=broad-exception-raised,raise-missing-from
             f"Required argument is missing: {name}."
         )
-    
+
     if "." in str(int_):
         raise Exception(
             f"{name} contains an invalid integer: {int_}"
@@ -83,7 +92,9 @@ def validate_int(int_, name: str, min: int=None, max: int=None, allowed: list=No
     try:
         int_ = int(str(int_))
     except:
-        raise Exception(f"{name} is invalid.")  # pylint: disable=broad-exception-raised,raise-missing-from
+        raise Exception(
+            f"{name} is invalid."
+        )  # pylint: disable=broad-exception-raised,raise-missing-from
 
     if min is not None:
         if int_ < min:

@@ -1,34 +1,25 @@
 # TODO: Determine the best way to set the VPC and Subnets for the application
 import os
 
-MAP_TAG = 'map-migrated'
+MAP_TAG = "map-migrated"
 MAP_MPE_ID = 50399
-MAP_VALUE = f'mig{MAP_MPE_ID}'
+MAP_VALUE = f"mig{MAP_MPE_ID}"
 
 
-map_tag = {
-    'MAP_TAG': MAP_TAG,
-    'MAP_VALUE': MAP_VALUE
-}
+map_tag = {"MAP_TAG": MAP_TAG, "MAP_VALUE": MAP_VALUE}
 
 prod = {
-    'vpc': "?",
-    'subnets': ["?", "?"],
-    'deploy': {
-      'DB_NAME': '?',
-      'DB_SECRET_NAME': '?'
-    },
-    **map_tag
+    "vpc": "?",
+    "subnets": ["?", "?"],
+    "deploy": {"DB_NAME": "?", "DB_SECRET_NAME": "?"},
+    **map_tag,
 }
 
 qa = {
-    'vpc': "?",
-    'subnets': ["?", "?"],
-    'deploy': {
-      'DB_NAME': '?',
-      'DB_SECRET_NAME': '?'
-    },
-    **map_tag
+    "vpc": "?",
+    "subnets": ["?", "?"],
+    "deploy": {"DB_NAME": "?", "DB_SECRET_NAME": "?"},
+    **map_tag,
 }
 
 dev = {
@@ -51,22 +42,19 @@ dev = {
 
 # TODO: remove the caylent configuration
 caylent = {
-    'vpc': "vpc-0fee1c501ecae446b",
-    'subnets': ["subnet-0727e6789f058348b", "subnet-007ede16f0c16022f"],
-    'deploy': {
-      'DB_NAME': 'ARKGL',
-      'DB_SECRET_NAME': 'ark/db-password'
-    },
-    **map_tag
+    "vpc": "vpc-0fee1c501ecae446b",
+    "subnets": ["subnet-0727e6789f058348b", "subnet-007ede16f0c16022f"],
+    "deploy": {"DB_NAME": "ARKGL", "DB_SECRET_NAME": "ark/db-password"},
+    **map_tag,
 }
 
-env_name = os.getenv('DEPLOYMENT_TYPE')
+env_name = os.getenv("DEPLOYMENT_TYPE")
 ENV = None
-if env_name == 'prod':
+if env_name == "prod":
     ENV = prod
-elif env_name == 'qa':
+elif env_name == "qa":
     ENV = qa
-elif env_name and env_name.startswith('caylent'):
+elif env_name and env_name.startswith("caylent"):
     ENV = caylent
 else:
     ENV = dev

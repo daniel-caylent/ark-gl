@@ -97,7 +97,6 @@ class JournalEntryNestedStack(BaseNestedStack):
 
         self.methods.append(method)
 
-
     def __register_journal_entry_put_method(self, resource):
         ark_journal_entry_put_function_arn = get_imported_value(
             self.STACK_PREFIX + "ark-journal-entries-put-function-arn"
@@ -117,7 +116,6 @@ class JournalEntryNestedStack(BaseNestedStack):
 
         self.methods.append(method)
 
-
     def __register_journal_entry_state_method(self, resource):
         ark_journal_entry_state_function_arn = get_imported_value(
             self.STACK_PREFIX + "ark-journal-entries-state-function-arn"
@@ -136,7 +134,6 @@ class JournalEntryNestedStack(BaseNestedStack):
         method = resource.add_method("PUT", lambda_integration)
 
         self.methods.append(method)
-
 
     def __register_journal_entry_delete_method(self, resource):
         ark_journal_entry_delete_function_arn = get_imported_value(

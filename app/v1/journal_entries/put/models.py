@@ -1,11 +1,14 @@
+"""Models for JournalEntries PUT"""
+
 from dataclasses import dataclass
 from shared.dataclass_validators import (
-    validate_str, validate_bool, validate_int, check_uuid
+    validate_str, validate_bool, validate_int, check_uuid # pylint: disable=import-error; Lambda layer dependency
 )
 
 @dataclass
 class JournalEntryPut:
     """Validate journal entry data from a put"""
+
     reference: str = None
     memo: str = None
     adjustingJournalEntry: bool = None
@@ -23,17 +26,17 @@ class JournalEntryPut:
             None if self.memo is None else
             validate_str(self.memo, "memo", min_len=1)
         )
+        self.memo = None if self.memo is None else validate_str(self.memo, "memo")
         self.adjustingJournalEntry = (
-            None if self.adjustingJournalEntry is None 
+            None
+            if self.adjustingJournalEntry is None
             else validate_bool(self.adjustingJournalEntry, "adjustingJournalEntry")
         )
         self.isHidden = (
             None if self.isHidden is None else
             validate_bool(self.isHidden, "isHidden")
         )
-        self.date = (
-            None if self.date is None else validate_str(self.date, "date")
-        )
+        self.date = None if self.date is None else validate_str(self.date, "date")
 
 
 @dataclass

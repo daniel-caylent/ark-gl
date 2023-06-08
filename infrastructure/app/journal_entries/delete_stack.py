@@ -29,13 +29,12 @@ class JournalEntriesDeleteStack(BaseStack):
             CODE_DIR,
             handler="delete.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries delete"
+            description="journal entries delete",
         )
 
         cdk.CfnOutput(
             self,
             "ark-journal-entries-delete-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX
-            + "ark-journal-entries-delete-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-delete-function-arn",
         )

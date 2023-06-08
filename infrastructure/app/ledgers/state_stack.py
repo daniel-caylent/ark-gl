@@ -10,15 +10,15 @@ from shared.layers import (
     get_shared_layer,
     get_database_layer,
     get_pyqldb_layer,
-    get_qldb_layer
+    get_qldb_layer,
 )
 from shared.utils import LEDGERS_DIR
 
 
-CODE_DIR = str(PurePath(LEDGERS_DIR, 'put'))
+CODE_DIR = str(PurePath(LEDGERS_DIR, "put"))
+
 
 class LedgersStateStack(BaseStack):
-
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -37,8 +37,8 @@ class LedgersStateStack(BaseStack):
         )
 
         cdk.CfnOutput(
-            self, "ark-ledger-state-function-arn",
+            self,
+            "ark-ledger-state-function-arn",
             value=lambda_function.function_arn,
-            export_name= self.STACK_PREFIX + "ark-ledger-state-function-arn"
+            export_name=self.STACK_PREFIX + "ark-ledger-state-function-arn",
         )
-

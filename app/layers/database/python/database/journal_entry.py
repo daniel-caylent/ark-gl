@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for journal entries"""
+
 from . import db_main
 from . import connection
 from . import ledger

@@ -1,4 +1,7 @@
+"""Module that contains util methods for dataclasses encoding"""
+
 import dataclasses
+
 
 def encode(obj):
     if dataclasses.is_dataclass(obj):
