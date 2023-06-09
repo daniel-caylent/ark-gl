@@ -14,7 +14,7 @@ from shared import (
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """
     Lambda entry point
 
@@ -40,7 +40,6 @@ def handler(event, context) -> tuple[int, dict]:
         response = s3_client.list_objects_v2(Bucket=source_bucket)
     except Exception as e:
         logging.write_log(
-            event,
             context,
             "Error",
             "DR Export Error when listing objects in bucket: " + source_bucket,
@@ -63,7 +62,6 @@ def handler(event, context) -> tuple[int, dict]:
                     )
                 except Exception as e:
                     logging.write_log(
-                        event,
                         context,
                         "Error",
                         "DR Export Error when publishing message to SQS queue",

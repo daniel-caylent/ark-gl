@@ -17,7 +17,7 @@ app_to_db = {
 
 def get_insert_query(
     db: str,
-    input: dict,
+    parameters: dict,
     journal_entry_id: str,
     line_number: str,
     posting_type: str,
@@ -30,7 +30,7 @@ def get_insert_query(
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    parameters: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -55,7 +55,7 @@ def get_insert_query(
             (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, parameters)
 
     account_number = translated_input.get("account_no")
     account_id = account.get_id_by_number(db, account_number, region_name, secret_name)
@@ -78,7 +78,7 @@ def get_insert_query(
     return (query, params)
 
 
-def get_update_query(db: str, id: str, input: dict) -> tuple:
+def get_update_query(db: str, id_: str, parameters: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -89,7 +89,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     This parameter specifies the uuid for identifying the line item
     that will be updated
 
-    input: dictionary
+    parameters: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -106,7 +106,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     )
     where_clause = "WHERE uuid = %s;"
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, parameters)
 
     set_clause = ""
     params = ()
@@ -119,7 +119,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     set_clause = set_clause[: size - 2]
     set_clause += "\n "
 
-    params += (id,)
+    params += (id_,)
 
     query = update_query + set_clause + where_clause
 
@@ -296,11 +296,11 @@ def select_numbers_by_journal(
             )
 
         return ret_list
-    else:
-        return None
+
+    return None
 
 
-def get_delete_query(db: str, id: str) -> tuple:
+def get_delete_query(db: str, id_: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -322,7 +322,7 @@ def get_delete_query(db: str, id: str) -> tuple:
         WHERE uuid = %s;"""
     )
 
-    params = (id,)
+    params = (id_,)
 
     return (query, params)
 
@@ -376,12 +376,9 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         li.posting_type, li.amount, li.created_at
         FROM """
         + db
-        + """.line_item li
-        INNER JOIN """
+        + """.line_item li INNER JOIN """
         + db
-        + """.account acc ON (li.account_id = acc.id)
-        where li.journal_entry_id IN (%s);"""
-        % format_strings
+        + f".account acc ON (li.account_id = acc.id) WHERE li.journal_entry_id IN ({format_strings});"
     )
 
     params = tuple(journal_entry_ids)

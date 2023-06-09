@@ -8,7 +8,7 @@ from models import Account
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters"}
 

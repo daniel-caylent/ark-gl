@@ -14,7 +14,7 @@ from shared import (
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """
     Lambda entry point
 
@@ -59,7 +59,7 @@ def handler(event, context) -> tuple[int, dict]:
     # Print the export job ID
     export_job_id = response["ExportId"]
     logging.write_log(
-        event, context, "Notice", "DR Export Info", "Export Job ID:" + export_job_id
+        context, "Notice", "DR Export Info", "Export Job ID:" + export_job_id
     )
 
     return 200, {}

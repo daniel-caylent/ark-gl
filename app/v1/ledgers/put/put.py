@@ -4,7 +4,7 @@ import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import ledgers
-from shared import endpoint, validate_uuid, update_dict
+from shared import endpoint, validate_uuid, update_dict, dataclass_error_to_str
 from models import LedgerPut
 # pylint: enable=import-error
 
@@ -13,7 +13,7 @@ REQUIRED_FIELDS = ["fundId", "glName", "currencyName", "currencyDecimal"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for ledgers PUT request
 
     event: dict
@@ -36,7 +36,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     if len(body.keys()) == 0:
@@ -46,11 +46,7 @@ def handler(event, context) -> tuple[int, dict]:
     try:
         put = LedgerPut(**body)
     except Exception as e:
-        remove_str = "__init__() got an "
-        remove_str = "__init__() "
-        error_str = str(e).strip(remove_str)
-
-        return 400, {"detail": error_str[0].upper() + error_str[1:]}
+        return 400, {"detail": dataclass_error_to_str(e)}
 
     # verify ledger exists
     ledger = ledgers.select_by_id(ledger_id)

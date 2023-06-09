@@ -1,5 +1,5 @@
 """Module that manipulates the CSV file in the POST for Accounts / upload"""
-
+# pylint: skip-file
 import csv
 import requests
 

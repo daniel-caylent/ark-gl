@@ -12,7 +12,7 @@ app_to_db = {
 
 def get_insert_query(
     db: str,
-    input: dict,
+    input_: dict,
     journal_entry_id: str,
 ) -> tuple:
     """
@@ -46,7 +46,7 @@ def get_insert_query(
             (%s, %s, %s);"""
     )
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     params = (
         translated_input.get("uuid"),
@@ -57,17 +57,17 @@ def get_insert_query(
     return (query, params)
 
 
-def get_update_query(db: str, id: str, input: dict) -> tuple:
+def get_update_query(db: str, id_: str, input_: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid for identifying the attachment that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -84,7 +84,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     )
     where_clause = "WHERE uuid = %s;"
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     if "uuid" in translated_input:
         del translated_input["uuid"]
@@ -100,7 +100,7 @@ def get_update_query(db: str, id: str, input: dict) -> tuple:
     set_clause = set_clause[: size - 2]
     set_clause += "\n "
 
-    params += (id,)
+    params += (id_,)
 
     query = update_query + set_clause + where_clause
 
@@ -211,14 +211,14 @@ def select_by_journal(
     return records
 
 
-def get_delete_query(db: str, id: str) -> tuple:
+def get_delete_query(db: str, id_: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid for the element to be deleted
 
     return
@@ -233,7 +233,7 @@ def get_delete_query(db: str, id: str) -> tuple:
         WHERE uuid = %s;"""
     )
 
-    params = (id,)
+    params = (id_,)
 
     return (query, params)
 
@@ -285,7 +285,7 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
         """SELECT *
     FROM """
         + db
-        + """.attachment where journal_entry_id IN (%s);""" % format_strings
+        + f".attachment where journal_entry_id IN ({format_strings});"
     )
 
     params = tuple(journal_entry_ids)

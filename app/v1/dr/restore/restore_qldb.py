@@ -54,7 +54,6 @@ def handler(event, context) -> tuple[int, dict]:
                 driver.execute_custom_query(doc["statement"], doc["data"])
         except Exception as e:
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "DR Restore Error in file:" + s3_path,
@@ -63,7 +62,7 @@ def handler(event, context) -> tuple[int, dict]:
             raise
 
         logging.write_log(
-            event, context, "Notice", "DR Restore Info", "Restored file:" + s3_path
+            context, "Notice", "DR Restore Info", "Restored file:" + s3_path
         )
 
     return 200, {}

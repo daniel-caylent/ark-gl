@@ -4,10 +4,10 @@ import pymysql
 
 from database.connection import get_connection # pylint: disable=import-error; Lambda layer dependency
 
-from . import utils
+from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 def get_db(**kwargs) -> pymysql.connect:
     """Create a db connection from default values"""
-    conn = get_connection(utils.DB_NAME, utils.REGION_NAME, utils.SECRET_NAME, **kwargs)
+    conn = get_connection(DB_NAME, REGION_NAME, SECRET_NAME, **kwargs)
 
     return conn

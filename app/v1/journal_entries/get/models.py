@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 class JournalEntry:
     """Validate a journal entry from internal DB"""
 
+    # pylint: disable=invalid-name; API standard
     ledgerId: str
     journalEntryId: str
     journalEntryNum: str
@@ -19,6 +20,7 @@ class JournalEntry:
     isHidden: bool
     attachments: list = field(default_factory=list)
     lineItems: list = field(default_factory=list)
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.adjustingJournalEntry = bool(self.adjustingJournalEntry)

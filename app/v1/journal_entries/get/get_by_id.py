@@ -6,13 +6,12 @@ from shared import (
     endpoint,
     validate_uuid,
 )
-# pylint: enable=import-error
-
 from models import JournalEntry
+# pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument
+def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Journal Entried get-by-id handler"""
 
     if not event.get("pathParameters"):
@@ -37,7 +36,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         line_item.pop("journal_entry_id")
     for attachment in attachments:
         attachment.pop("journal_entry_id")
-
+    
     journal_entry["lineItems"] = line_items
     journal_entry["attachments"] = attachments
 

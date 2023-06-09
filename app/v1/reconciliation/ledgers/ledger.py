@@ -9,7 +9,7 @@ from shared import logging
 
 # pylint: enable=import-error
 
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """
     Lambda entry point
 
@@ -35,7 +35,6 @@ def handler(event, context) -> tuple[int, dict]:
         aurora_record = ledgers.select_by_id(current_uuid)
         if aurora_record is None:
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "Reconciliation error",
@@ -48,7 +47,6 @@ def handler(event, context) -> tuple[int, dict]:
             for current_key in current_row.keys():
                 if aurora_record.get(current_key) is None:
                     logging.write_log(
-                        event,
                         context,
                         "Error",
                         "Reconciliation error",
@@ -58,7 +56,6 @@ def handler(event, context) -> tuple[int, dict]:
                 else:
                     if aurora_record[current_key] != current_row[current_key]:
                         logging.write_log(
-                            event,
                             context,
                             "Error",
                             "Reconciliation error",
@@ -75,7 +72,6 @@ def handler(event, context) -> tuple[int, dict]:
     ledger_count = ledgers.select_count_commited_ledgers()
     if ledger_count["count(*)"] != len(processed_list):
         logging.write_log(
-            event,
             context,
             "Error",
             "Reconciliation error",

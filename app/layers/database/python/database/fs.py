@@ -4,14 +4,14 @@ from . import db_main
 from . import connection
 
 
-def get_insert_query(db: str, input: dict) -> tuple:
+def get_insert_query(db: str, input_: dict) -> tuple:
     """
     This function creates the insert query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -37,14 +37,14 @@ def get_insert_query(db: str, input: dict) -> tuple:
     )
 
     params = (
-        input.get("fs_mapping_id"),
-        input.get("fs_name"),
+        input_.get("fs_mapping_id"),
+        input_.get("fs_name"),
     )
 
     return (query, params)
 
 
-def get_update_query(db: str, fs_mapping_id: str, input: dict) -> tuple:
+def get_update_query(db: str, fs_mapping_id: str, input_: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -55,7 +55,7 @@ def get_update_query(db: str, fs_mapping_id: str, input: dict) -> tuple:
     This parameter specifies the fs_mapping_id for identifying the FS row
     that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -74,9 +74,9 @@ def get_update_query(db: str, fs_mapping_id: str, input: dict) -> tuple:
 
     set_clause = ""
     params = ()
-    for key in input.keys():
+    for key in input_.keys():
         set_clause += str(key) + " = %s,\n"
-        params += (input.get(key),)
+        params += (input_.get(key),)
 
     size = len(set_clause)
     # Slice string to remove last 3 characters from string

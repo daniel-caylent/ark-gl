@@ -1,5 +1,5 @@
 """Lambda that will perform POST requests for Accounts / upload"""
-
+# pylint: skip-file
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
@@ -13,7 +13,7 @@ from .csv_ import download_from_s3, convert_csv_to_dicts
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the accounts upload request
 
     event: dict
@@ -27,7 +27,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     # validate the url is present
@@ -57,7 +57,7 @@ def handler(event, context) -> tuple[int, dict]:
     # try to download contents of the csv
     try:
         contents = download_from_s3(url)
-    except:
+    except Exception:
         return 400, {"detail": "Could not reach url."}
 
     if not contents:
@@ -66,7 +66,7 @@ def handler(event, context) -> tuple[int, dict]:
     # transform accountType fields into attributeIds
     try:
         account_dicts = convert_csv_to_dicts(contents)
-    except:
+    except Exception:
         return 400, {"detail": "Invalid CSV."}
 
     attributes = account_attributes.select_all()
@@ -113,7 +113,8 @@ def link_attributes(account_dicts: list[dict], attributes: list[dict]) -> list[d
         attribute_lookup[att["accountType"]] = att["attributeId"]
 
     for account in account_dicts:
-        accountType = account.pop("accountType")
-        account["attributeId"] = attribute_lookup[accountType]
+        account_type = account.pop("accountType")
+        account["attributeId"] = attribute_lookup[account_type]
 
     return account_dicts
+

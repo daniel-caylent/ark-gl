@@ -21,14 +21,14 @@ def use_logging(func):
 
     @wraps(func)
     def wrapper(event, context):
-        logger.info(f"event: {event}")
-        logger.info(f"context: {context}")
+        logger.info("event: %s", event)
+        logger.info("context: %s", context)
 
         try:
             result = func(event, context)
             return result
 
-        except Exception:
+        except Exception as e:
             exception_type, exception_value, exception_traceback = sys.exc_info()
             traceback_string = traceback.format_exception(
                 exception_type, exception_value, exception_traceback
@@ -40,17 +40,17 @@ def use_logging(func):
                     "stackTrace": traceback_string,
                 }
             )
-            logger.error(f"event: {event}")
-            logger.error(f"context: {context}")
+            logger.error("event: %s", event)
+            logger.error("context: %s", context)
             logger.error(err_msg)
 
-            write_log(event, context, "Warning", "API", err_msg)
-            raise Exception(err_msg)
+            write_log(context, "Warning", "API", err_msg)
+            raise Exception(err_msg) from e
 
     return wrapper
 
 
-def write_log(event, context, severity: str, alert_type: str, alert_message: str):
+def write_log(context, severity: str, alert_type: str, alert_message: str):
     """Write a standardized error message"""
 
     func_dict = {

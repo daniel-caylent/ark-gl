@@ -12,10 +12,10 @@ def check_uuid(uuid, name) -> str:
 
     try:
         validate_uuid(uuid, throw=True)
-    except:
+    except Exception as e:
         raise Exception(
             f"{name} is not a valid UUID."
-        )
+        ) from e
 
     return uuid
 
@@ -28,17 +28,17 @@ def validate_bool(bool_, name, strict=False):
         )
 
     if strict:
-        if type(bool_) is not bool:
+        if not isinstance(bool_, bool):
             raise Exception(
                 f"{name} is not a boolean."
             )
 
     try:
         bool_ = bool(bool_)
-    except:
+    except Exception as e:
         raise Exception(
             f"{name} is not a valid boolean."
-        )
+        ) from e
     return bool_
 
 
@@ -51,10 +51,10 @@ def validate_str(str_, name, min_len=0, max_len=256, allowed: list = None) -> st
 
     try:
         str_ = str_.strip()
-    except:
+    except Exception as e:
         raise Exception(
             f"{name} is invalid."
-        )
+        ) from e
 
     if len(str_) < min_len:
         raise Exception(
@@ -75,7 +75,7 @@ def validate_str(str_, name, min_len=0, max_len=256, allowed: list = None) -> st
 
 
 def validate_int(
-    int_, name: str, min: int=None, max: int=None, allowed: list=None
+    int_, name: str, min_: int=None, max_: int=None, allowed: list=None
 ) -> int:
     """Validate an integer exists for this value"""
 
@@ -91,17 +91,17 @@ def validate_int(
 
     try:
         int_ = int(str(int_))
-    except:
+    except Exception as e:
         raise Exception(
             f"{name} is invalid."
-        )
+        ) from e
 
-    if min is not None:
-        if int_ < min:
+    if min_ is not None:
+        if int_ < min_:
             raise Exception(f"{name} is invalid.")
 
-    if max is not None:
-        if int_ > max:
+    if max_ is not None:
+        if int_ > max_:
             raise Exception(f"{name} is invalid.")
 
     if allowed:

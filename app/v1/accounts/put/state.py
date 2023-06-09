@@ -12,7 +12,7 @@ VALID_STATES = ["POSTED"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 
@@ -52,5 +52,5 @@ def handler(event, context) -> tuple[int, dict]:
     except Exception as e:
         accounts.update_by_id(account_id, {'state': 'DRAFT'})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
-        
+
     return 200, {}

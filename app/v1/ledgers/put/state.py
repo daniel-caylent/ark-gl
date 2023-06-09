@@ -16,7 +16,7 @@ VALID_STATES = ["POSTED"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for ledgers PUT state request
 
     event: dict
@@ -40,7 +40,7 @@ def handler(event, context) -> tuple[int, dict]:
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     state = body.get("state")
@@ -69,5 +69,5 @@ def handler(event, context) -> tuple[int, dict]:
     except Exception as e:
         ledgers.update_by_id(ledger_id, {'state': 'DRAFT'})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
-        
+
     return 200, {}
