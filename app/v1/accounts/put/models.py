@@ -14,6 +14,8 @@ from shared.dataclass_validators import (
 
 @dataclass
 class AccountPut:
+
+    # pylint: disable=invalid-name; API standard
     accountNo: str = None
     accountName: str = None
     accountDescription: str = None
@@ -25,6 +27,7 @@ class AccountPut:
     isEntityRequired: bool = None
     isHidden: bool = None
     isTaxable: bool = None
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.accountName = (

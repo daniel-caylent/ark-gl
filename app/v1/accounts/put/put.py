@@ -26,7 +26,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     if len(body.keys()) == 0:
@@ -64,8 +64,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
             return 400, {"detail": "Parent account does not exist in this fund."}
 
     if put.fsMappingId:
-        fs = validate_fs_account(put, accts)
-        if not fs:
+        if not validate_fs_account(put, accts):
             return 400, {
                 "detail": "fsMappingId does not relate to an existing account."
             }

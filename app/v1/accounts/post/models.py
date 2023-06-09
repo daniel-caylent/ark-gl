@@ -13,6 +13,8 @@ from shared.dataclass_validators import (
 
 @dataclass
 class AccountPost:
+
+    # pylint: disable=invalid-name; API standard
     fundId: str = None
     attributeId: str = None
     accountNo: str = None
@@ -27,6 +29,7 @@ class AccountPost:
     isDryRun: bool = False
     parentAccountId: str = None
     isHidden: bool = False
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         # required

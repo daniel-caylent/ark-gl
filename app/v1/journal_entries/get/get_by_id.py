@@ -6,9 +6,8 @@ from shared import (
     endpoint,
     validate_uuid,
 )
-# pylint: enable=import-error
-
 from models import JournalEntry
+# pylint: enable=import-error
 
 
 @endpoint

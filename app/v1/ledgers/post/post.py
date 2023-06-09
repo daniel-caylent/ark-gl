@@ -24,7 +24,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     code, detail, post = validate_new_ledger(body)

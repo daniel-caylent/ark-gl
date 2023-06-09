@@ -1,5 +1,5 @@
 """Lambda that will perform POST requests for Accounts / copy_all"""
-
+# pylint: skip-file
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
@@ -28,7 +28,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except:
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     # check fundId exists
@@ -69,7 +69,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # accounts to lookup
     uuid_lookup = {}
     for acct in sorted_accounts:
-        accountId = acct.pop("accountId")
+        account_id = acct.pop("accountId")
         acct.pop("state")
 
         acct["fundId"] = destination_fund_id
@@ -82,6 +82,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         if code != 201:
             return code, {"detail": detail}
         # insert the new account and retain accountId mapping
-        uuid_lookup[accountId] = accounts.create_new(post)
+        uuid_lookup[account_id] = accounts.create_new(post)
 
     return code, {"accountIds": list(uuid_lookup.values())}

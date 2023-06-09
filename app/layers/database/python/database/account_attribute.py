@@ -23,7 +23,6 @@ def __get_all_query(db: str) -> tuple:
     )
 
     return (query, None)
-"""This module provides the Aurora MySQL serverless capabilities for account attributes"""
 
 
 def select_all(db_name: str, region_name: str, secret_name: str) -> list:

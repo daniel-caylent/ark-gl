@@ -687,9 +687,7 @@ def __get_by_multiple_uuids_query(db: str, uuids_list: list) -> tuple:
         + """.ledger le
         INNER JOIN """
         + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-        where le.uuid IN (%s);"""
-        % format_strings
+        + f".fund_entity fe ON (le.fund_entity_id = fe.id) WHERE le.uuid IN ({format_strings});"
     )
 
     params = tuple(uuids_list)

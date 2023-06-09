@@ -8,12 +8,15 @@ from shared.dataclass_validators import check_uuid, validate_str, validate_int #
 @dataclass
 class LedgerPost:
     """Ledger POST model"""
+
+    # pylint: disable=invalid-name; API standard
     fundId: str
     glName: str
     currencyName: str
     currencyDecimal: int
     glDescription: str = None
     isHidden: bool = False
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.fundId = check_uuid(self.fundId, "fundId")
