@@ -9,6 +9,7 @@ from . import fs
 app_to_db = {
     "accountId": "uuid",
     "fundId": "fund_entity_id",
+    "clientId": "client_id",
     "accountNo": "account_no",
     "state": "state",
     "parentAccountId": "parent_id",
@@ -107,6 +108,10 @@ def __get_insert_query(
         params,
         uuid,
         {"fs_mapping_id": fs_mapping_id, "fs_name": translated_input.get("fs_name")},
+        {
+            "fund_entity_id": fund_entity_uuid,
+            "client_id": translated_input.get("client_id"),
+        },
     )
 
 
@@ -146,6 +151,8 @@ def __get_update_query(
         del translated_input["fs_name"]
     if "fs_mapping_id" in translated_input:
         del translated_input["fs_mapping_id"]
+    if "client_id" in translated_input:
+        del translated_input["client_id"]
 
     fund_entity_uuid = translated_input.get("fund_entity_id")
     if fund_entity_uuid:
@@ -471,9 +478,16 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     fs_dict = params[3]
     fs_mapping_id = fs_dict["fs_mapping_id"]
     fs_name = fs_dict["fs_name"]
+    fund_dict = params[4]
+    fund_entity_id = fund_dict["fund_entity_id"]
 
     if fs_mapping_id:
         insert_fs = check_fs(db, fs_mapping_id, region_name, secret_name)
+
+    if fund_entity_id:
+        fund = fund_entity.select_by_uuid(db, fund_entity_id, region_name, secret_name)
+    else:
+        fund = None
 
     conn = connection.get_connection(db, region_name, secret_name)
     cursor = conn.cursor()
@@ -490,6 +504,12 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
                 fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
 
             cursor.execute(fs_params[0], fs_params[1])
+
+        # After that, inserting fund_entity
+        if fund:
+            fund_params = fund_entity.get_insert_query(db, fund_dict)
+
+            cursor.execute(fund_params[0], fund_params[1])
 
         conn.commit()
     except Exception as e:

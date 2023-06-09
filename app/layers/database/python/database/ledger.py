@@ -6,6 +6,7 @@ from . import fund_entity
 
 app_to_db = {
     "fundId": "fund_entity_id",
+    "clientId": "client_id",
     "ledgerId": "uuid",
     "glName": "name",
     "glDescription": "description",
@@ -69,7 +70,15 @@ def __get_insert_query(
         translated_input.get("decimals"),
     )
 
-    return (query, params, uuid)
+    return (
+        query,
+        params,
+        uuid,
+        {
+            "fund_entity_id": fund_entity_uuid,
+            "client_id": translated_input.get("client_id"),
+        },
+    )
 
 
 def __get_update_query(db_: str, id_: str, input_: dict) -> tuple:
@@ -101,6 +110,9 @@ def __get_update_query(db_: str, id_: str, input_: dict) -> tuple:
     where_clause = "WHERE uuid = %s;"
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
+
+    if "client_id" in translated_input:
+        del translated_input["client_id"]
 
     set_clause = ""
     params = ()
@@ -379,9 +391,19 @@ def insert(
     params = __get_insert_query(db_, input_, region_name, secret_name)
 
     conn = connection.get_connection(db_, region_name, secret_name, db_type)
-    query_params = [params[0], params[1]]
+    query_params = (params[0], params[1])
     uuid = params[2]
     query_list = [query_params]
+    fund_dict = params[3]
+    fund_entity_id = fund_dict["fund_entity_id"]
+
+    if fund_entity_id:
+        fund = fund_entity.select_by_uuid(db_, fund_entity_id, region_name, secret_name)
+
+        if fund:
+            fund_params = fund_entity.get_insert_query(db_, fund_dict)
+
+            query_list.append((fund_params[0], fund_params[1]))
 
     db_main.execute_dml(conn, query_list)
 
