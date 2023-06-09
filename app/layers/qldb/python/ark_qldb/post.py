@@ -1,3 +1,4 @@
+"""This module helps in posting documents to QLDB layer"""
 from hashlib import sha256
 import os
 
@@ -11,6 +12,7 @@ IGNORE_NAMES = ["fs_name", "fs_mapping_id", "is_taxable", "is_entity_required"]
 
 
 def post(table_name: str, contents: dict):
+    """Post method for inserting document"""
     if not ledger_name:
         raise Exception("LEDGER_NAME environment variable is missing.")
 
