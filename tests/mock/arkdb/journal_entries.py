@@ -39,6 +39,7 @@ def get_line_items(id, translate=True):
         {
             "accountNo": "5555602528",
             "lineItemNo": 1,
+            "journal_entry_id": 1,
             "memo": "memo",
             "entityId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             "type": "CREDIT",
@@ -47,6 +48,7 @@ def get_line_items(id, translate=True):
         {
             "accountNo": "5555602528",
             "lineItemNo": 2,
+            "journal_entry_id": 1,
             "memo": "memo",
             "entityId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             "type": "DEBIT",
@@ -59,7 +61,8 @@ def get_attachments(id, translate=True):
     return [
         {
             "documentId": "This is the id",
-            "documentMemo": "Memo"
+            "documentMemo": "Memo",
+            "journal_entry_id": 1
         }
     ]
 

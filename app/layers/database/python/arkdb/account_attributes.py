@@ -1,8 +1,12 @@
 """This module adapts specifc methos to access the Aurora MySQL database for account attributes"""
 
-from database.account_attribute import select_all as select_all_, select_by_uuid # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
+from database.account_attribute import (
+    select_all as select_all_,
+    select_by_uuid,
+)
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
-
+# pylint: enable=import-error
 
 def select_all() -> list[dict]:
     """Select all account attributes"""

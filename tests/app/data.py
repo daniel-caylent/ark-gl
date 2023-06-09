@@ -3,6 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class LambdaContext:
     aws_request_id: str = 'A-unique-lambda-request-id'
+    invoked_function_arn: str = "arn"
 
 
 get_with_fund_id = {

@@ -33,7 +33,7 @@ class TestAccount(AccountsTestBase):
         import app.layers.database.python.database.account as account
         import app.layers.database.python.database.connection as connection
 
-        def get_insert_query(db, input, region_name, secret_name):
+        def get_insert_query(db, input, fund_entity_id, region_name, secret_name):
             return (None, None, 'asd-123-456',
                     {
                         "fs_mapping_id": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
@@ -53,12 +53,17 @@ class TestAccount(AccountsTestBase):
 
         import app.layers.database.python.database.account as account
         import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.fund_entity as fund_entity
 
         def get_delete_query(db, id):
             return (None, None)
 
+        def get_accounts_ledgers_count(db, fund_entity_id, region_name, secret_name):
+            return 1
+
         monkeypatch.setattr(account, '__get_delete_query', get_delete_query)
         monkeypatch.setattr(connection, 'get_connection', Mock())
+        monkeypatch.setattr(fund_entity, 'get_accounts_ledgers_count', get_accounts_ledgers_count)
 
         result = account.delete(self.db, 'asd-123-456', '', '')
 

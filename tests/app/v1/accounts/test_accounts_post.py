@@ -22,6 +22,7 @@ class TestAccountsPost(TestBase(PATHS)):
                 \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}",
         }
         result = handler(request, LambdaContext())
+        print(result)
         assert 201 == result['statusCode']
 
     def test_post_with_parent(self):

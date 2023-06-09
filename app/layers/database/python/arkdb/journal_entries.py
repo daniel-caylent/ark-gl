@@ -25,23 +25,23 @@ from database.attachment import (
     select_by_multiple_journals as select_by_multiple_journals_att,
 )
 
-from database.db_main import translate_to_app
 # pylint: enable=import-error
 
-from .utils import DB_NAME, REGION_NAME, SECRET_NAME
+from .utils import (
+    DB_NAME,
+    REGION_NAME,
+    SECRET_NAME,
+    translate_result,
+    translate_results,
+)
 
 
 def select_by_id(uuid: str, translate=True) -> dict:
     """Select a journal entry by uuid"""
     result = select_by_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
-    if result is None:
-        return result
-
     if translate:
-        translated = translate_to_app(journal_app_to_db, result)
-        filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
-        return filtered
+        result = translate_result(result, journal_app_to_db)
 
     return result
 
@@ -50,43 +50,26 @@ def select_by_ledger_id(uuid: str) -> dict:
     """Select a list of journal entries by ledger ID"""
     results = select_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
-    if results is None:
-        return results
+    results = translate_results(results, journal_app_to_db)
 
-    translated = [translate_to_app(journal_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
+    return results
 
-    return filtered
 
 def select_by_fund_id(uuid: str) -> dict:
     """Select a list of journal entries by fund ID"""
     results = __select_by_fund_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
-    if results is None:
-        return results
+    results = translate_results(results, journal_app_to_db)
 
-    translated = [translate_to_app(journal_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
+    return results
 
-    return filtered
 
 def select_by_client_id(uuid: str) -> dict:
     """Select a list of journal entries by client ID"""
     results = __select_by_client_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
-    if results is None:
-        return results
-
-    translated = [translate_to_app(journal_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
-
-    return filtered
+    results = translate_results(results, journal_app_to_db)
+    return results
 
 
 def create_new(journal_entry):
@@ -110,12 +93,7 @@ def get_line_items(journal_id, translate=True):
     results = select_line_items(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
     if translate:
-        translated = [translate_to_app(line_app_to_db, result) for result in results]
-        filtered = [
-            {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-        ]
-        return filtered
-
+        results = translate_results(results, line_app_to_db)
     return results
 
 
@@ -124,12 +102,7 @@ def get_attachments(journal_id, translate=True):
     results = select_attachments(DB_NAME, journal_id, REGION_NAME, SECRET_NAME)
 
     if translate:
-        translated = [translate_to_app(attachment_app_to_db, result) for result in results]
-        filtered = [
-            {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-        ]
-        return filtered
-
+        results = translate_results(results, attachment_app_to_db)
     return results
 
 
@@ -145,11 +118,8 @@ def select_lines_by_journals(journal_ids: list) -> list:
         DB_NAME, journal_ids, REGION_NAME, SECRET_NAME
     )
 
-    translated = [translate_to_app(line_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
-    return filtered
+    results = translate_results(results, line_app_to_db)
+    return results
 
 
 def select_line_by_number_journal(line_number: str, journal_id: str) -> list:
@@ -158,11 +128,8 @@ def select_line_by_number_journal(line_number: str, journal_id: str) -> list:
         DB_NAME, line_number, journal_id, REGION_NAME, SECRET_NAME
     )
 
-    translated = [translate_to_app(line_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
-    return filtered
+    results = translate_results(results, line_app_to_db)
+    return results
 
 
 def select_attachments_by_journals(journal_ids: list) -> list:
@@ -170,9 +137,5 @@ def select_attachments_by_journals(journal_ids: list) -> list:
     results = select_by_multiple_journals_att(
         DB_NAME, journal_ids, REGION_NAME, SECRET_NAME
     )
-
-    translated = [translate_to_app(attachment_app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
-    return filtered
+    results = translate_results(results, attachment_app_to_db)
+    return results

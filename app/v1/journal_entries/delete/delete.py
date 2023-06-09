@@ -1,7 +1,7 @@
 """Lambda that will perform the DELETE for JournalEntries"""
 
 # pylint: disable=import-error; Lambda layer dependency
-from arkdb import journal_entries
+from arkdb import accounts, journal_entries, ledgers
 from shared import endpoint, validate_uuid
 # pylint: disable=import-error
 
@@ -18,11 +18,11 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if not validate_uuid(journal_entry_id):
         return 400, {"detail": "Invalid UUID provided."}
 
-    result = journal_entries.select_by_id(journal_entry_id)
-    if result is None:
+    journal_entry = journal_entries.select_by_id(journal_entry_id)
+    if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
-    if result['state'] == 'POSTED':
+    if journal_entry['state'] == 'POSTED':
         return 400, {'detail': "POSTED journal entry cannot be deleted."}
 
     try:
@@ -30,4 +30,38 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         return 400, {"detail": f"Unable to delete: {str(e)}"}
 
+    ledger = ledgers.select_by_id(journal_entry["ledgerId"])
+    accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
+    line_items = journal_entries.get_line_items(journal_entry_id)
+
+    __update_unused_accounts(accts, line_items)
+    __update_unused_ledger(ledger)
+
     return 200, {}
+
+
+def __update_unused_accounts(accounts_, line_items):
+    """Check to see if line items still exist for old accounts"""
+    account_lookup = {}
+    for acct in accounts_:
+        account_lookup[acct["account_no"]] = acct
+
+    for item in line_items:
+        acct = account_lookup.get(item["accountNo"])
+        if acct is not None:
+            line_items = accounts.get_line_items(acct["id"])
+
+            if len(line_items) == 0:
+                accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
+
+def __update_unused_ledger(ledger):
+    """Replace ledger state with UNUSED if no journal entries exist for it"""
+    journal_entries_ = journal_entries.select_by_ledger_id(ledger["ledgerId"])
+    if len(journal_entries_) == 0:
+        if ledger["state"] != "POSTED":
+            ledgers.update_by_id(
+                ledger["ledgerId"],
+                {"state": "UNUSED"}
+            )
+    
+            

@@ -6,6 +6,7 @@ from . import fund_entity
 
 app_to_db = {
     "fundId": "fund_entity_id",
+    "clientId": "client_id",
     "ledgerId": "uuid",
     "glName": "name",
     "glDescription": "description",
@@ -17,7 +18,7 @@ app_to_db = {
 
 
 def __get_insert_query(
-    db_: str, input_: dict, region_name: str, secret_name: str
+    db_: str, input_: dict, fund_entity_id: str, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -52,8 +53,7 @@ def __get_insert_query(
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
-    fund_entity_uuid = translated_input.get("fund_entity_id")
-    fund_entity_id = fund_entity.get_id(db_, fund_entity_uuid, region_name, secret_name)
+
     # Getting new uuid from the db to return it in insertion
     ro_conn = connection.get_connection(db_, region_name, secret_name, "ro")
     uuid = db_main.get_new_uuid(ro_conn)
@@ -69,7 +69,11 @@ def __get_insert_query(
         translated_input.get("decimals"),
     )
 
-    return (query, params, uuid)
+    return (
+        query,
+        params,
+        uuid,
+    )
 
 
 def __get_update_query(db_: str, id_: str, input_: dict) -> tuple:
@@ -101,6 +105,9 @@ def __get_update_query(db_: str, id_: str, input_: dict) -> tuple:
     where_clause = "WHERE uuid = %s;"
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
+
+    if "client_id" in translated_input:
+        del translated_input["client_id"]
 
     set_clause = ""
     params = ()
@@ -349,7 +356,7 @@ def select_committed_between_dates(
 
 
 def insert(
-    db_: str, input_: dict, region_name: str, secret_name: str, db_type: str = None
+    db_: str, input_: dict, region_name: str, secret_name: str
 ) -> str:
     """
     This function executes the insert query with its parameters.
@@ -376,21 +383,55 @@ def insert(
     return
     A string specifying the recently added ledger's uuid
     """
-    params = __get_insert_query(db_, input_, region_name, secret_name)
+    fund_dict = {
+        "fund_entity_id": input_.get("fundId"),
+        "client_id": input_.get("clientId"),
+    }
+    fund_entity_uuid = fund_dict["fund_entity_id"]
+    if fund_entity_uuid:
+        fund = fund_entity.select_by_uuid(
+            db_, fund_entity_uuid, region_name, secret_name
+        )
+    else:
+        fund = None
 
-    conn = connection.get_connection(db_, region_name, secret_name, db_type)
-    query_params = [params[0], params[1]]
-    uuid = params[2]
-    query_list = [query_params]
+    conn = connection.get_connection(db_, region_name, secret_name)
+    cursor = conn.cursor()
 
-    db_main.execute_dml(conn, query_list)
+    try:
+        # First of all, check if we have to insert fund_entity
+        if fund:
+            fund_entity_id = fund.get("id")
+        else:
+            fund_params = fund_entity.get_insert_query(db_, fund_dict)
+
+            cursor.execute(fund_params[0], fund_params[1])
+
+            # Once inserted, get the auto-generated id
+            fund_entity_id = cursor.lastrowid
+
+        # Get insert query of ledger
+        params = __get_insert_query(
+            db_, input_, fund_entity_id, region_name, secret_name
+        )
+        query = params[0]
+        q_params = params[1]
+        uuid = params[2]
+
+        # After that, execute insert of ledger
+        cursor.execute(query, q_params)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
 
     return uuid
 
 
-def delete(
-    db_: str, id_: str, region_name: str, secret_name: str, db_type: str = None
-) -> None:
+def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
     """
     This function executes the delete query with its parameters.
 
@@ -414,12 +455,36 @@ def delete(
     """
 
     params = __get_delete_query(db_, id_)
+    query = params[0]
+    q_params = params[1]
 
-    conn = connection.get_connection(db_, region_name, secret_name, db_type)
+    # Getting the fund_entity_id to check if we have to delete it
+    ledger_ = select_by_uuid(db_, id_, region_name, secret_name)
+    fund_entity_id = ledger_.get("fund_entity_id")
 
-    query_list = [(params[0], params[1])]
+    conn = connection.get_connection(db_, region_name, secret_name)
+    cursor = conn.cursor()
 
-    db_main.execute_dml(conn, query_list)
+    try:
+        # Executing delete of ledger first
+        cursor.execute(query, q_params)
+
+        # Then, checking if the fund was orphaned
+        fund_count = fund_entity.get_accounts_ledgers_count(
+            db_, fund_entity_id, region_name, secret_name
+        )
+
+        if fund_count == 0:
+            fund_params = fund_entity.get_delete_query_by_id(db_, fund_entity_id)
+
+            cursor.execute(fund_params[0], fund_params[1])
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
 
 
 def update(

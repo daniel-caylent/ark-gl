@@ -10,36 +10,38 @@ from database.account import (
     delete,
     update,
 )
-from database.db_main import translate_to_app
 # pylint: enable=import-error
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
+from database.line_item import select_by_account_id as get_line_items_by_id
 
-def select_by_fund_id(fund_id: str) -> list:
+# pylint: enable=import-error
+
+from .utils import (
+    DB_NAME,
+    REGION_NAME,
+    SECRET_NAME,
+    translate_result,
+    translate_results,
+)
+
+
+def select_by_fund_id(fund_id: str, translate=True) -> list:
     """Select a list of accounts with a common fund ID"""
     results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)
 
-    translated = [translate_to_app(app_to_db, result) for result in results]
-    filtered = [
-        {k: each[k] for k in each if not k.startswith("missing")} for each in translated
-    ]
-
-    return filtered
+    if translate:
+        results = translate_results(results, app_to_db)
+    return results
 
 
 def select_by_id(account_uuid: str, translate=True) -> dict:
     """Select a specific account by id"""
     result = select_by_uuid(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
 
-    if result is None:
-        return result
-
     if translate:
-        translated = translate_to_app(app_to_db, result)
-        filtered = {k: translated[k] for k in translated if not k.startswith("missing")}
-        return filtered
-
+        result = translate_result(result, app_to_db)
     return result
 
 
@@ -67,3 +69,9 @@ def update_by_id(id_: str, account: dict) -> None:
         account.pop("isDryRun")
 
     update(DB_NAME, id_, account, REGION_NAME, SECRET_NAME)
+
+
+def get_line_items(account_id):
+    """Retrieve all line items for an account"""
+
+    return get_line_items_by_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)

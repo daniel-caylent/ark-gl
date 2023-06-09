@@ -29,9 +29,15 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         return 404, {"detail": "No journal entry found."}
 
     journal_entry_id = journal_entry.pop("id")
-    journal_entry["lineItems"] = journal_entries.get_line_items(journal_entry_id)
-    journal_entry["attachments"] = journal_entries.get_attachments(journal_entry_id)
+    line_items = journal_entries.get_line_items(journal_entry_id)
+    attachments = journal_entries.get_attachments(journal_entry_id)
 
+    for line_item in line_items:
+        line_item.pop("journal_entry_id")
+    for attachment in attachments:
+        attachment.pop("journal_entry_id")
 
+    journal_entry["lineItems"] = line_items
+    journal_entry["attachments"] = attachments
 
     return 200, {"data": JournalEntry(**journal_entry)}

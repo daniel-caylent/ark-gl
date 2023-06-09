@@ -10,6 +10,7 @@ logger = getLogger(__name__)
 
 
 class Driver:
+    """Driver to handle QLDB Ledgers access"""
     def __init__(
         self,
         ledger_name,
@@ -21,6 +22,7 @@ class Driver:
         boto3_session=None,
     ):
         # Initialize the driver
+        """Constructor of QLDB database class"""
         self.qldb_driver = QldbDriver(
             ledger_name=ledger_name,
             retry_config=retry_config,
@@ -30,6 +32,7 @@ class Driver:
         )
 
     def __execute_query(self, query: str, *args) -> BufferedCursor:
+        """Private method for executing query"""
         cursor = self.qldb_driver.execute_lambda(
             lambda x: x.execute_statement(query, *args)
         )
@@ -37,24 +40,23 @@ class Driver:
         return cursor
 
     def create_table(self, table_name: str) -> None:
+        """Create table method in qldb"""
         logger.info("Creating the table %s", table_name)
         query = "CREATE TABLE " + table_name
         self.__execute_query(query)
 
     def create_index(self, table_name: str, fields: list) -> None:
+        """Create index method on qldb table"""
         fields_str = ",".join(fields)
 
-        logger.info(
-            "Creating index on table %s to fields %s",
-            table_name,
-            fields_str
-        )
+        logger.info("Creating index on table %s to fields %s", table_name, fields_str)
 
         query = "CREATE INDEX ON " + table_name + "(" + fields_str + ")"
 
         self.__execute_query(query)
 
     def insert_document(self, table_name: str, document: dict) -> None:
+        """Insert document method"""
         logger.info("Inserting a document into table %s", table_name)
         query = "INSERT INTO " + table_name + " ?"
         self.__execute_query(query, document)
@@ -62,6 +64,7 @@ class Driver:
     def read_documents(
         self, table_name: str, where_clause: str = None
     ) -> BufferedCursor:
+        """Read document method"""
         if where_clause:
             sql_query = "SELECT * FROM " + table_name + " WHERE " + where_clause
         else:
@@ -76,6 +79,7 @@ class Driver:
     def read_document_fields(
         self, table_name: str, fields: list, where_clause: str = None
     ):
+        """Read specific fields from a table"""
         if fields == []:
             fields_str = "*"
         else:
@@ -100,16 +104,20 @@ class Driver:
         return cursor
 
     def execute_custom_query(self, sql_query: str, *args) -> BufferedCursor:
+        """Execute a custom query on QLDB table"""
         logger.info("Executing custom query: %s", sql_query)
         cursor = self.__execute_query(sql_query, *args)
 
         return cursor
 
     def insert_account(self, document: dict) -> None:
+        """Wrapper around account table for inserting document"""
         self.insert_document("account", document)
 
     def insert_ledger(self, document: dict) -> None:
+        """Wrapper around ledge table for inserting document"""
         self.insert_document("ledger", document)
 
     def insert_journal_entry(self, document: dict) -> None:
+        """Wrapper around journal entry table for inserting document"""
         self.insert_document("journal_entry", document)

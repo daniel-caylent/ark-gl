@@ -24,7 +24,7 @@ class TestLedger(LedgerTestBase):
         import app.layers.database.python.database.ledger as ledger
         import app.layers.database.python.database.connection as connection
 
-        def get_insert_query(db_, input_, region_name, secret_name):
+        def get_insert_query(db_, input_, fund_entity_id, region_name, secret_name):
             return (None, None, 'asd-123-456')
 
         monkeypatch.setattr(ledger, '__get_insert_query', get_insert_query)
@@ -38,12 +38,17 @@ class TestLedger(LedgerTestBase):
     def test_delete(self, monkeypatch):
         import app.layers.database.python.database.ledger as ledger
         import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.fund_entity as fund_entity
 
         def get_delete_query(db_, id_):
             return (None, None)
 
+        def get_accounts_ledgers_count(db, fund_entity_id, region_name, secret_name):
+            return 1
+
         monkeypatch.setattr(ledger, '__get_delete_query', get_delete_query)
         monkeypatch.setattr(connection, 'get_connection', Mock())
+        monkeypatch.setattr(fund_entity, 'get_accounts_ledgers_count', get_accounts_ledgers_count)
 
         result = ledger.delete(self.db, 'asd-123-456', '', '')
 
