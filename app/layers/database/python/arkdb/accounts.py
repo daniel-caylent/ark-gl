@@ -1,5 +1,6 @@
 """This module adapts specifc methos to access the Aurora MySQL database for accounts"""
 
+# pylint: disable=import-error; Lambda layer dependency
 from database.account import (
     app_to_db,
     select_by_fund,
@@ -10,6 +11,8 @@ from database.account import (
     update,
 )
 from database.db_main import translate_to_app
+# pylint: enable=import-error
+
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 
@@ -58,9 +61,9 @@ def select_count_commited_accounts() -> str:
     return result
 
 
-def update_by_id(id: str, account: dict) -> None:
+def update_by_id(id_: str, account: dict) -> None:
     """Update an account by id"""
     if "isDryRun" in account.keys():
         account.pop("isDryRun")
 
-    update(DB_NAME, id, account, REGION_NAME, SECRET_NAME)
+    update(DB_NAME, id_, account, REGION_NAME, SECRET_NAME)

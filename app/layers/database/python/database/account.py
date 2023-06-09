@@ -25,7 +25,7 @@ app_to_db = {
 
 
 def __get_insert_query(
-    db: str, input: dict, region_name: str, secret_name: str
+    db: str, input_: dict, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -33,7 +33,7 @@ def __get_insert_query(
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -60,7 +60,7 @@ def __get_insert_query(
             %s, %s, %s, %s, %s);"""
     )
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     fund_entity_uuid = translated_input.get("fund_entity_id")
     fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
@@ -111,7 +111,7 @@ def __get_insert_query(
 
 
 def __get_update_query(
-    db: str, id: str, input: dict, region_name: str, secret_name: str
+    db: str, id_: str, input_: dict, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the update query with its parameters.
@@ -119,11 +119,11 @@ def __get_update_query(
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid for identifying the account
     that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -140,7 +140,7 @@ def __get_update_query(
     )
     where_clause = "WHERE uuid = %s;"
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     if "fs_name" in translated_input:
         del translated_input["fs_name"]
@@ -177,14 +177,14 @@ def __get_update_query(
     set_clause = set_clause[: size - 2]
     set_clause += "\n "
 
-    params += (id,)
+    params += (id_,)
 
     query = update_query + set_clause + where_clause
 
     return (query, params)
 
 
-def __get_delete_query(db: str, id: str) -> tuple:
+def __get_delete_query(db: str, id_: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -206,7 +206,7 @@ def __get_delete_query(db: str, id: str) -> tuple:
         WHERE uuid = %s;"""
     )
 
-    params = (id,)
+    params = (id_,)
 
     return (query, params)
 
@@ -423,28 +423,25 @@ def check_fs(db: str, fs_mapping_id: str, region_name: str, secret_name: str) ->
     # Checking if the upcoming fs_mapping_id exists
     fs_acc_check = select_by_uuid(db, fs_mapping_id, region_name, secret_name)
 
-    if not (fs_acc_check):
+    if not fs_acc_check:
         raise Exception("The upcoming fsMappingId is invalid")
 
     # Checking if the FS row already exists, to insert or update later
     fs_check = fs.select_by_fs_mapping_id(db, fs_mapping_id, region_name, secret_name)
 
-    if not (fs_check):
-        insert_fs = True
-    else:
-        insert_fs = False
+    insert_fs = bool(not fs_check)
 
     return insert_fs
 
 
-def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
+def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -463,7 +460,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return
     A string specifying the recently added account's uuid
     """
-    params = __get_insert_query(db, input, region_name, secret_name)
+    params = __get_insert_query(db, input_, region_name, secret_name)
 
     query = params[0]
     q_params = params[1]
@@ -501,14 +498,14 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return uuid
 
 
-def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
+def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
     """
     This function executes the delete query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter contains the uuid of the account that will be deleted
 
     region_name: string
@@ -523,7 +520,7 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = __get_delete_query(db, id)
+    params = __get_delete_query(db, id_)
 
     conn = connection.get_connection(db, region_name, secret_name)
 
@@ -532,17 +529,17 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     db_main.execute_dml(conn, query_list)
 
 
-def update(db: str, id: str, input: dict, region_name: str, secret_name: str) -> None:
+def update(db: str, id_: str, input_: dict, region_name: str, secret_name: str) -> None:
     """
     This function executes the update query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid of the account that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -553,11 +550,11 @@ def update(db: str, id: str, input: dict, region_name: str, secret_name: str) ->
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
     """
-    params = __get_update_query(db, id, input, region_name, secret_name)
+    params = __get_update_query(db, id_, input_, region_name, secret_name)
     query = params[0]
     q_params = params[1]
-    fs_mapping_id = input.get("fsMappingId")
-    fs_name = input.get("fsName")
+    fs_mapping_id = input_.get("fsMappingId")
+    fs_name = input_.get("fsName")
     fs_dict = {"fs_mapping_id": fs_mapping_id, "fs_name": fs_name}
 
     if fs_mapping_id:

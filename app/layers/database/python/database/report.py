@@ -1,9 +1,10 @@
-from . import db_main
-from . import connection
 from datetime import datetime, timedelta
 
+from . import db_main
+from . import connection
 
-def __get_trial_balance_query(db: str, input: dict) -> tuple:
+
+def __get_trial_balance_query(db: str, input_: dict) -> tuple:
     """
     This function creates the Trial Balance report's query with its parameters.
 
@@ -40,22 +41,22 @@ def __get_trial_balance_query(db: str, input: dict) -> tuple:
     where_clause = ""
     params = ()
 
-    je_state = input.get("journalEntryState")
+    je_state = input_.get("journalEntryState")
     if je_state:
         where_clause += " AND je_state = %s "
         params += (je_state,)
 
-    if input.get("hideZeroBalance"):
+    if input_.get("hideZeroBalance"):
         where_clause += " AND DEBIT > 0 AND CREDIT > 0 "
 
-    start_day = input.get("startDay")
+    start_day = input_.get("startDay")
     if start_day:
         where_clause += " AND je_post_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d %%T') "
         params += (start_day,)
 
     where_clause += " AND je_post_date < STR_TO_DATE(%s, '%%Y-%%m-%%d %%T') "
 
-    end_day_input = input.get("endDay")
+    end_day_input = input_.get("endDay")
     if end_day_input:
         end_day_dt = datetime.strptime(end_day_input, "%Y-%m-%d") + timedelta(days=1)
     else:
@@ -65,10 +66,10 @@ def __get_trial_balance_query(db: str, input: dict) -> tuple:
 
     params += (end_day,)
 
-    ledgers_list = input.get("ledgerId")
+    ledgers_list = input_.get("ledgerId")
 
     format_strings = ",".join(["%s"] * len(ledgers_list))
-    where_clause += " AND le_uuid IN (%s);" % format_strings
+    where_clause += f" AND le_uuid IN ({format_strings});"
 
     params += tuple(ledgers_list)
 
@@ -80,7 +81,7 @@ def __get_trial_balance_query(db: str, input: dict) -> tuple:
 
 
 def select_trial_balance(
-    db: str, input: dict, region_name: str, secret_name: str
+    db: str, input_: dict, region_name: str, secret_name: str
 ) -> dict:
     """
     This function returns the Trial Balance report.
@@ -88,7 +89,7 @@ def select_trial_balance(
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query:
     {
@@ -112,7 +113,7 @@ def select_trial_balance(
     return
     A dict containing the Trial Balance report's data
     """
-    params = __get_trial_balance_query(db, input)
+    params = __get_trial_balance_query(db, input_)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 

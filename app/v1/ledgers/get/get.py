@@ -7,7 +7,7 @@ from models import Ledger
 # pylint: enable=import-error
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for ledgers GET request
 
     event: dict
@@ -16,7 +16,7 @@ def handler(event, context) -> tuple[int, dict]:
 
     context: LambdaContext
     Context about the instance of the lambda function
-    
+
     """
 
     if not event.get("queryStringParameters"):

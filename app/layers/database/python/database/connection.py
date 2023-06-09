@@ -1,12 +1,12 @@
 """This module provides the Aurora MySQL serverless capabilities for the connection methods"""
 
+import json
 import pymysql
 import boto3
-import json
 
-secret_dict = None
-conn = None
-read_conn = None
+SECRET_DICT = None
+CONN = None
+READ_CONN = None
 
 
 def get_connection(
@@ -33,17 +33,17 @@ def get_connection(
     return
     A pymysql.connect that represents the actual connection
     """
-    global conn, read_conn
+    global CONN, READ_CONN # pylint: disable=global-statement; Mechanism needed to reuse the connection
 
-    if db_type == "ro" and read_conn is not None:
-        read_conn.ping(reconnect=True)
-        if read_conn.open:
-            return read_conn
+    if db_type == "ro" and READ_CONN is not None:
+        READ_CONN.ping(reconnect=True)
+        if READ_CONN.open:
+            return READ_CONN
 
-    elif db_type != "ro" and conn is not None:
-        conn.ping(reconnect=True)
-        if conn.open:
-            return conn
+    elif db_type != "ro" and CONN is not None:
+        CONN.ping(reconnect=True)
+        if CONN.open:
+            return CONN
 
     secret_dict = __get_secret(region_name, secret_name)
     host = secret_dict["host"]
@@ -53,14 +53,14 @@ def get_connection(
     if db_type == "ro":
         if secret_dict.get("host-ro") is not None:
             host = secret_dict["host-ro"]
-        read_conn = pymysql.connect(
+        READ_CONN = pymysql.connect(
             host=host, user=user, password=password, db=db_name, autocommit=True
         )
-        return read_conn
+        return READ_CONN
 
-    conn = pymysql.connect(host=host, user=user, password=password, db=db_name)
+    CONN = pymysql.connect(host=host, user=user, password=password, db=db_name)
 
-    return conn
+    return CONN
 
 
 def __get_secret(region_name, secret_name):
@@ -77,25 +77,20 @@ def __get_secret(region_name, secret_name):
     return
     A dictionary that contains the credential fields for connecting to the db
     """
-    global secret_dict
+    global SECRET_DICT # pylint: disable=global-statement; Mechanism needed to reuse the secrets
 
-    if secret_dict is not None:
-        return secret_dict
+    if SECRET_DICT is not None:
+        return SECRET_DICT
 
     # Create a Secrets Manager client
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
-    try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    except:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise
+    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
 
     # Decrypts secret using the associated KMS key.
     secret = get_secret_value_response["SecretString"]
 
-    secret_dict = json.loads(secret)
+    SECRET_DICT = json.loads(secret)
 
-    return secret_dict
+    return SECRET_DICT

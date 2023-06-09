@@ -6,16 +6,14 @@ This Lambda is responsible for preforming the reconciliation process of JournalE
 from ark_qldb import qldb
 from arkdb import journal_entries
 from shared import logging
-
 # pylint: enable=import-error
 
 
 def __validate_journal_entry_key(
-    event, context, aurora_record, current_key, current_row
+    context, aurora_record, current_key, current_row
 ):
     if aurora_record.get(current_key) is None:
         logging.write_log(
-            event,
             context,
             "Error",
             "Reconciliation error",
@@ -25,7 +23,6 @@ def __validate_journal_entry_key(
     else:
         if aurora_record[current_key] != current_row[current_key]:
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "Reconciliation error",
@@ -35,10 +32,9 @@ def __validate_journal_entry_key(
     return processed_success
 
 
-def __validate_journal_entry_item(event, context, aurora_line_record, line_item):
+def __validate_journal_entry_item(context, aurora_line_record, line_item):
     if aurora_line_record is None:
         logging.write_log(
-            event,
             context,
             "Error",
             "Reconciliation error",
@@ -53,7 +49,6 @@ def __validate_journal_entry_item(event, context, aurora_line_record, line_item)
                 continue
             if aurora_line_record.get(line_current_key) is None:
                 logging.write_log(
-                    event,
                     context,
                     "Error",
                     "Reconciliation error",
@@ -63,7 +58,6 @@ def __validate_journal_entry_item(event, context, aurora_line_record, line_item)
             else:
                 if aurora_line_record[line_current_key] != line_item[line_current_key]:
                     logging.write_log(
-                        event,
                         context,
                         "Error",
                         "Reconciliation error",
@@ -73,10 +67,7 @@ def __validate_journal_entry_item(event, context, aurora_line_record, line_item)
     return processed_success
 
 
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-locals
 def __process_buffer(
-    event,
     context,
     buffered_cursor,
     processed_list,
@@ -90,7 +81,6 @@ def __process_buffer(
         aurora_record = journal_entries.select_by_id(current_uuid)
         if aurora_record is None:
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "Reconciliation error",
@@ -104,7 +94,7 @@ def __process_buffer(
                 if current_key == "line_items":
                     continue
                 processed_success = __validate_journal_entry_key(
-                    event, context, aurora_record, current_key, current_row
+                    context, aurora_record, current_key, current_row
                 )
 
             current_row_id = current_row.get("id")
@@ -116,7 +106,7 @@ def __process_buffer(
                     line_number, current_row_id
                 )
                 processed_success = __validate_journal_entry_item(
-                    event, context, aurora_line_record, line_item
+                    context, aurora_line_record, line_item
                 )
 
         processed_list.append(current_row)
@@ -155,7 +145,6 @@ def handler(event, context) -> tuple[int, dict]:
         processed_failure = []
 
         __process_buffer(
-            event,
             context,
             buffered_cursor,
             processed_list,
@@ -166,7 +155,6 @@ def handler(event, context) -> tuple[int, dict]:
         journal_count = journal_entries.select_count_commited_journals()
         if journal_count["count(*)"] != len(processed_list):
             logging.write_log(
-                event,
                 context,
                 "Error",
                 "Reconciliation error",

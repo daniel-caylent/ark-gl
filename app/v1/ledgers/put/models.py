@@ -9,11 +9,13 @@ from shared.dataclass_validators import validate_str, validate_int # pylint: dis
 class LedgerPut:
     """Model for ledger PUT request"""
 
+    # pylint: disable=invalid-name; API standard
     glName: str = None
     glDescription: str = None
     currencyName: str = None
     currencyDecimal: int = None
     isHidden: bool = False
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.glName = (

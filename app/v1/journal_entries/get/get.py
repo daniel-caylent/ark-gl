@@ -6,13 +6,12 @@ from shared import (
     endpoint,
     validate_uuid,
 )
-# pylint: enable=import-error
-
 from models import JournalEntry
+# pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument
+def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Get journal entries by ledgerId"""
 
     if not event.get("queryStringParameters"):
@@ -65,33 +64,42 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         for journal_entry in results:
             journal_entry_id = journal_entry.pop("id")
 
-            journal_entry["lineItems"] = [
-                {
-                    key: value
-                    for key, value in entry.items()
-                    if key != "journal_entry_id"
-                }
-                for entry in list(
-                    filter(
-                        lambda line: line["journal_entry_id"] == journal_entry_id,
-                        lines_list,
-                    )
-                )
-            ]
-            journal_entry["attachments"] = [
-                {
-                    key: value
-                    for key, value in entry.items()
-                    if key != "journal_entry_id"
-                }
-                for entry in list(
-                    filter(
-                        lambda att: att["journal_entry_id"] == journal_entry_id,
-                        att_list,
-                    )
-                )
-            ]
+            journal_entry["lineItems"] = __calculate_line_items(lines_list, journal_entry_id)
+
+            journal_entry["attachments"] = __calculate_attachments(att_list, journal_entry_id)
 
     journal_entries_ = [JournalEntry(**result) for result in results]
 
     return 200, {"data": journal_entries_}
+
+
+def __calculate_attachments(att_list, journal_entry_id):
+    return [
+        {
+            key: value
+            for key, value in entry.items()
+            if key != "journal_entry_id"
+        }
+        for entry in list(
+            filter(
+                lambda att: att["journal_entry_id"] == journal_entry_id,
+                att_list,
+            )
+        )
+    ]
+
+
+def __calculate_line_items(lines_list, journal_entry_id):
+    return [
+        {
+            key: value
+            for key, value in entry.items()
+            if key != "journal_entry_id"
+        }
+        for entry in list(
+            filter(
+                lambda line: line["journal_entry_id"] == journal_entry_id,
+                lines_list,
+            )
+        )
+    ]

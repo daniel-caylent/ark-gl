@@ -25,7 +25,7 @@ app_to_db = {
 
 
 def __get_insert_query(
-    db: str, input: dict, region_name: str, secret_name: str
+    db: str, input_: dict, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -33,7 +33,7 @@ def __get_insert_query(
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -58,7 +58,7 @@ def __get_insert_query(
             (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     ledger_uuid = translated_input.get("ledger_id")
     ledger_id = ledger.get_id(db, ledger_uuid, region_name, secret_name)
@@ -86,18 +86,18 @@ def __get_insert_query(
     return (query, params, uuid)
 
 
-def __get_update_query(db: str, id: str, input: dict) -> tuple:
+def __get_update_query(db: str, id_: str, input_: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid for identifying the journal entry
     that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -114,7 +114,7 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
     )
     where_clause = "WHERE uuid = %s;"
 
-    translated_input = db_main.translate_to_db(app_to_db, input)
+    translated_input = db_main.translate_to_db(app_to_db, input_)
 
     if "line_items" in translated_input:
         del translated_input["line_items"]
@@ -132,21 +132,21 @@ def __get_update_query(db: str, id: str, input: dict) -> tuple:
     set_clause = set_clause[: size - 2]
     set_clause += "\n "
 
-    params += (id,)
+    params += (id_,)
 
     query = update_query + set_clause + where_clause
 
     return (query, params)
 
 
-def __get_delete_query(db: str, id: str) -> tuple:
+def __get_delete_query(db: str, id_: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
     db: string
     This parameter specifies the db name where the query will be executed
 
-    id: string
+    id_: string
     This parameter specifies the uuid for the element to be deleted
 
     return
@@ -161,7 +161,7 @@ def __get_delete_query(db: str, id: str) -> tuple:
         WHERE uuid = %s;"""
     )
 
-    params = (id,)
+    params = (id_,)
 
     return (query, params)
 
@@ -357,7 +357,7 @@ def select_posted_between_dates(
     return record
 
 
-def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
+def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
     It will also insert all its related line_items.
@@ -365,7 +365,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     db: string
     This parameter specifies the db name where the query will be executed
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -384,7 +384,7 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return
     A string specifying the recently added journal entry's uuid
     """
-    params = __get_insert_query(db, input, region_name, secret_name)
+    params = __get_insert_query(db, input_, region_name, secret_name)
     query = params[0]
     q_params = params[1]
     uuid = params[2]
@@ -400,10 +400,10 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
         journal_entry_id = cursor.lastrowid
 
         # Then, insert debit and credit entries
-        if "lineItems" in input:
-            for item in input["lineItems"]:
+        if "lineItems" in input_:
+            for item in input_["lineItems"]:
                 type_ = item.pop("type")
-                line_number_ = str(input["lineItems"].index(item) + 1)
+                line_number_ = str(input_["lineItems"].index(item) + 1)
                 entry_params = line_item.get_insert_query(
                     db,
                     item,
@@ -416,8 +416,8 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
                 cursor.execute(entry_params[0], entry_params[1])
 
         # Also, insert attachments
-        if "attachments" in input:
-            for att in input["attachments"]:
+        if "attachments" in input_:
+            for att in input_["attachments"]:
                 att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])
 
@@ -459,18 +459,18 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     q_params = params[1]
 
     # Getting the id before deleting
-    id = select_by_uuid(db, uuid, region_name, secret_name).get("id")
+    id_ = select_by_uuid(db, uuid, region_name, secret_name).get("id")
 
     conn = connection.get_connection(db, region_name, secret_name)
     cursor = conn.cursor()
 
     try:
         # First, delete the line items by journal_entry_id
-        entry_params = line_item.get_delete_by_journal_query(db, id)
+        entry_params = line_item.get_delete_by_journal_query(db, id_)
         cursor.execute(entry_params[0], entry_params[1])
 
         # Then, delete the attachments by journal_entry_id
-        att_params = attachment.get_delete_by_journal_query(db, id)
+        att_params = attachment.get_delete_by_journal_query(db, id_)
         cursor.execute(att_params[0], att_params[1])
 
         # Finally delete the journal entry
@@ -483,10 +483,8 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     finally:
         cursor.close()
 
-    return
 
-
-def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) -> None:
+def update(db: str, uuid: str, input_: dict, region_name: str, secret_name: str) -> None:
     """
     This function executes the update query with its parameters.
     It will also upsert all its related line_items.
@@ -497,7 +495,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     uuid: string
     This parameter specifies the uuid of the journal_entry that will be updated
 
-    input: dictionary
+    input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
 
@@ -513,7 +511,7 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = __get_update_query(db, uuid, input)
+    params = __get_update_query(db, uuid, input_)
     query = params[0]
     q_params = params[1]
 
@@ -529,15 +527,15 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
             cursor.execute(query, q_params)
 
         # Then, insert debit and credit entries
-        if "lineItems" in input:
+        if "lineItems" in input_:
             # Once updated, delete all its line_items and attachments
             # and keep only the upcoming ones (if these exist)
             del_entry_params = line_item.get_delete_by_journal_query(db, journal_entry_id)
             cursor.execute(del_entry_params[0], del_entry_params[1])
 
-            for item in input["lineItems"]:
+            for item in input_["lineItems"]:
                 type_ = item.pop("type")
-                line_number_ = str(input["lineItems"].index(item) + 1)
+                line_number_ = str(input_["lineItems"].index(item) + 1)
                 entry_params = line_item.get_insert_query(
                     db,
                     item,
@@ -550,11 +548,11 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
                 cursor.execute(entry_params[0], entry_params[1])
 
         # Also, insert attachments
-        if "attachments" in input:
+        if "attachments" in input_:
             del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
             cursor.execute(del_att_params[0], del_att_params[1])
 
-            for att in input["attachments"]:
+            for att in input_["attachments"]:
                 att_params = attachment.get_insert_query(db, att, journal_entry_id)
                 cursor.execute(att_params[0], att_params[1])
 
@@ -564,8 +562,6 @@ def update(db: str, uuid: str, input: dict, region_name: str, secret_name: str) 
         raise e
     finally:
         cursor.close()
-
-    return
 
 
 def __get_count_with_post_date(db: str) -> tuple:

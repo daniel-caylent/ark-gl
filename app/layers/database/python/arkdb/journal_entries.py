@@ -1,5 +1,6 @@
 """This module adapts specifc methos to access the Aurora MySQL database for journal entries"""
 
+# pylint: disable=import-error; Lambda layer dependency
 from database.journal_entry import (
     app_to_db as journal_app_to_db,
     select_by_uuid,
@@ -25,6 +26,7 @@ from database.attachment import (
 )
 
 from database.db_main import translate_to_app
+# pylint: enable=import-error
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
@@ -89,18 +91,18 @@ def select_by_client_id(uuid: str) -> dict:
 
 def create_new(journal_entry):
     """Create a new journal entry"""
-    id = insert(DB_NAME, journal_entry, REGION_NAME, SECRET_NAME)
-    return id
+    id_ = insert(DB_NAME, journal_entry, REGION_NAME, SECRET_NAME)
+    return id_
 
 
-def update_by_id(id, updated):
+def update_by_id(id_, updated):
     """Update a journal entry by ID"""
-    update(DB_NAME, id, updated, REGION_NAME, SECRET_NAME)
+    update(DB_NAME, id_, updated, REGION_NAME, SECRET_NAME)
 
 
-def delete_by_id(id):
+def delete_by_id(id_):
     """Delete a journal entry by ID"""
-    delete(DB_NAME, id, REGION_NAME, SECRET_NAME)
+    delete(DB_NAME, id_, REGION_NAME, SECRET_NAME)
 
 
 def get_line_items(journal_id, translate=True):

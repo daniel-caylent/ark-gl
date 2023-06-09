@@ -1,14 +1,18 @@
 """Models for JournalEntries PUT"""
 
 from dataclasses import dataclass
+
+# pylint: disable=import-error; Lambda layer dependency
 from shared.dataclass_validators import (
-    validate_str, validate_bool, validate_int, check_uuid # pylint: disable=import-error; Lambda layer dependency
+    validate_str, validate_bool, validate_int, check_uuid
 )
+# pylint: enable=import-error;
 
 @dataclass
 class JournalEntryPut:
     """Validate journal entry data from a put"""
 
+    # pylint: disable=invalid-name; API standard
     reference: str = None
     memo: str = None
     adjustingJournalEntry: bool = None
@@ -16,6 +20,7 @@ class JournalEntryPut:
     attachments: list = None
     isHidden: bool = None
     date: str = None
+    # pylint: enable=invalid-name;
 
     def __post_init__(self):
         self.reference = (
@@ -41,11 +46,14 @@ class JournalEntryPut:
 
 @dataclass
 class LineItemPost:
+
+    # pylint: disable=invalid-name; API standard
     accountNo: str
     memo: str
     type: str
     amount: int
     entityId: str
+    # pylint: enable=invalid-name;
 
     def __post_init__(self):
         self.accountNo = validate_str(self.accountNo, "accountNo")
@@ -57,8 +65,11 @@ class LineItemPost:
 
 @dataclass
 class AttachmentPost:
+
+    # pylint: disable=invalid-name; API standard
     documentId: str
     documentMemo: str
+    # pylint: enable=invalid-name
 
     def __post_init__(self):
         self.documentId = validate_str(self.documentId, "documentId", min_len=1, max_len=64)
