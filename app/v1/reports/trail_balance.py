@@ -1,3 +1,4 @@
+from arkdb import reports
 from shared import endpoint
 
 @endpoint
@@ -15,12 +16,14 @@ def handler(event, context) -> tuple[int, dict]:
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 
-    ledger_id = event["pathParameters"].get("ledgerIds", None)
-    if ledger_id is None:
-        return 400, {"detail": "No ledger specified."}
-    
-    start_date = event["pathParameters"].get("startDate", None)
-    end_date = event["pathParameters"].get("endDate", None)
-    state = event["pathParameters"].get("journalEntryState", None)
-    balance = event["pathParameters"].get("hideZeroBalance", None)
+    inputs = {
+        "startDate": event["pathParameters"].get("startDate"),
+        "endDate": event["pathParameters"].get("endDate"),
+        "journalEntryState": event["pathParameters"].get("journalEntryState"),
+        "hideZeroBalance": event["pathParameters"].get("hideZeroBalance"),
+        "ledgerId": event["pathParameters"].get("ledgerId")
+    }
 
+    report = reports.get_trial_balance(ledger_ids, state, start_date, end_date, hide_zero_balance)
+
+    return 200, {data: report}

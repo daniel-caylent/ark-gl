@@ -1,5 +1,5 @@
 """Module that contains util methods for dataclasses validations"""
-
+from datetime import datetime
 from .validate_uuid import validate_uuid
 
 
@@ -111,3 +111,34 @@ def validate_int(
             )
 
     return int_
+
+def validate_date(date_str, name):
+    """Validate date objects to be inserted into mysql"""
+
+    if date_str is None:
+        raise Exception(
+            f"Required argument is missing: {name}."
+        )
+
+    try:
+        datetime.strptime(date_str, "YYYY-MM-DD hh:mm:ss")
+    except:
+        raise Exception(f"Datetime is invalid for {name}. Use format: YYYY-MM-DD hh:mm:ss")
+
+    return date_str
+
+def validate_list(lst, name, min_len=0, max_len=0):
+    """Validate a required list"""
+
+    if lst is None:
+        raise Exception(
+            f"Required argument is missing: {name}."
+        )
+
+    if len(lst) < min_len:
+        raise Exception(f"List argument is too short: {name}")
+
+    if len(lst) > max_len:
+        raise Exception(f"List argument is too long: {name}")
+    
+    return lst
