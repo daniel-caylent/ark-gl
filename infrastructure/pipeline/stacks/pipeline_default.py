@@ -1,19 +1,11 @@
-from os import path
 
 from pathlib import Path, PurePath
 
-from aws_cdk import Stack, aws_codepipeline_actions, Aspects, RemovalPolicy
+from aws_cdk import RemovalPolicy
 from aws_cdk.aws_codecommit import Repository
 from aws_cdk.aws_events_targets import LambdaFunction
-from aws_cdk.aws_iam import PolicyStatement
 from aws_cdk.aws_lambda import Function, Runtime, Code
 from aws_cdk.aws_s3 import BucketEncryption
-from aws_cdk.pipelines import (
-    CodePipeline,
-    CodeBuildStep,
-    CodePipelineSource,
-    ManualApprovalStep,
-)
 from cdk_nag import NagSuppressions, NagPackSuppression
 from constructs import Construct
 

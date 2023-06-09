@@ -1,7 +1,6 @@
 import builtins
-from aws_cdk import Duration, NestedStack, RemovalPolicy
+from aws_cdk import NestedStack
 from constructs import Construct
-from typing import Mapping, Sequence
 
 from .utils import get_stack_id, get_stack_prefix
 
