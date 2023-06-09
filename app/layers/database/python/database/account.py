@@ -26,7 +26,7 @@ app_to_db = {
 
 
 def __get_insert_query(
-    db: str, input: dict, fund_entity_id: str, region_name: str, secret_name: str
+    db: str, input_: dict, fund_entity_id: str, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -462,8 +462,8 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     A string specifying the recently added account's uuid
     """
     fund_dict = {
-        "fund_entity_id": input.get("fundId"),
-        "client_id": input.get("clientId"),
+        "fund_entity_id": input_.get("fundId"),
+        "client_id": input_.get("clientId"),
     }
     fund_entity_uuid = fund_dict["fund_entity_id"]
     if fund_entity_uuid:
@@ -489,7 +489,7 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
             fund_entity_id = cursor.lastrowid
 
         # Get insert query of account
-        params = __get_insert_query(db, input, fund_entity_id, region_name, secret_name)
+        params = __get_insert_query(db, input_, fund_entity_id, region_name, secret_name)
         query = params[0]
         q_params = params[1]
         uuid = params[2]
@@ -545,12 +545,12 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
     read only queries to a specific read only endpoint that will
     be optimized for this type of operations
     """
-    params = __get_delete_query(db, id)
+    params = __get_delete_query(db, id_)
     query = params[0]
     q_params = params[1]
 
     # Getting the fund_entity_id to check if we have to delete it
-    ledger_ = select_by_uuid(db, id, region_name, secret_name)
+    ledger_ = select_by_uuid(db, id_, region_name, secret_name)
     fund_entity_id = ledger_.get("fund_entity_id")
 
     conn = connection.get_connection(db, region_name, secret_name)
@@ -578,7 +578,7 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
         cursor.close()
 
 
-def update(db: str, id: str, input: dict, region_name: str, secret_name: str) -> None:
+def update(db: str, id_: str, input_: dict, region_name: str, secret_name: str) -> None:
     """
     This function executes the update query with its parameters.
 
