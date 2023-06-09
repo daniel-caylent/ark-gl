@@ -67,3 +67,6 @@ def update_by_id(id_: str, account: dict) -> None:
         account.pop("isDryRun")
 
     update(DB_NAME, id_, account, REGION_NAME, SECRET_NAME)
+
+def get_line_items(account_id):
+    return []
