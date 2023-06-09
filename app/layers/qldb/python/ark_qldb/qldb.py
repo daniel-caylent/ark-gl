@@ -1,7 +1,7 @@
 """This module adapts specifc methods to access the QLDB database"""
 
-import botocore
 from logging import getLogger
+import botocore
 from pyqldb.config.retry_config import RetryConfig
 from pyqldb.driver.qldb_driver import QldbDriver
 from pyqldb.cursor.buffered_cursor import BufferedCursor
@@ -37,7 +37,7 @@ class Driver:
         return cursor
 
     def create_table(self, table_name: str) -> None:
-        logger.info("Creating the table " + table_name)
+        logger.info("Creating the table %s", table_name)
         query = "CREATE TABLE " + table_name
         self.__execute_query(query)
 
@@ -45,7 +45,9 @@ class Driver:
         fields_str = ",".join(fields)
 
         logger.info(
-            "Creating index on table " + table_name + " to fields " + fields_str
+            "Creating index on table %s to fields %s",
+            table_name,
+            fields_str
         )
 
         query = "CREATE INDEX ON " + table_name + "(" + fields_str + ")"
@@ -53,7 +55,7 @@ class Driver:
         self.__execute_query(query)
 
     def insert_document(self, table_name: str, document: dict) -> None:
-        logger.info("Inserting a document into table " + table_name)
+        logger.info("Inserting a document into table %s", table_name)
         query = "INSERT INTO " + table_name + " ?"
         self.__execute_query(query, document)
 
@@ -65,7 +67,7 @@ class Driver:
         else:
             sql_query = "SELECT * FROM " + table_name
 
-        logger.info("Querying the table " + table_name)
+        logger.info("Querying the table %s", table_name)
 
         cursor = self.__execute_query(sql_query)
 
@@ -91,14 +93,14 @@ class Driver:
         else:
             sql_query = "SELECT " + fields_str + " FROM " + table_name
 
-        print("Querying the table " + table_name)
+        logger.info("Querying the table %s", table_name)
 
         cursor = self.__execute_query(sql_query)
 
         return cursor
 
     def execute_custom_query(self, sql_query: str, *args) -> BufferedCursor:
-        logger.info("Executing custom query: " + sql_query)
+        logger.info("Executing custom query: %s", sql_query)
         cursor = self.__execute_query(sql_query, *args)
 
         return cursor

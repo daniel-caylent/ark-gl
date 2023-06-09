@@ -25,7 +25,7 @@ def post(table_name: str, contents: dict):
         driver.insert_journal_entry(contents)
     else:
         raise Exception("Invalid table name.")
-    
+
 def process_contents(contents):
     """Remove keys that should not be POSTED and apply hashes"""
     processed_contents = {}
@@ -36,7 +36,7 @@ def process_contents(contents):
         if key in HASH_NAMES:
             item = sha256(item.encode("utf-8")).hexdigest()
 
-        if type(item) == list:
+        if  isinstance(item, list):
             child_list = []
             for child_item in item:
                 child_list.append(process_contents(child_item))

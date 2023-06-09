@@ -36,7 +36,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except Exception():
+    except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
     if len(body.keys()) == 0:

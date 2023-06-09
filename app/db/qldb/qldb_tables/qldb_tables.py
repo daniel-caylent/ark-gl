@@ -16,16 +16,16 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     tables_to_create = ["account", "ledger", "journal_entry"]
 
     for table in tables_to_create:
-        logger.info("Checking if table " + table + " exists")
+        logger.info("Checking if table %s exists", table)
         checking_query = (
             "SELECT name FROM information_schema.user_tables WHERE name = '"
             + table
             + "' AND status = 'ACTIVE';"
         )
         result_cursor = driver.execute_custom_query(checking_query)
-        if not (next(result_cursor, None)):
+        if not next(result_cursor, None):
             # If it does not exist, create the table and its indexes
-            logger.info("Creating table " + table)
+            logger.info("Creating table %s", table)
             driver.create_table(table)
             driver.create_index(table, ["id"])
             driver.create_index(table, ["uuid"])
