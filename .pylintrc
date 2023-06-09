@@ -432,7 +432,7 @@ disable=raw-checker-failed,
         useless-suppression,
         deprecated-pragma,
         use-symbolic-message-instead,
-        duplicate-code,
+        duplicate-code, # Too many false positives
         broad-exception-caught, # Unhandled exceptions are not allowed in this application
         broad-exception-raised, # The application was not designed to have custom exceptions, the logging is standardized instead
 
