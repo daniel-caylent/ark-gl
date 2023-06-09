@@ -81,3 +81,6 @@ def select_by_id(id, translate=True):
 
 def update_by_id(*args):
     return None
+
+def get_line_items(*args):
+    return []
