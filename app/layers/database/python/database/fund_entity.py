@@ -159,7 +159,7 @@ def get_update_query(db: str, fund_entity_id: str, input: dict) -> tuple:
     return (query, params)
 
 
-def get_delete_query(db: str, fund_entity_id: str) -> tuple:
+def get_delete_query_by_id(db: str, fund_entity_id: str) -> tuple:
     """
     This function creates the delete query with its parameters.
 
@@ -178,9 +178,74 @@ def get_delete_query(db: str, fund_entity_id: str) -> tuple:
         DELETE FROM """
         + db
         + """.fund_entity
-        WHERE uuid = %s;"""
+        WHERE id = %s;"""
     )
 
     params = (fund_entity_id,)
 
     return (query, params)
+
+
+def __get_accounts_ledgers_count_query(db: str, fund_entity_id: str) -> tuple:
+    """
+    This function creates the select count ledgers and accounts query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_entity_id: string
+    This parameter specifies the fund_entity_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT (SELECT COUNT(1)
+    FROM """
+        + db
+        + """.account acc
+    WHERE acc.fund_entity_id = %s)
+    +
+    (SELECT COUNT(1)
+    FROM """
+        + db
+        + """.ledger le
+    WHERE le.fund_entity_id = %s) AS acc_le_count;"""
+    )
+
+    params = (fund_entity_id, fund_entity_id)
+
+    return (query, params)
+
+
+def get_accounts_ledgers_count(
+    db: str, fund_entity_id: str, region_name: str, secret_name: str
+) -> int:
+    """
+    This function returns the record from the result of the
+    "select count ledgers and accounts" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_entity_id: string
+    This parameter specifies the fund_entity_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the fund entity that matches with the upcoming uuid
+    """
+    params = __get_accounts_ledgers_count_query(db, fund_entity_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return int(record.get("acc_le_count"))

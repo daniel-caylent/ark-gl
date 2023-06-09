@@ -26,7 +26,7 @@ app_to_db = {
 
 
 def __get_insert_query(
-    db: str, input: dict, region_name: str, secret_name: str
+    db: str, input: dict, fund_entity_id: str, region_name: str, secret_name: str
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -37,6 +37,9 @@ def __get_insert_query(
     input: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
+
+    fund_entity_id: string
+    This parameter specifies the fund_entity_id that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -63,9 +66,6 @@ def __get_insert_query(
 
     translated_input = db_main.translate_to_db(app_to_db, input)
 
-    fund_entity_uuid = translated_input.get("fund_entity_id")
-    fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
-
     account_attribute_uuid = translated_input.get("account_attribute_id")
     account_attribute_id = account_attribute.get_id(
         db, account_attribute_uuid, region_name, secret_name
@@ -85,8 +85,6 @@ def __get_insert_query(
 
     # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
     fs_mapping_id = translated_input.get("fs_mapping_id")
-    # if not fs_mapping_id:
-    #     fs_mapping_id = uuid
 
     params = (
         uuid,
@@ -108,10 +106,6 @@ def __get_insert_query(
         params,
         uuid,
         {"fs_mapping_id": fs_mapping_id, "fs_name": translated_input.get("fs_name")},
-        {
-            "fund_entity_id": fund_entity_uuid,
-            "client_id": translated_input.get("client_id"),
-        },
     )
 
 
@@ -470,22 +464,15 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     return
     A string specifying the recently added account's uuid
     """
-    params = __get_insert_query(db, input, region_name, secret_name)
-
-    query = params[0]
-    q_params = params[1]
-    uuid = params[2]
-    fs_dict = params[3]
-    fs_mapping_id = fs_dict["fs_mapping_id"]
-    fs_name = fs_dict["fs_name"]
-    fund_dict = params[4]
-    fund_entity_id = fund_dict["fund_entity_id"]
-
-    if fs_mapping_id:
-        insert_fs = check_fs(db, fs_mapping_id, region_name, secret_name)
-
-    if fund_entity_id:
-        fund = fund_entity.select_by_uuid(db, fund_entity_id, region_name, secret_name)
+    fund_dict = {
+        "fund_entity_id": input.get("fundId"),
+        "client_id": input.get("clientId"),
+    }
+    fund_entity_uuid = fund_dict["fund_entity_id"]
+    if fund_entity_uuid:
+        fund = fund_entity.select_by_uuid(
+            db, fund_entity_uuid, region_name, secret_name
+        )
     else:
         fund = None
 
@@ -493,7 +480,31 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
     cursor = conn.cursor()
 
     try:
-        # Executing insert of account first
+        # First of all, check if we have to insert fund_entity
+        if fund:
+            fund_entity_id = fund.get("id")
+        else:
+            fund_params = fund_entity.get_insert_query(db, fund_dict)
+
+            cursor.execute(fund_params[0], fund_params[1])
+
+            # Once inserted, get the auto-generated id
+            fund_entity_id = cursor.lastrowid
+
+        # Get insert query of account
+        params = __get_insert_query(db, input, fund_entity_id, region_name, secret_name)
+        query = params[0]
+        q_params = params[1]
+        uuid = params[2]
+        fs_dict = params[3]
+        fs_mapping_id = fs_dict["fs_mapping_id"]
+        fs_name = fs_dict["fs_name"]
+
+        # Then, check if the FS has to be inserted
+        if fs_mapping_id:
+            insert_fs = check_fs(db, fs_mapping_id, region_name, secret_name)
+
+        # After that, execute insert of account
         cursor.execute(query, q_params)
 
         # Then, inserting/updating FS
@@ -504,12 +515,6 @@ def insert(db: str, input: dict, region_name: str, secret_name: str) -> str:
                 fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
 
             cursor.execute(fs_params[0], fs_params[1])
-
-        # After that, inserting fund_entity
-        if fund:
-            fund_params = fund_entity.get_insert_query(db, fund_dict)
-
-            cursor.execute(fund_params[0], fund_params[1])
 
         conn.commit()
     except Exception as e:
@@ -544,12 +549,36 @@ def delete(db: str, id: str, region_name: str, secret_name: str) -> None:
     be optimized for this type of operations
     """
     params = __get_delete_query(db, id)
+    query = params[0]
+    q_params = params[1]
+
+    # Getting the fund_entity_id to check if we have to delete it
+    ledger_ = select_by_uuid(db, id, region_name, secret_name)
+    fund_entity_id = ledger_.get("fund_entity_id")
 
     conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
 
-    query_list = [(params[0], params[1])]
+    try:
+        # Executing delete of account first
+        cursor.execute(query, q_params)
 
-    db_main.execute_dml(conn, query_list)
+        # Then, checking if the fund was orphaned
+        fund_count = fund_entity.get_accounts_ledgers_count(
+            db, fund_entity_id, region_name, secret_name
+        )
+
+        if fund_count == 0:
+            fund_params = fund_entity.get_delete_query_by_id(db, fund_entity_id)
+
+            cursor.execute(fund_params[0], fund_params[1])
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
 
 
 def update(db: str, id: str, input: dict, region_name: str, secret_name: str) -> None:
