@@ -1,6 +1,5 @@
 import sys
 
-from pathlib import PurePath
 
 from tests.utils import APP_DIR, TEST_DIR, LAYERS_DIR, MOCK_DIR
 
