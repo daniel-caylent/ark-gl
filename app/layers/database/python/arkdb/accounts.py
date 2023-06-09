@@ -11,6 +11,8 @@ from database.account import (
     update,
 )
 
+from database.line_item import select_by_account_id as get_line_items_by_id
+
 # pylint: enable=import-error
 
 from .utils import (
@@ -22,11 +24,12 @@ from .utils import (
 )
 
 
-def select_by_fund_id(fund_id: str) -> list:
+def select_by_fund_id(fund_id: str, translate=True) -> list:
     """Select a list of accounts with a common fund ID"""
     results = select_by_fund(DB_NAME, fund_id, REGION_NAME, SECRET_NAME)
 
-    results = translate_results(results, app_to_db)
+    if translate:
+        results = translate_results(results, app_to_db)
     return results
 
 
@@ -67,4 +70,5 @@ def update_by_id(id_: str, account: dict) -> None:
 
 def get_line_items(account_id):
     """Retrieve all line items for an account"""
-    return []
+
+    return get_line_items_by_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)

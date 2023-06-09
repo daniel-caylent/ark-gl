@@ -11,8 +11,6 @@ from database.ledger import (
     select_by_client_id as __select_by_client_id,
     select_count_with_post_date,
 )
-from database.db_main import translate_to_app
-
 # pylint: enable=import-error
 
 from .utils import (

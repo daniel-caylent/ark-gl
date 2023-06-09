@@ -41,7 +41,7 @@ class AccountPut:
         self.accountNo = (
             None
             if self.accountNo is None
-            else str(validate_int(self.accountNo, "accountNo", min=100))
+            else str(validate_int(self.accountNo, "accountNo", min_=100))
         )
         self.isHidden = (
             None if self.isHidden is None else validate_bool(self.isHidden, "isHidden")

@@ -33,7 +33,7 @@ class AccountPost:
 
     def __post_init__(self):
         # required
-        self.accountNo = str(validate_int(self.accountNo, "accountNo", min=100))
+        self.accountNo = str(validate_int(self.accountNo, "accountNo", min_=100))
         self.accountName = validate_str(self.accountName, "accountName", min_len=3)
         self.fundId = check_uuid(self.fundId, "fundId")
         self.attributeId = check_uuid(self.attributeId, "attributeId")

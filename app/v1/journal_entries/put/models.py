@@ -59,7 +59,7 @@ class LineItemPost:
         self.accountNo = validate_str(self.accountNo, "accountNo")
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
-        self.amount = validate_int(self.amount, "amount", min=0)
+        self.amount = validate_int(self.amount, "amount", min_=0)
         self.entityId = check_uuid(self.entityId, "entityId")
 
 

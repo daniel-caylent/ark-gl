@@ -1,7 +1,43 @@
-def select_by_fund_id(fund_id):
+def select_by_fund_id(fund_id, translate=True):
     # used for account upload and copy
     if fund_id == "d4b26bbb-e51a-11ed-aede-0247c1ed2ee1":
         return []
+
+    if not translate:
+        return [
+            {
+                'id':1,
+                'account_no': '5555',
+                'accountName': 'account name',
+                'accountId': 'account-id',
+                'accountDescription': 'account description',
+                'state': 'ACTIVE',
+                'isHidden': False,
+                'isTaxable': True,
+                'isEntityRequired': False,
+                'parentAccountId': None,
+                'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsName': 'fsName',
+                'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fundId': 'a-unique-fund-id'
+            },
+            {
+                'id': 1,
+                'account_no': '6',
+                'accountName': 'account name-2',
+                'accountId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'accountDescription': 'account description',
+                'state': 'ACTIVE',
+                'isHidden': False,
+                'isTaxable': True,
+                'isEntityRequired': False,
+                'parentAccountId': None,
+                'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsName': 'fsName',
+                'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+            }
+        ]
 
     return [
         {
