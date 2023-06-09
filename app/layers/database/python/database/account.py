@@ -421,6 +421,26 @@ def select_committed_between_dates(
 
 
 def check_fs(db: str, fs_mapping_id: str, region_name: str, secret_name: str) -> bool:
+    """
+    This function checks for the existence and validity of the upcoming FS
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fs_mapping_id: string
+    This parameter specifies the fs_mapping_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A boolean indicating whether the FS should be inserted or not
+    """
+
     # Checking if the upcoming fs_mapping_id exists
     fs_acc_check = select_by_uuid(db, fs_mapping_id, region_name, secret_name)
 
@@ -631,8 +651,6 @@ def update(db: str, id_: str, input_: dict, region_name: str, secret_name: str) 
         raise e
     finally:
         cursor.close()
-
-    return
 
 
 def __get_by_number_query(db: str, account_number: str) -> tuple:

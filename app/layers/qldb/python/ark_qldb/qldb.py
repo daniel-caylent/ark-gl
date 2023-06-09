@@ -10,6 +10,7 @@ logger = getLogger(__name__)
 
 
 class Driver:
+    """Driver to handle QLDB Ledgers access"""
     def __init__(
         self,
         ledger_name,

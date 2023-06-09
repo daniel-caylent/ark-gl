@@ -1,9 +1,9 @@
 """Trial balance report methods"""
 
+# pylint: disable=import-error; Lambda layer dependency
 from database import report
-
 from .utils import DB_NAME, SECRET_NAME, REGION_NAME
-
+# pylint: enable=import-error
 
 def get_trial_balance(input_dict):
     """Retrieve a trial balance report based on input dict

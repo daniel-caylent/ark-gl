@@ -356,7 +356,7 @@ def select_committed_between_dates(
 
 
 def insert(
-    db_: str, input_: dict, region_name: str, secret_name: str, db_type: str = None
+    db_: str, input_: dict, region_name: str, secret_name: str
 ) -> str:
     """
     This function executes the insert query with its parameters.

@@ -79,7 +79,7 @@ def get_id(db: str, uuid: str, region_name: str, secret_name: str) -> str:
     return record.get("id")
 
 
-def get_insert_query(db: str, input: dict) -> tuple:
+def get_insert_query(db: str, input_: dict) -> tuple:
     """
     This function creates the insert query with its parameters.
 
@@ -105,15 +105,15 @@ def get_insert_query(db: str, input: dict) -> tuple:
     )
 
     params = (
-        input.get("fund_entity_id"),
-        input.get("client_id"),
-        input.get("fund_entity_id"),
+        input_.get("fund_entity_id"),
+        input_.get("client_id"),
+        input_.get("fund_entity_id"),
     )
 
     return (query, params)
 
 
-def get_update_query(db: str, fund_entity_id: str, input: dict) -> tuple:
+def get_update_query(db: str, fund_entity_id: str, input_: dict) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -143,9 +143,9 @@ def get_update_query(db: str, fund_entity_id: str, input: dict) -> tuple:
 
     set_clause = ""
     params = ()
-    for key in input.keys():
+    for key in input_.keys():
         set_clause += str(key) + " = %s,\n"
-        params += (input.get(key),)
+        params += (input_.get(key),)
 
     size = len(set_clause)
     # Slice string to remove last 3 characters from string

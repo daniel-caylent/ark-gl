@@ -2,7 +2,9 @@
 
 import os
 
+# pylint: disable=import-error; Lambda layer dependency
 from database.db_main import translate_to_app
+# pylint: enable=import-error
 
 DB_NAME = os.getenv("DB_NAME")
 SECRET_NAME = os.getenv("DB_SECRET_NAME")

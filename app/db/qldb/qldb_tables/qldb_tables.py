@@ -9,6 +9,8 @@ logger = getLogger(__name__)
 
 
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+    """Main handler method for the Lambda function
+    that will create tables in the QLDB ledger with their indexes"""
     ledger_name = os.getenv("LEDGER_NAME")
     region_name = os.getenv("AWS_REGION")
     driver = qldb.Driver(ledger_name, region_name=region_name)

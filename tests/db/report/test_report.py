@@ -33,3 +33,105 @@ class TestLineItem(ReportTestBase):
         result = report.select_trial_balance(self.db, self.trial_balance_input, "", "")
 
         assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+
+    def test_trial_balance_detail(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_trial_balance_detail(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+    
+    def test_balance_sheet(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_balance_sheet(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+
+    def test_income_statement(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_income_statement(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+
+    def test_1099(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_1099(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+    
+    def test_1099_detail(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_1099_detail(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
+
+    def test_1099_detail_balance(self, monkeypatch):
+        import app.layers.database.python.database.report as report
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.connection as connection
+
+        def execute_multiple_record_select(conn, params):
+            return [{"uuid": "abcde", "id": 123, "name": "account"}]
+
+        monkeypatch.setattr(
+            db_main, "execute_multiple_record_select", execute_multiple_record_select
+        )
+        monkeypatch.setattr(connection, "get_connection", Mock())
+
+        result = report.select_1099_detail_balance(self.db, self.trial_balance_input, "", "")
+
+        assert [{"uuid": "abcde", "id": 123, "name": "account"}] == result
