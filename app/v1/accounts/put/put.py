@@ -4,7 +4,7 @@ import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, account_attributes
-from shared import endpoint, validate_uuid, update_dict
+from shared import endpoint, validate_uuid, update_dict, dataclass_error_to_str
 from models import AccountPut
 # pylint: enable=import-error
 
@@ -36,10 +36,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     try:
         put = AccountPut(**body)
     except Exception as e:
-        remove_str = "__init__() got an "
-        error_str = str(e).strip(remove_str)
-
-        return 400, {"detail": error_str[0].upper() + error_str[1:]}
+        return 400, {"detail": dataclass_error_to_str(e)}
 
     # verify account exists
     acct = accounts.select_by_id(account_id)
