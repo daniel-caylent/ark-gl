@@ -33,6 +33,8 @@ echo "checking score threshold..."
 
 MINIMUM_SCORE=8
 
+cat pylint_report.log | grep -oE "\-?[0-9]+\.[0-9]+"
+
 EXECUTION_SCORE=`cat pylint_report.log | grep -oE "\-?[0-9]+\.[0-9]+" | tail -3 | head -n 1`
 
 echo MINIMUM_SCORE=$MINIMUM_SCORE
