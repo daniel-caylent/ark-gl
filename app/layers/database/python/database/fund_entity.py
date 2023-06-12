@@ -248,4 +248,4 @@ def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: Cursor) -> int
     cur.execute(query, data)
     record = cur.fetchone()
 
-    return int(record.get("acc_le_count"))
+    return int(record[0]) if record else None
