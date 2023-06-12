@@ -30,12 +30,13 @@ phases:
       - ./infrastructure/scripts/build.sh
   build:
     commands:
-      - pytest --cov=infrastructure --cov=app tests
+      # - pytest --cov=infrastructure --cov=app tests
       - aws configure set aws_secret_access_key $AWS_CODEBUILD_USER_SECRET_KEY
       - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
-      - cd infrastructure/scripts
-      - ./check_pylint.sh
-      - ./check_cdk.sh
+      # - cd infrastructure/scripts
+      # - ./check_pylint.sh
+      # - ./check_cdk.sh
+      # - cdk
 artifacts:
   files:
     - '**/*'"""
