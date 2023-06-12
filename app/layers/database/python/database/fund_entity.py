@@ -2,6 +2,7 @@
 
 from . import db_main
 from . import connection
+from pymysql.cursors import Cursor
 
 
 def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
@@ -219,9 +220,7 @@ def __get_accounts_ledgers_count_query(db: str, fund_entity_id: str) -> tuple:
     return (query, params)
 
 
-def get_accounts_ledgers_count(
-    db: str, fund_entity_id: str, region_name: str, secret_name: str
-) -> int:
+def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: Cursor) -> int:
     """
     This function returns the record from the result of the
     "select count ledgers and accounts" query with its parameters.
@@ -244,8 +243,9 @@ def get_accounts_ledgers_count(
     """
     params = __get_accounts_ledgers_count_query(db, fund_entity_id)
 
-    conn = connection.get_connection(db, region_name, secret_name)
-
-    record = db_main.execute_single_record_select(conn, params)
+    query = params[0]
+    data = params[1]
+    cur.execute(query, data)
+    record = cur.fetchone()
 
     return int(record.get("acc_le_count"))

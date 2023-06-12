@@ -509,7 +509,9 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
             fund_entity_id = cursor.lastrowid
 
         # Get insert query of account
-        params = __get_insert_query(db, input_, fund_entity_id, region_name, secret_name)
+        params = __get_insert_query(
+            db, input_, fund_entity_id, region_name, secret_name
+        )
         query = params[0]
         q_params = params[1]
         uuid = params[2]
@@ -581,9 +583,7 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
         cursor.execute(query, q_params)
 
         # Then, checking if the fund was orphaned
-        fund_count = fund_entity.get_accounts_ledgers_count(
-            db, fund_entity_id, region_name, secret_name
-        )
+        fund_count = fund_entity.get_accounts_ledgers_count(db, fund_entity_id, cursor)
 
         if fund_count == 0:
             fund_params = fund_entity.get_delete_query_by_id(db, fund_entity_id)
