@@ -471,7 +471,7 @@ def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
         fund_count = fund_entity.get_accounts_ledgers_count(db_, fund_entity_id, cursor)
 
         if fund_count == 0:
-            fund_params = fund_entity.get_delete_query_by_id(db_, fund_entity_id)
+            fund_params = fund_entity.get_delete_query_by_uuid(db_, fund_entity_id)
 
             cursor.execute(fund_params[0], fund_params[1])
 

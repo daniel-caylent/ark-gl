@@ -186,6 +186,32 @@ def get_delete_query_by_id(db: str, fund_entity_id: str) -> tuple:
 
     return (query, params)
 
+def get_delete_query_by_uuid(db: str, fund_entity_uuid: str) -> tuple:
+    """
+    This function creates the delete query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_entity_uuid: string
+    This parameter specifies the fund_entity_uuid for the element to be deleted
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """
+        DELETE FROM """
+        + db
+        + """.fund_entity
+        WHERE uuid = %s;"""
+    )
+
+    params = (fund_entity_uuid,)
+
+    return (query, params)
+
 
 def __get_accounts_ledgers_count_query(db: str, fund_entity_id: str) -> tuple:
     """

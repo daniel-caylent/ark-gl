@@ -11,6 +11,7 @@ class LedgerPost:
 
     # pylint: disable=invalid-name; API standard
     fundId: str
+    clientId: str
     glName: str
     currencyName: str
     currencyDecimal: int
@@ -20,6 +21,7 @@ class LedgerPost:
 
     def __post_init__(self):
         self.fundId = check_uuid(self.fundId, "fundId")
+        self.clientId = check_uuid(self.clientId, "clientId")
         self.glName = validate_str(self.glName, "glName", min_len=3, max_len=128)
         self.currencyDecimal = validate_int(
             self.currencyDecimal, "currencyDecimal", allowed=[0, 2, 3, 4]

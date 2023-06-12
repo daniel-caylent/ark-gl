@@ -19,6 +19,7 @@ class TestLedgersPost(TestBase(PATHS)):
       body = {
          "glDescription": "test",
          "fundId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+         "clientId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb", 
          "glName": "unique",
          "currencyName": "USD",
          "currencyDecimal": 2
@@ -35,6 +36,7 @@ class TestLedgersPost(TestBase(PATHS)):
       body = {
          "glDescription": "test",
          "fundId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+         "clientId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb", 
          "glName": "duplicate",
          "currencyName": "USD",
          "currencyDecimal": 2
