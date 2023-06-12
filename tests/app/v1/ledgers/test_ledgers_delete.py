@@ -1,4 +1,3 @@
-import json
 import pytest
 
 from tests.app.data import (

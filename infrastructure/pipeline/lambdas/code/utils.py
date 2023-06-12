@@ -33,7 +33,9 @@ phases:
       - pytest --cov=infrastructure --cov=app tests
       - aws configure set aws_secret_access_key $AWS_CODEBUILD_USER_SECRET_KEY
       - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
-      - cd infrastructure/scripts && sh synth_apps.sh
+      - cd infrastructure/scripts
+      - ./check_pylint.sh
+      - ./check_cdk.sh
 artifacts:
   files:
     - '**/*'"""

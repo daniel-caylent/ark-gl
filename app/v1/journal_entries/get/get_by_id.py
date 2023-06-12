@@ -36,7 +36,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         line_item.pop("journal_entry_id")
     for attachment in attachments:
         attachment.pop("journal_entry_id")
-    
+
     journal_entry["lineItems"] = line_items
     journal_entry["attachments"] = attachments
 

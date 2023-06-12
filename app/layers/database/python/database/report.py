@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from . import db_main
 from . import connection
 
-
 def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
     """
     This function creates the report query's where clause using input parameters.

@@ -10,6 +10,9 @@ from database.account import (
     delete,
     update,
 )
+# pylint: enable=import-error
+
+from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 from database.line_item import select_by_account_id as get_line_items_by_id
 

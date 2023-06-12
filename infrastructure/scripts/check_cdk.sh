@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 set -e
 
 cdk synth --app "python3 ../app.py"

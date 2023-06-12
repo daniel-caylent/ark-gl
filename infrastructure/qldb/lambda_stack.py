@@ -1,7 +1,6 @@
 import aws_cdk as cdk
 from constructs import Construct
 from pathlib import PurePath
-import os
 
 from env import ENV
 

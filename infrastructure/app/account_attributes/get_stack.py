@@ -1,4 +1,4 @@
-from pathlib import Path, PurePath
+from pathlib import PurePath
 
 from constructs import Construct
 
@@ -12,7 +12,6 @@ from shared.get_cdk import (
 from shared.layers import get_shared_layer, get_pymysql_layer, get_database_layer
 from shared.utils import ACCOUNTS_ATTR_DIR
 
-from aws_cdk import aws_apigateway as apigw
 import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(ACCOUNTS_ATTR_DIR, "get"))

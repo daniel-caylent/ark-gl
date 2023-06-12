@@ -3,11 +3,8 @@ from aws_cdk import (
     aws_codepipeline as codepipeline,
     aws_codepipeline_actions as codepipeline_actions,
     aws_codebuild as codebuild,
-    aws_codedeploy as codedeploy,
-    aws_ecs as ecs,
     aws_events as events,
     aws_events_targets as targets,
-    Stack,
 )
 from constructs import Construct
 from app.base_stack import BaseStack
