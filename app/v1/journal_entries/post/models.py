@@ -28,7 +28,7 @@ class JournalEntryPost:
 
     def __post_init__(self):
         self.ledgerId = check_uuid(self.ledgerId, "ledgerId")
-        self.reference = validate_str(self.reference, "reference", max_len=64)
+        self.reference = validate_str(self.reference, "reference")
         self.memo = validate_str(self.memo, "memo")
         self.adjustingJournalEntry = validate_bool(
             self.adjustingJournalEntry, "adjustingJournalEntry"

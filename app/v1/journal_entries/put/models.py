@@ -25,7 +25,7 @@ class JournalEntryPut:
     def __post_init__(self):
         self.reference = (
             None if self.reference is None else
-            validate_str(self.reference, "reference", min_len=1)
+            validate_str(self.reference, "reference")
         )
         self.memo = (
             None if self.memo is None else

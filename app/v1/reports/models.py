@@ -11,7 +11,7 @@ class ReportInputs:
     endDate: str = None
 
     def __post_init__(self):
-        self.ledgerId = validate_list(self.ledgerId, "ledgerId", min_len=1)
+        self.ledgerId = validate_list(self.ledgerId, "ledgerId", min_len=1, parse=True)
         self.hideZeroBalance = validate_bool(self.hideZeroBalance, "hideZeroBalance")
         self.journalEntryState = validate_str(
             self.journalEntryState, "journalEntryState",

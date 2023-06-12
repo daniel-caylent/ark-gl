@@ -36,6 +36,7 @@ from app.journal_entries import (
     JournalEntriesStateStack,
 )
 
+<<<<<<< HEAD
 from app.api.api_account_attribute_stack import (
     AccountAttributesStack
 )
@@ -54,6 +55,10 @@ from app.api.api_journal_entries_stack import (
 
 from app.api.stage_stack import (
     StageStack
+=======
+from app.reports import (
+    TrialBalanceStack
+>>>>>>> de64463 (Add trial balance)
 )
 
 from env import ENV
@@ -159,8 +164,34 @@ journal_entries_state_stack = JournalEntriesStateStack(
 )
 journal_entries_state_stack.add_dependency(vpc_stack)
 
+trial_balance_stack = TrialBalanceStack(
+    app, "ark-gl-reports-trial-balance-stack", env=cdk_env
+)
+trial_balance_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
+dependency_group.add(account_attributes_get_stack)
+dependency_group.add(accounts_get_stack)
+dependency_group.add(accounts_get_by_id_stack)
+dependency_group.add(accounts_post_stack)
+dependency_group.add(accounts_delete_stack)
+dependency_group.add(accounts_put_stack)
+dependency_group.add(accounts_state_stack)
+dependency_group.add(accounts_upload_stack)
+dependency_group.add(ledgers_get_stack)
+dependency_group.add(ledgers_get_by_id_stack)
+dependency_group.add(ledgers_post_stack)
+dependency_group.add(ledgers_put_stack)
+dependency_group.add(ledgers_delete_stack)
+dependency_group.add(ledgers_state_stack)
+dependency_group.add(journal_entries_get_by_id_stack)
+dependency_group.add(journal_entries_get_stack)
+dependency_group.add(journal_entries_post_stack)
+dependency_group.add(journal_entries_put_stack)
+dependency_group.add(journal_entries_state_stack)
+dependency_group.add(journal_entries_delete_stack)
+dependency_group.add(trial_balance_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)
 
