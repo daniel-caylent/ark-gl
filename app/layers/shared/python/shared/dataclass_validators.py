@@ -114,7 +114,7 @@ def validate_int(
 
     return int_
 
-def validate_date(date_str, name):
+def validate_date(date_str, name, date_format="%Y-%m-%d"):
     """Validate date objects to be inserted into mysql"""
 
     if date_str is None:
@@ -123,7 +123,7 @@ def validate_date(date_str, name):
         )
 
     try:
-        datetime.strptime(date_str, "YYYY-MM-DD hh:mm:ss")
+        datetime.strptime(date_str, date_format)
     except:
         raise Exception(f"Datetime is invalid for {name}. Use format: YYYY-MM-DD hh:mm:ss")
 

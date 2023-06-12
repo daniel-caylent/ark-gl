@@ -1,4 +1,5 @@
 """Models for JournalEntries GET"""
+from datetime import datetime
 
 from dataclasses import dataclass, field
 
@@ -25,5 +26,7 @@ class JournalEntry:
     def __post_init__(self):
         self.adjustingJournalEntry = bool(self.adjustingJournalEntry)
         self.isHidden = bool(self.isHidden)
-        self.date = str(self.date)
         self.postDate = str(self.postDate)
+
+        if isinstance(self.date, datetime):
+            self.date = datetime.strftime(self.date, "%Y-%m-%d")

@@ -1,3 +1,5 @@
+import datetime
+
 from arkdb import reports, ledgers
 from shared import endpoint, dataclass_error_to_str
 
@@ -39,4 +41,9 @@ def handler(event, context) -> tuple[int, dict]:
 
     report = reports.get_trial_balance(valid_input.__dict__)
 
+    for line in report:
+        line["je_date"] = str(line["je_date"])
+        line["je_post_date"] = str(line["je_post_date"])
+
+    print(f"REPORT: {report}")
     return 200, {"data": report}
