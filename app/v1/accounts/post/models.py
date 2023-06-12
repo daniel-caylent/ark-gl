@@ -15,12 +15,13 @@ from shared.dataclass_validators import (
 class AccountPost:
 
     # pylint: disable=invalid-name; API standard
-    fundId: str = None
-    attributeId: str = None
-    accountNo: str = None
-    accountName: str = None
-    isTaxable: bool = None
-    fsName: str = None
+    fundId: str
+    clientId: str
+    attributeId: str
+    accountNo: str
+    accountName: str
+    isTaxable: bool
+    fsName: str
 
     # optional
     fsMappingId: str = None
@@ -36,6 +37,7 @@ class AccountPost:
         self.accountNo = str(validate_int(self.accountNo, "accountNo", min_=100))
         self.accountName = validate_str(self.accountName, "accountName", min_len=3)
         self.fundId = check_uuid(self.fundId, "fundId")
+        self.clientId = check_uuid(self.clientId, "clientId")
         self.attributeId = check_uuid(self.attributeId, "attributeId")
         self.isTaxable = validate_bool(self.isTaxable, "isTaxable")
         self.fsName = validate_str(self.fsName, "fsName", min_len=3)

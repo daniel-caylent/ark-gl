@@ -244,7 +244,7 @@ def get_accounts_ledgers_count(
     """
     params = __get_accounts_ledgers_count_query(db, fund_entity_id)
 
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
+    conn = connection.get_connection(db, region_name, secret_name)
 
     record = db_main.execute_single_record_select(conn, params)
 
