@@ -5,11 +5,13 @@ by multiple Lambdas instances
 """
 import os
 import boto3
+
 # pylint: disable=import-error; Lambda layer dependency
 from shared import (
     endpoint,
     logging,
 )
+
 # pylint: enable=import-error
 
 
@@ -37,7 +39,13 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     # List all objects in the source bucket
     try:
-        response = s3_client.list_objects_v2(Bucket=source_bucket)
+        object_keys = []
+        paginator = s3_client.get_paginator("list_objects_v2")
+        pages = paginator.paginate(Bucket=source_bucket)
+
+        for page in pages:
+            for obj in page["Contents"]:
+                object_keys.append(obj["Key"])
     except Exception as e:
         logging.write_log(
             context,
@@ -47,26 +55,21 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         )
         raise
 
-    # Check if any objects are present in the bucket
-    if "Contents" in response:
-        # Extract the object keys
-        object_keys = [obj["Key"] for obj in response["Contents"]]
-
-        # Push each object key to the SQS queue
-        for object_key in object_keys:
-            if object_key.endswith(".json"):
-                try:
-                    sqs_client.send_message(
-                        QueueUrl=target_queue_url,
-                        MessageBody="s3://" + source_bucket + "/" + object_key,
-                    )
-                except Exception as e:
-                    logging.write_log(
-                        context,
-                        "Error",
-                        "DR Export Error when publishing message to SQS queue",
-                        str(e),
-                    )
-                    raise
+    # Push each object key to the SQS queue
+    for object_key in object_keys:
+        if object_key.endswith(".json"):
+            try:
+                sqs_client.send_message(
+                    QueueUrl=target_queue_url,
+                    MessageBody="s3://" + source_bucket + "/" + object_key,
+                )
+            except Exception as e:
+                logging.write_log(
+                    context,
+                    "Error",
+                    "DR Export Error when publishing message to SQS queue",
+                    str(e),
+                )
+                raise
 
     return 200, {}

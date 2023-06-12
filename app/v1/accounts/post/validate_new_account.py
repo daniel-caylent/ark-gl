@@ -3,12 +3,11 @@
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, account_attributes, funds
 from models import AccountPost
+from shared import dataclass_error_to_str
 # pylint: enable=import-error
 
 def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
     # Check for missing details
-    if account.get("fundId") is None:
-        return 400, "No fund specified.", None
     if account.get("attributeId") is None:
         return 400, "No attribute specified.", None
 
@@ -16,14 +15,7 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
     try:
         post = AccountPost(**account)
     except Exception as e:
-        remove_str = "__init__() got an "
-        error_str = str(e).replace(remove_str, "")
-        return 400, error_str[0].upper() + error_str[1:], None
-
-    # validate that the fund exists and client has access to it
-    fund = funds.select_by_uuid(post.fundId)
-    if fund is None:
-        return 400, "Specified fund does not exist.", None
+        return 400, dataclass_error_to_str(e), None
 
     # get accounts with the same name
     accts = accounts.select_by_fund_id(post.fundId)

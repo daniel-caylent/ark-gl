@@ -355,9 +355,7 @@ def select_committed_between_dates(
     return record
 
 
-def insert(
-    db_: str, input_: dict, region_name: str, secret_name: str
-) -> str:
+def insert(db_: str, input_: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
 
@@ -470,9 +468,7 @@ def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
         cursor.execute(query, q_params)
 
         # Then, checking if the fund was orphaned
-        fund_count = fund_entity.get_accounts_ledgers_count(
-            db_, fund_entity_id, region_name, secret_name
-        )
+        fund_count = fund_entity.get_accounts_ledgers_count(db_, fund_entity_id, cursor)
 
         if fund_count == 0:
             fund_params = fund_entity.get_delete_query_by_id(db_, fund_entity_id)
