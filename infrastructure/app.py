@@ -36,8 +36,17 @@ from app.journal_entries import (
     JournalEntriesStateStack,
 )
 
+from app.api.api_account_attribute_stack import (
+    AccountAttributesStack
+)
+
+from app.api.stage_stack import (
+    StageStack
+)
+
 from env import ENV
 from shared.vpc_stack import VpcStack
+from shared.utils import get_stack_prefix
 from app.api.api_stack import ApiStack
 
 from constructs import DependencyGroup
@@ -65,7 +74,7 @@ accounts_get_by_id_stack = AccountsGetByIdStack(
     app, "ark-gl-accounts-get-by-id-stack", env=cdk_env
 )
 accounts_get_by_id_stack.add_dependency(vpc_stack)
-
+#
 accounts_post_stack = AccountsPostStack(app, "ark-gl-accounts-post-stack", env=cdk_env)
 accounts_post_stack.add_dependency(vpc_stack)
 
@@ -87,84 +96,127 @@ accounts_upload_stack = AccountsUploadStack(
 )
 accounts_upload_stack.add_dependency(vpc_stack)
 
-ledgers_get_stack = LedgersGetStack(app, "ark-gl-ledgers-get-stack", env=cdk_env)
-ledgers_get_stack.add_dependency(vpc_stack)
-
-ledgers_get_by_id_stack = LedgersGetByIdStack(
-    app, "ark-gl-ledgers-get-by-id-stack", env=cdk_env
-)
-ledgers_get_by_id_stack.add_dependency(vpc_stack)
-
-ledgers_post_stack = LedgersPostStack(app, "ark-gl-ledgers-post-stack", env=cdk_env)
-ledgers_post_stack.add_dependency(vpc_stack)
-
-ledgers_put_stack = LedgersPutStack(app, "ark-gl-ledgers-put-stack", env=cdk_env)
-ledgers_put_stack.add_dependency(vpc_stack)
-
-ledgers_delete_stack = LedgersDeleteStack(
-    app, "ark-gl-ledgers-delete-stack", env=cdk_env
-)
-ledgers_delete_stack.add_dependency(vpc_stack)
-
-ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
-ledgers_state_stack.add_dependency(vpc_stack)
-
-journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
-    app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
-)
-journal_entries_get_by_id_stack.add_dependency(vpc_stack)
-
-journal_entries_get_stack = JournalEntriesGetStack(
-    app, "ark-gl-journal-entries-get-stack", env=cdk_env
-)
-journal_entries_get_stack.add_dependency(vpc_stack)
-
-journal_entries_post_stack = JournalEntriesPostStack(
-    app, "ark-gl-journal-entries-post-stack", env=cdk_env
-)
-journal_entries_post_stack.add_dependency(vpc_stack)
-
-journal_entries_put_stack = JournalEntriesPutStack(
-    app, "ark-gl-journal-entries-put-stack", env=cdk_env
-)
-journal_entries_put_stack.add_dependency(vpc_stack)
-
-journal_entries_delete_stack = JournalEntriesDeleteStack(
-    app, "ark-gl-journal-entries-delete-stack", env=cdk_env
-)
-journal_entries_delete_stack.add_dependency(vpc_stack)
-
-journal_entries_state_stack = JournalEntriesStateStack(
-    app, "ark-gl-journal-entries-state-stack", env=cdk_env
-)
-journal_entries_state_stack.add_dependency(vpc_stack)
-
+#ledgers_get_stack = LedgersGetStack(app, "ark-gl-ledgers-get-stack", env=cdk_env)
+#ledgers_get_stack.add_dependency(vpc_stack)
+#
+#ledgers_get_by_id_stack = LedgersGetByIdStack(
+#    app, "ark-gl-ledgers-get-by-id-stack", env=cdk_env
+#)
+#ledgers_get_by_id_stack.add_dependency(vpc_stack)
+#
+#ledgers_post_stack = LedgersPostStack(app, "ark-gl-ledgers-post-stack", env=cdk_env)
+#ledgers_post_stack.add_dependency(vpc_stack)
+#
+#ledgers_put_stack = LedgersPutStack(app, "ark-gl-ledgers-put-stack", env=cdk_env)
+#ledgers_put_stack.add_dependency(vpc_stack)
+#
+#ledgers_delete_stack = LedgersDeleteStack(
+#    app, "ark-gl-ledgers-delete-stack", env=cdk_env
+#)
+#ledgers_delete_stack.add_dependency(vpc_stack)
+#
+#ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
+#ledgers_state_stack.add_dependency(vpc_stack)
+#
+#journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
+#    app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
+#)
+#journal_entries_get_by_id_stack.add_dependency(vpc_stack)
+#
+#journal_entries_get_stack = JournalEntriesGetStack(
+#    app, "ark-gl-journal-entries-get-stack", env=cdk_env
+#)
+#journal_entries_get_stack.add_dependency(vpc_stack)
+#
+#journal_entries_post_stack = JournalEntriesPostStack(
+#    app, "ark-gl-journal-entries-post-stack", env=cdk_env
+#)
+#journal_entries_post_stack.add_dependency(vpc_stack)
+#
+#journal_entries_put_stack = JournalEntriesPutStack(
+#    app, "ark-gl-journal-entries-put-stack", env=cdk_env
+#)
+#journal_entries_put_stack.add_dependency(vpc_stack)
+#
+#journal_entries_delete_stack = JournalEntriesDeleteStack(
+#    app, "ark-gl-journal-entries-delete-stack", env=cdk_env
+#)
+#journal_entries_delete_stack.add_dependency(vpc_stack)
+#
+#journal_entries_state_stack = JournalEntriesStateStack(
+#    app, "ark-gl-journal-entries-state-stack", env=cdk_env
+#)
+#journal_entries_state_stack.add_dependency(vpc_stack)
+#
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
-dependency_group.add(account_attributes_get_stack)
-dependency_group.add(accounts_get_stack)
-dependency_group.add(accounts_get_by_id_stack)
-dependency_group.add(accounts_post_stack)
-dependency_group.add(accounts_delete_stack)
-dependency_group.add(accounts_put_stack)
-dependency_group.add(accounts_state_stack)
-dependency_group.add(accounts_upload_stack)
-dependency_group.add(ledgers_get_stack)
-dependency_group.add(ledgers_get_by_id_stack)
-dependency_group.add(ledgers_post_stack)
-dependency_group.add(ledgers_put_stack)
-dependency_group.add(ledgers_delete_stack)
-dependency_group.add(ledgers_state_stack)
-dependency_group.add(journal_entries_get_by_id_stack)
-dependency_group.add(journal_entries_get_stack)
-dependency_group.add(journal_entries_post_stack)
-dependency_group.add(journal_entries_put_stack)
-dependency_group.add(journal_entries_state_stack)
-dependency_group.add(journal_entries_delete_stack)
+#dependency_group.add(account_attributes_get_stack)
+#dependency_group.add(accounts_get_stack)
+#dependency_group.add(accounts_get_by_id_stack)
+#dependency_group.add(accounts_post_stack)
+#dependency_group.add(accounts_delete_stack)
+#dependency_group.add(accounts_put_stack)
+#dependency_group.add(accounts_state_stack)
+#dependency_group.add(accounts_upload_stack)
+#dependency_group.add(ledgers_get_stack)
+#dependency_group.add(ledgers_get_by_id_stack)
+#dependency_group.add(ledgers_post_stack)
+#dependency_group.add(ledgers_put_stack)
+#dependency_group.add(ledgers_delete_stack)
+#dependency_group.add(ledgers_state_stack)
+#dependency_group.add(journal_entries_get_by_id_stack)
+#dependency_group.add(journal_entries_get_stack)
+#dependency_group.add(journal_entries_post_stack)
+#dependency_group.add(journal_entries_put_stack)
+#dependency_group.add(journal_entries_state_stack)
+#dependency_group.add(journal_entries_delete_stack)
 
-rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env).node.add_dependency(
+rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)
+
+rest_api.node.add_dependency(
     dependency_group
 )
+
+#upload_bucket_name = cdk.CfnParameter(app, "uploadBucketName", type="String",
+#    description="The name of the Amazon S3 bucket where uploaded files will be stored.")
+
+#print(upload_bucket_name)
+
+#from .app.api.api_account_attribute_stack import AccountAttributesStack
+account_attributes_dependency_group = DependencyGroup()
+account_attributes_dependency_group.add(rest_api)
+account_attributes_dependency_group.add(account_attributes_get_stack)
+
+api_account_attributes_stack = AccountAttributesStack(
+    app,
+    "ark-gl-api-account-attributes",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_account_attributes_stack.node.add_dependency(
+    account_attributes_dependency_group
+)
+
+print(os.getenv("STACKS"))
+
+methods = []
+
+stage_dependency_group = DependencyGroup()
+
+if os.getenv("STACKS"):
+    print('Stacks loaded!')
+
+    stacks = os.getenv("STACKS").split(",")
+
+    if get_stack_prefix() + "ark-gl-api-account-attributes" in stacks:
+        methods.extend(api_account_attributes_stack.methods)
+        stage_dependency_group.add(api_account_attributes_stack)
+
+api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
+
+api_stage_stack.node.add_dependency(stage_dependency_group)
 
 # TODO: check if this method is still needed
 AccountsCopyStack(app, "ark-gl-accounts-copy-stack", env=cdk_env).add_dependency(

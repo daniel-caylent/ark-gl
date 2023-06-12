@@ -103,6 +103,13 @@ class IAMPipelineStack(Construct):
         )
         code_build_role.add_to_policy(
             PolicyStatement(
+                actions=["codecommit:Get*", "codecommit:List*", "codecommit:GitPull"],
+                resources=[f"arn:aws:codecommit:{region}:{account}:wendigo"],
+            )
+        )
+
+        code_build_role.add_to_policy(
+            PolicyStatement(
                 actions=[
                     "s3:DeleteObject",
                     "s3:PutObject",
