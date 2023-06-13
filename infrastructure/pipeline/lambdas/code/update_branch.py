@@ -31,7 +31,7 @@ def handler(event, context):
     try:
         if reference_type == "branch":
             branch = event["detail"]["referenceName"]
-            project_name = get_codebuild_project_name(codebuild_name_prefix, branch)
+            project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
 
             client.start_build(projectName=project_name)
     except Exception as e:

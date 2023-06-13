@@ -42,7 +42,7 @@ def handler(event, context):
             branch = event["detail"]["sourceReference"].replace("refs/heads/", "")
             repo_name = event["detail"]["repositoryNames"][0]
 
-            project_name = get_codebuild_project_name(codebuild_name_prefix, branch)
+            project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
 
             if event["detail"]["pullRequestStatus"] == "Open":
                 if event["detail"]["event"] == "pullRequestCreated":
@@ -79,7 +79,7 @@ def handler(event, context):
                     client.start_build(projectName=project_name)
 
             elif event["detail"]["pullRequestStatus"] == "Closed":
-                client.delete_project(name=project_name)
+
 
     except Exception as e:
         logger.error(e)
