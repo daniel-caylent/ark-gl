@@ -22,17 +22,18 @@ def handler(event, context):
 
     logger.info(lambda_config)
 
-    reference_type = event["detail"]["referenceType"]
+    #reference_type = event["detail"]["referenceType"]
 
     codebuild_name_prefix = itemgetter(
         "codebuild_name_prefix",
     )(lambda_config)
 
     try:
-        if reference_type == "branch":
-            branch = event["detail"]["referenceName"]
-            project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
-
-            client.start_build(projectName=project_name)
+        #if reference_type == "branch":
+        #    branch = event["detail"]["referenceName"]
+        #    project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
+        #
+        #    client.start_build(projectName=project_name)
+        pass
     except Exception as e:
         logger.error(e)

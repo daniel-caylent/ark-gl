@@ -103,3 +103,20 @@ class DefaultPipelineStack(BaseStack):
             description="AWS CodeCommit On Reference Deleted",
             target=LambdaFunction(destroy_branch_func),
         )
+
+        update_branch_func = Function(
+            self,
+            self.STACK_PREFIX + "ark-gl-lambda-update-build",
+            runtime=Runtime.PYTHON_3_9,
+            function_name=self.STACK_PREFIX + "ark-gl-lambda-update-build",
+            handler="update_branch.handler",
+            role=iam_stack.delete_branch_role,
+            environment=environment,
+            code=LAMBDA_DIR,
+        )
+
+        repo.on_pull_request_state_change(
+            self.STACK_PREFIX + "ark-gl-repo-on_pull_request_state_change",
+            description="AWS CodeCommit On Pull Request State Change",
+            target=LambdaFunction(update_branch_func),
+        )
