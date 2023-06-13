@@ -40,10 +40,10 @@ def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
 
     start_day = input_.get("startDay")
     if start_day:
-        where_clause += " AND je_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d %%T') "
+        where_clause += " AND je_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
         params += (start_day,)
 
-    where_clause += " AND je_date < STR_TO_DATE(%s, '%%Y-%%m-%%d %%T') "
+    where_clause += " AND je_date < STR_TO_DATE(%s, '%%Y-%%m-%%d') "
 
     end_day_input = input_.get("endDay")
     if end_day_input:

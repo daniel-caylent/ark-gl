@@ -14,7 +14,6 @@ from app.accounts import (
     AccountsPutStack,
     AccountsStateStack,
     AccountsUploadStack,
-    AccountsCopyStack,
     AccountsDeleteStack,
 )
 
@@ -36,7 +35,10 @@ from app.journal_entries import (
     JournalEntriesStateStack,
 )
 
-<<<<<<< HEAD
+from app.reports import (
+    ReportsStack
+)
+
 from app.api.api_account_attribute_stack import (
     AccountAttributesStack
 )
@@ -53,12 +55,12 @@ from app.api.api_journal_entries_stack import (
     JournalEntriesStack
 )
 
+from app.api.api_reports_stack import (
+    ApiReportsStack
+)
+
 from app.api.stage_stack import (
     StageStack
-=======
-from app.reports import (
-    TrialBalanceStack
->>>>>>> de64463 (Add trial balance)
 )
 
 from env import ENV
@@ -164,10 +166,10 @@ journal_entries_state_stack = JournalEntriesStateStack(
 )
 journal_entries_state_stack.add_dependency(vpc_stack)
 
-trial_balance_stack = TrialBalanceStack(
-    app, "ark-gl-reports-trial-balance-stack", env=cdk_env
+reports_stack = ReportsStack(
+    app, "ark-gl-reports-stack", env=cdk_env
 )
-trial_balance_stack.add_dependency(vpc_stack)
+reports_stack.add_dependency(vpc_stack)
 
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
@@ -191,7 +193,7 @@ dependency_group.add(journal_entries_post_stack)
 dependency_group.add(journal_entries_put_stack)
 dependency_group.add(journal_entries_state_stack)
 dependency_group.add(journal_entries_delete_stack)
-dependency_group.add(trial_balance_stack)
+dependency_group.add(reports_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)
 
@@ -281,6 +283,21 @@ api_journal_entries_stack.node.add_dependency(
     journal_entries_dependency_group
 )
 
+reports_dependency_group = DependencyGroup()
+reports_dependency_group.add(reports_stack)
+
+api_reports_stack = ApiReportsStack(
+    app,
+    "ark-gl-api-reports",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_reports_stack.node.add_dependency(
+    reports_dependency_group
+)
+
 methods = []
 
 stage_dependency_group = DependencyGroup()
@@ -319,6 +336,9 @@ else:
 
     methods.extend(api_journal_entries_stack.methods)
     stage_dependency_group.add(api_journal_entries_stack)
+
+    methods.extend(api_reports_stack.methods)
+    stage_dependency_group.add(api_reports_stack)
 
 
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)

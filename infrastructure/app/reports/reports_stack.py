@@ -12,7 +12,7 @@ import aws_cdk as cdk
 CODE_DIR = str(PurePath(REPORTS_DIR))
 
 
-class TrialBalanceStack(BaseStack):
+class ReportsStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -20,10 +20,11 @@ class TrialBalanceStack(BaseStack):
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
 
-        lambda_function = build_lambda_function(
+        trial_balance = build_lambda_function(
             self,
             CODE_DIR,
             handler="trial_balance.handler",
+            name="trial-balance",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="trial balance report",
         )
@@ -31,6 +32,6 @@ class TrialBalanceStack(BaseStack):
         cdk.CfnOutput(
             self,
             "ark-reports-trial-balance-function-arn",
-            value=lambda_function.function_arn,
+            value=trial_balance.function_arn,
             export_name=self.STACK_PREFIX + "ark-reports-trial-balance-function-arn",
         )

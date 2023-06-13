@@ -127,7 +127,7 @@ def validate_date(date_str, name, date_format="%Y-%m-%d"):
     except:
         raise Exception(f"Datetime is invalid for {name}. Use format: {date_format}")
 
-    return datetime.strftime(date, "%Y-%m-%d %H:%M:%S")
+    return date.strftime("%Y-%m-%d")
 
 def validate_list(lst, name, min_len=None, max_len=None, parse=False):
     """Validate a required list"""

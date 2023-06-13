@@ -33,15 +33,26 @@ def handler(event, context) -> tuple[int, dict]:
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
+    ledger = None
     for id_ in valid_input.ledgerId:
         ledger = ledgers.select_by_id(id_)
         if ledger is None:
             return 400, {"detail": f"Invalid ledger ID: {id_}"}
 
-    report = reports.get_trial_balance(valid_input.__dict__)
+    lines = reports.get_trial_balance(valid_input.__dict__)
 
-    for line in report:
+    total = 0
+    for line in lines:
         line["je_date"] = str(line["je_date"])
         line["je_post_date"] = str(line["je_post_date"])
+        total += line["CREDIT"]
+        total -= line["DEBIT"]
+
+    report = {
+        "decimals": ledger["currencyDecimal"],
+        "currencyName": ledger["currencyName"],
+        "total": total,
+        "data": lines
+    }
 
     return 200, {"data": report}
