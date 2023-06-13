@@ -27,6 +27,7 @@ phases:
   pre_build:
     commands:
       - npm install -g aws-cdk && pip install -r requirements.txt
+      - echo "test"
       """  # TODO: to be done
 
 
