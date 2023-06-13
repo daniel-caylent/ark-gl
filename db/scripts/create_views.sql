@@ -182,3 +182,27 @@ inner join journal_entry je on li.journal_entry_id  = je.id
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
  group by 1,2,3;
+
+CREATE OR REPLACE VIEW DETAILED_BALANCE_SHEET_VW AS 
+SELECT fe.uuid fund_uuid,
+fe.client_id,
+acc.uuid acc_uuid,
+acc.name,
+acc.account_no,
+concat(acc.name, ' ', acc.account_no) acc_name,
+acc.parent_id,
+acc.fs_mapping_id,
+le.uuid le_uuid,
+le.name le_name,
+le.currency,
+je.journal_entry_num,
+je.post_date je_post_date,
+je.state je_state,
+je.date je_date,
+li.amount 
+FROM 
+line_item li 
+inner join journal_entry je on li.journal_entry_id  = je.id
+ inner join ledger le on le.id = je.ledger_id  
+ inner join fund_entity fe on le.fund_entity_id = fe.id
+ inner join account acc on acc.id = li.account_id 

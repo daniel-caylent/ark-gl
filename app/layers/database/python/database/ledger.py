@@ -458,7 +458,8 @@ def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
 
     # Getting the fund_entity_id to check if we have to delete it
     ledger_ = select_by_uuid(db_, id_, region_name, secret_name)
-    fund_entity_id = ledger_.get("fund_entity_id")
+    fund_entity_uuid = ledger_.get("fund_entity_id")
+    fund_entity_id = fund_entity.get_id(db_, fund_entity_uuid, region_name, secret_name)
 
     conn = connection.get_connection(db_, region_name, secret_name)
     cursor = conn.cursor()

@@ -36,7 +36,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     try:
         ledgers.delete_by_id(ledger_id)
-    except Exception:
-        return 400, {"detail": "Unable to delete. Ledger may have journal entries."}
+    except Exception as e:
+        return 400, {"detail": f"Unable to delete. Ledger may have journal entries. {e}"}
 
     return 200, {}
