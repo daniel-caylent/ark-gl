@@ -221,7 +221,7 @@ ledgers_dependency_group.add(ledgers_put_stack)
 ledgers_dependency_group.add(ledgers_delete_stack)
 ledgers_dependency_group.add(ledgers_state_stack)
 
-api_ledgers_stack = AccountsStack(
+api_ledgers_stack = LedgersStack(
     app,
     "ark-gl-api-ledgers",
     rest_api.api.rest_api_id,
