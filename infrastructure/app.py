@@ -48,6 +48,10 @@ from app.api.api_ledgers_stack import (
     LedgersStack
 )
 
+from app.api.api_journal_entries_stack import (
+    JournalEntriesStack
+)
+
 from app.api.stage_stack import (
     StageStack
 )
@@ -125,46 +129,38 @@ ledgers_delete_stack.add_dependency(vpc_stack)
 
 ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
 ledgers_state_stack.add_dependency(vpc_stack)
-#
-#journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
-#    app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
-#)
-#journal_entries_get_by_id_stack.add_dependency(vpc_stack)
-#
-#journal_entries_get_stack = JournalEntriesGetStack(
-#    app, "ark-gl-journal-entries-get-stack", env=cdk_env
-#)
-#journal_entries_get_stack.add_dependency(vpc_stack)
-#
-#journal_entries_post_stack = JournalEntriesPostStack(
-#    app, "ark-gl-journal-entries-post-stack", env=cdk_env
-#)
-#journal_entries_post_stack.add_dependency(vpc_stack)
-#
-#journal_entries_put_stack = JournalEntriesPutStack(
-#    app, "ark-gl-journal-entries-put-stack", env=cdk_env
-#)
-#journal_entries_put_stack.add_dependency(vpc_stack)
-#
-#journal_entries_delete_stack = JournalEntriesDeleteStack(
-#    app, "ark-gl-journal-entries-delete-stack", env=cdk_env
-#)
-#journal_entries_delete_stack.add_dependency(vpc_stack)
-#
-#journal_entries_state_stack = JournalEntriesStateStack(
-#    app, "ark-gl-journal-entries-state-stack", env=cdk_env
-#)
-#journal_entries_state_stack.add_dependency(vpc_stack)
-#
+journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
+    app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
+)
+journal_entries_get_by_id_stack.add_dependency(vpc_stack)
+
+journal_entries_get_stack = JournalEntriesGetStack(
+    app, "ark-gl-journal-entries-get-stack", env=cdk_env
+)
+journal_entries_get_stack.add_dependency(vpc_stack)
+
+journal_entries_post_stack = JournalEntriesPostStack(
+    app, "ark-gl-journal-entries-post-stack", env=cdk_env
+)
+journal_entries_post_stack.add_dependency(vpc_stack)
+
+journal_entries_put_stack = JournalEntriesPutStack(
+    app, "ark-gl-journal-entries-put-stack", env=cdk_env
+)
+journal_entries_put_stack.add_dependency(vpc_stack)
+
+journal_entries_delete_stack = JournalEntriesDeleteStack(
+    app, "ark-gl-journal-entries-delete-stack", env=cdk_env
+)
+journal_entries_delete_stack.add_dependency(vpc_stack)
+
+journal_entries_state_stack = JournalEntriesStateStack(
+    app, "ark-gl-journal-entries-state-stack", env=cdk_env
+)
+journal_entries_state_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
-
-#dependency_group.add(journal_entries_get_by_id_stack)
-#dependency_group.add(journal_entries_get_stack)
-#dependency_group.add(journal_entries_post_stack)
-#dependency_group.add(journal_entries_put_stack)
-#dependency_group.add(journal_entries_state_stack)
-#dependency_group.add(journal_entries_delete_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)
 
@@ -234,6 +230,26 @@ api_ledgers_stack.node.add_dependency(
 )
 
 
+journal_entries_dependency_group = DependencyGroup()
+journal_entries_dependency_group.add(journal_entries_get_by_id_stack)
+journal_entries_dependency_group.add(journal_entries_get_stack)
+journal_entries_dependency_group.add(journal_entries_post_stack)
+journal_entries_dependency_group.add(journal_entries_put_stack)
+journal_entries_dependency_group.add(journal_entries_state_stack)
+journal_entries_dependency_group.add(journal_entries_delete_stack)
+
+api_journal_entries_stack = JournalEntriesStack(
+    app,
+    "ark-gl-api-journal-entries",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_journal_entries_stack.node.add_dependency(
+    journal_entries_dependency_group
+)
+
 methods = []
 
 stage_dependency_group = DependencyGroup()
@@ -255,6 +271,10 @@ if os.getenv("STACKS"):
     if get_stack_prefix() + "ark-gl-api-ledgers" in stacks:
         methods.extend(api_ledgers_stack.methods)
         stage_dependency_group.add(api_ledgers_stack)
+
+    if get_stack_prefix() + "ark-gl-api-journal-entries" in stacks:
+        methods.extend(api_journal_entries_stack.methods)
+        stage_dependency_group.add(api_journal_entries_stack)
 
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
 
