@@ -9,7 +9,7 @@ from shared.get_cdk import (
     build_api_gateway_stage,
 )
 
-from aws_cdk import aws_apigateway as apigtw, aws_logs as logs
+from aws_cdk import aws_apigateway as apigtw, aws_logs as logs, CfnOutput
 
 
 class ApiStack(BaseStack):
@@ -26,3 +26,7 @@ class ApiStack(BaseStack):
         )
 
         self.api.root.add_method("ANY")
+
+        CfnOutput(self, "ARK Ledger URL",
+            value=f"https://{self.api.rest_api_id}.execute-api.{kwargs['env'].region}.amazonaws.com/"
+        )

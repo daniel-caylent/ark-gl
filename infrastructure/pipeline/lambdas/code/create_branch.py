@@ -6,7 +6,7 @@ from operator import itemgetter
 
 import boto3
 
-from utils import generate_build_spec, get_lambda_config, get_codebuild_project_name
+from utils import generate_build_spec_create_branch, get_lambda_config, get_codebuild_project_name
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -38,48 +38,40 @@ def handler(event, context):
     )
 
     try:
-        if event["detail"]["isMerged"] == "False":
-            branch = event["detail"]["sourceReference"].replace("refs/heads/", "")
-            repo_name = event["detail"]["repositoryNames"][0]
+        if event["detail"]["event"] == "referenceCreated" and \
+            event["detail"]["referenceType"] == "branch":
+
+            branch = event["detail"]["referenceName"]
+            repo_name = event["detail"]["repositoryName"]
 
             project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
 
-            if event["detail"]["pullRequestStatus"] == "Open":
-                if event["detail"]["event"] == "pullRequestCreated":
-                    client.create_project(
-                        name=project_name,
-                        description="Build project to deploy branch pipeline",
-                        source={
-                            "type": "CODECOMMIT",
-                            "location": f"https://git-codecommit.{region}.amazonaws.com/v1/repos/{repo_name}",
-                            "buildspec": generate_build_spec(
-                                branch, account_id, region
-                            ),
-                        },
-                        sourceVersion=f"refs/heads/{branch}",
-                        artifacts={
-                            "type": "S3",
-                            "location": artifact_bucket_name,
-                            "path": f"{branch}",
-                            "packaging": "NONE",
-                            "artifactIdentifier": "BranchBuildArtifact",
-                        },
-                        environment={
-                            "type": "LINUX_CONTAINER",
-                            "image": "aws/codebuild/standard:6.0",
-                            "computeType": "BUILD_GENERAL1_SMALL",
-                        },
-                        serviceRole=role_arn,
-                    )
+            client.create_project(
+                name=project_name,
+                description="Build project to deploy branch pipeline",
+                source={
+                    "type": "CODECOMMIT",
+                    "location": f"https://git-codecommit.{region}.amazonaws.com/v1/repos/{repo_name}",
+                    "buildspec": generate_build_spec_create_branch(
+                        branch, account_id, region
+                    ),
+                },
+                sourceVersion=f"refs/heads/{branch}",
+                artifacts={
+                    "type": "S3",
+                    "location": artifact_bucket_name,
+                    "path": branch,
+                    "packaging": "NONE",
+                    "artifactIdentifier": "BranchBuildArtifact",
+                },
+                environment={
+                    "type": "LINUX_CONTAINER",
+                    "image": "aws/codebuild/standard:6.0",
+                    "computeType": "BUILD_GENERAL1_SMALL",
+                },
+                serviceRole=role_arn,
+            )
 
-                if event["detail"]["event"] in [
-                    "pullRequestCreated",
-                    "pullRequestSourceBranchUpdated",
-                ]:
-                    client.start_build(projectName=project_name)
-
-            elif event["detail"]["pullRequestStatus"] == "Closed":
-
-
+            client.start_build(projectName=project_name)
     except Exception as e:
         logger.error(e)

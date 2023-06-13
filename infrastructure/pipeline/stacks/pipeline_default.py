@@ -81,9 +81,9 @@ class DefaultPipelineStack(BaseStack):
             role=iam_stack.create_branch_role,
         )
 
-        repo.on_pull_request_state_change(
-            self.STACK_PREFIX + "ark-gl-repo-on_pull_request_state_change",
-            description="AWS CodeCommit Pull Request State Change event.",
+        repo.on_reference_created(
+            self.STACK_PREFIX + "ark-gl-repo-on_reference_created",
+            description="AWS CodeCommit On Reference Created",
             target=LambdaFunction(create_branch_func),
         )
 
@@ -99,7 +99,7 @@ class DefaultPipelineStack(BaseStack):
         )
 
         repo.on_reference_deleted(
-            self.STACK_PREFIX + "ark-gl-repo-on-reference-deleted",
-            description="AWS CodeCommit reference deleted event.",
+            self.STACK_PREFIX + "ark-gl-repo-on_reference_deleted",
+            description="AWS CodeCommit On Reference Deleted",
             target=LambdaFunction(destroy_branch_func),
         )
