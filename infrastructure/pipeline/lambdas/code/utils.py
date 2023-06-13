@@ -30,6 +30,8 @@ phases:
       - ./infrastructure/scripts/build.sh
       - aws configure set aws_secret_access_key $AWS_CODEBUILD_USER_SECRET_KEY
       - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
+      - aws configure set region $REGION
+      - export AWS_ACCOUNT=$DEV_ACCOUNT_ID
   build:
     commands:
       - BRANCH_FORMATTED=$(echo "$BRANCH" | sed 's/_//g')
