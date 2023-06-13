@@ -45,12 +45,12 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": "State is invalid."}
 
     # hard coding the state so there's no chance of tampering
-    accounts.update_by_id(account_id, {'state': 'POSTED'})
+    accounts.update_by_id(account_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     account = accounts.select_by_id(account_id, translate=False)
     try:
         ark_qldb.post("account", account)
     except Exception as e:
-        accounts.update_by_id(account_id, {'state': 'DRAFT', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        accounts.update_by_id(account_id, {'state': acct['state'], 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

@@ -52,9 +52,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if ledger is None:
         return 404, {"detail": "No ledger found."}
 
-    if ledger["state"] == "COMMITTED":
-        return 400, {"detail": "Ledger is already committed."}
-
     if ledger['state'] == "POSTED":
         return 400, {'detail': "Ledger is already POSTED."}
 
@@ -62,12 +59,12 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": "State is invalid."}
 
     # hard coding the state so there's no chance of tampering
-    ledgers.update_by_id(ledger_id, {'state': 'POSTED'})
+    ledgers.update_by_id(ledger_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     ledger = ledgers.select_by_id(ledger_id, translate=False)
     try:
         ark_qldb.post("ledger", ledger)
     except Exception as e:
-        ledgers.update_by_id(ledger_id, {'state': 'DRAFT', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        ledgers.update_by_id(ledger_id, {'state': ledger['state'], 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

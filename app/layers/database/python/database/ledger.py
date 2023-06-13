@@ -14,6 +14,7 @@ app_to_db = {
     "currencyName": "currency",
     "currencyDecimal": "decimals",
     "isHidden": "is_hidden",
+    "postDate": "post_date"
 }
 
 
@@ -171,7 +172,7 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.post_date, le.state, le.is_hidden,
                 le.currency, le.decimals, le.created_at
         FROM """
         + db

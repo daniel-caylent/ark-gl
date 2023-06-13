@@ -25,7 +25,6 @@ def handler(event, context) -> tuple[int, dict]:
         "startDate": event["queryStringParameters"].get("startDate"),
         "endDate": event["queryStringParameters"].get("endDate"),
         "journalEntryState": event["queryStringParameters"].get("journalEntryState"),
-        "hideZeroBalance": event["queryStringParameters"].get("hideZeroBalance"),
         "ledgerId": event["queryStringParameters"].get("ledgerId")
     }
 
@@ -45,5 +44,4 @@ def handler(event, context) -> tuple[int, dict]:
         line["je_date"] = str(line["je_date"])
         line["je_post_date"] = str(line["je_post_date"])
 
-    print(f"REPORT: {report}")
     return 200, {"data": report}

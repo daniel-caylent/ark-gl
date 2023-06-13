@@ -16,7 +16,7 @@ class JournalEntry:
     memo: str
     adjustingJournalEntry: bool
     state: str
-    date: str
+    date: datetime
     postDate: str
     isHidden: bool
     attachments: list = field(default_factory=list)
@@ -27,6 +27,4 @@ class JournalEntry:
         self.adjustingJournalEntry = bool(self.adjustingJournalEntry)
         self.isHidden = bool(self.isHidden)
         self.postDate = str(self.postDate)
-
-        if isinstance(self.date, datetime):
-            self.date = datetime.strftime(self.date, "%Y-%m-%d")
+        self.date = self.date.strftime("%Y-%m-%d")

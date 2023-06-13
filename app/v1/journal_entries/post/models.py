@@ -35,7 +35,7 @@ class JournalEntryPost:
             self.adjustingJournalEntry, "adjustingJournalEntry"
         )
         self.isHidden = validate_bool(self.isHidden, "isHidden")
-        self.date = validate_date(self.date, "date", "%Y-%m-%dT%H:%M:%SZ")
+        self.date = validate_date(self.date, "date", "%Y-%m-%d")
 
 
 @dataclass
