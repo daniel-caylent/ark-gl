@@ -871,3 +871,238 @@ def select_by_name(
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def __get_childs_by_ids_query(db: str, account_ids: list) -> tuple:
+    """
+    This function creates the select childs by ids query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_ids: list
+    This parameter specifies the account_ids that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(account_ids))
+
+    query = (
+        """SELECT id
+    FROM """
+        + db
+        + f".account where parent_id IN ({format_strings});"
+    )
+
+    params = tuple(account_ids)
+
+    return (query, params)
+
+
+def select_childs_by_ids(
+    db: str, account_ids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select childs by ids" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_ids: list
+    This parameter specifies the account_ids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the child accounts that match with the upcoming account_ids
+    """
+    params = __get_childs_by_ids_query(db, account_ids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
+def __get_uuid_by_ids_query(db: str, account_ids: list) -> tuple:
+    """
+    This function creates the select uuid by ids query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_ids: list
+    This parameter specifies the account_ids that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(account_ids))
+
+    query = (
+        """SELECT uuid
+    FROM """
+        + db
+        + f".account where id IN ({format_strings});"
+    )
+
+    params = tuple(account_ids)
+
+    return (query, params)
+
+
+def select_uuid_by_ids(
+    db: str, account_ids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select uuid by ids" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_ids: list
+    This parameter specifies the account_ids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of uuids of the accounts that match with the upcoming account_ids
+    """
+    params = __get_uuid_by_ids_query(db, account_ids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    records_uuids = [x.get("uuid") for x in records]
+
+    return records_uuids
+
+
+def __get_id_by_uuids_query(db: str, account_uuids: list) -> tuple:
+    """
+    This function creates the select uuid by ids query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_uuids: list
+    This parameter specifies the account_uuids that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(account_uuids))
+
+    query = (
+        """SELECT id
+    FROM """
+        + db
+        + f".account where uuid IN ({format_strings});"
+    )
+
+    params = tuple(account_uuids)
+
+    return (query, params)
+
+
+def select_id_by_uuids(
+    db: str, account_uuids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select id by uuids" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_uuids: list
+    This parameter specifies the account_uuids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of ids of the accounts that match with the upcoming account_uuids
+    """
+    params = __get_id_by_uuids_query(db, account_uuids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    records_ids = [x.get("id") for x in records]
+
+    return records_ids
+
+
+def get_recursive_childs_by_uuids(
+    db: str, account_uuids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the childs' and subchilds' ids
+    from a list of parents' uuids.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_uuids: list
+    This parameter specifies the account_uuids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of uuids of the child and subchild accounts that match with the upcoming parent account_uuids
+    """
+    childs_id_list = []
+
+    # First of all, get the upcoming uuids and translate them to ids
+    parent_ids = select_id_by_uuids(db, account_uuids, region_name, secret_name)
+
+    # Getting first-level childs
+    internal_child_list = select_childs_by_ids(db, parent_ids, region_name, secret_name)
+
+    while len(internal_child_list) > 0:
+        # Getting ids of the result (new parents) to iterate again
+        new_parent_list = [x.get("id") for x in internal_child_list]
+
+        # Appending result to main list
+        childs_id_list.append(new_parent_list)
+
+        # Getting next level childs
+        internal_child_list = select_childs_by_ids(
+            db, new_parent_list, region_name, secret_name
+        )
+
+    # Getting uuids from child's and subchild's ids
+    childs_uuid_list = select_uuid_by_ids(db, childs_id_list, region_name, secret_name)
+
+    # Setting list to return (source uuids + childs and subchilds)
+    # and removing duplicates
+    result_list = account_uuids + childs_uuid_list
+    result_list = list(dict.fromkeys(result_list))
+
+    return result_list
