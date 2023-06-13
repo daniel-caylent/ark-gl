@@ -10,7 +10,7 @@ from shared.get_cdk import (
 )
 
 
-class LedgerNestedStack(BaseNestedStack):
+class LedgersStack(BaseNestedStack):
     methods = []
 
     def __init__(

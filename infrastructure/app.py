@@ -40,6 +40,14 @@ from app.api.api_account_attribute_stack import (
     AccountAttributesStack
 )
 
+from app.api.api_accounts_stack import (
+    AccountsStack
+)
+
+from app.api.api_ledgers_stack import (
+    LedgersStack
+)
+
 from app.api.stage_stack import (
     StageStack
 )
@@ -96,27 +104,27 @@ accounts_upload_stack = AccountsUploadStack(
 )
 accounts_upload_stack.add_dependency(vpc_stack)
 
-#ledgers_get_stack = LedgersGetStack(app, "ark-gl-ledgers-get-stack", env=cdk_env)
-#ledgers_get_stack.add_dependency(vpc_stack)
-#
-#ledgers_get_by_id_stack = LedgersGetByIdStack(
-#    app, "ark-gl-ledgers-get-by-id-stack", env=cdk_env
-#)
-#ledgers_get_by_id_stack.add_dependency(vpc_stack)
-#
-#ledgers_post_stack = LedgersPostStack(app, "ark-gl-ledgers-post-stack", env=cdk_env)
-#ledgers_post_stack.add_dependency(vpc_stack)
-#
-#ledgers_put_stack = LedgersPutStack(app, "ark-gl-ledgers-put-stack", env=cdk_env)
-#ledgers_put_stack.add_dependency(vpc_stack)
-#
-#ledgers_delete_stack = LedgersDeleteStack(
-#    app, "ark-gl-ledgers-delete-stack", env=cdk_env
-#)
-#ledgers_delete_stack.add_dependency(vpc_stack)
-#
-#ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
-#ledgers_state_stack.add_dependency(vpc_stack)
+ledgers_get_stack = LedgersGetStack(app, "ark-gl-ledgers-get-stack", env=cdk_env)
+ledgers_get_stack.add_dependency(vpc_stack)
+
+ledgers_get_by_id_stack = LedgersGetByIdStack(
+    app, "ark-gl-ledgers-get-by-id-stack", env=cdk_env
+)
+ledgers_get_by_id_stack.add_dependency(vpc_stack)
+
+ledgers_post_stack = LedgersPostStack(app, "ark-gl-ledgers-post-stack", env=cdk_env)
+ledgers_post_stack.add_dependency(vpc_stack)
+
+ledgers_put_stack = LedgersPutStack(app, "ark-gl-ledgers-put-stack", env=cdk_env)
+ledgers_put_stack.add_dependency(vpc_stack)
+
+ledgers_delete_stack = LedgersDeleteStack(
+    app, "ark-gl-ledgers-delete-stack", env=cdk_env
+)
+ledgers_delete_stack.add_dependency(vpc_stack)
+
+ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
+ledgers_state_stack.add_dependency(vpc_stack)
 #
 #journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
 #    app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
@@ -150,20 +158,7 @@ accounts_upload_stack.add_dependency(vpc_stack)
 #
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
-#dependency_group.add(account_attributes_get_stack)
-#dependency_group.add(accounts_get_stack)
-#dependency_group.add(accounts_get_by_id_stack)
-#dependency_group.add(accounts_post_stack)
-#dependency_group.add(accounts_delete_stack)
-#dependency_group.add(accounts_put_stack)
-#dependency_group.add(accounts_state_stack)
-#dependency_group.add(accounts_upload_stack)
-#dependency_group.add(ledgers_get_stack)
-#dependency_group.add(ledgers_get_by_id_stack)
-#dependency_group.add(ledgers_post_stack)
-#dependency_group.add(ledgers_put_stack)
-#dependency_group.add(ledgers_delete_stack)
-#dependency_group.add(ledgers_state_stack)
+
 #dependency_group.add(journal_entries_get_by_id_stack)
 #dependency_group.add(journal_entries_get_stack)
 #dependency_group.add(journal_entries_post_stack)
@@ -177,12 +172,6 @@ rest_api.node.add_dependency(
     dependency_group
 )
 
-#upload_bucket_name = cdk.CfnParameter(app, "uploadBucketName", type="String",
-#    description="The name of the Amazon S3 bucket where uploaded files will be stored.")
-
-#print(upload_bucket_name)
-
-#from .app.api.api_account_attribute_stack import AccountAttributesStack
 account_attributes_dependency_group = DependencyGroup()
 account_attributes_dependency_group.add(rest_api)
 account_attributes_dependency_group.add(account_attributes_get_stack)
@@ -199,14 +188,59 @@ api_account_attributes_stack.node.add_dependency(
     account_attributes_dependency_group
 )
 
-print(os.getenv("STACKS"))
+accounts_dependency_group = DependencyGroup()
+accounts_dependency_group.add(rest_api)
+accounts_dependency_group.add(account_attributes_get_stack)
+accounts_dependency_group.add(account_attributes_get_stack)
+accounts_dependency_group.add(accounts_get_stack)
+accounts_dependency_group.add(accounts_get_by_id_stack)
+accounts_dependency_group.add(accounts_post_stack)
+accounts_dependency_group.add(accounts_delete_stack)
+accounts_dependency_group.add(accounts_put_stack)
+accounts_dependency_group.add(accounts_state_stack)
+accounts_dependency_group.add(accounts_upload_stack)
+
+api_accounts_stack = AccountsStack(
+    app,
+    "ark-gl-api-accounts",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_accounts_stack.node.add_dependency(
+    accounts_dependency_group
+)
+
+ledgers_dependency_group = DependencyGroup()
+ledgers_dependency_group.add(rest_api)
+ledgers_dependency_group.add(ledgers_get_stack)
+ledgers_dependency_group.add(ledgers_get_by_id_stack)
+ledgers_dependency_group.add(ledgers_post_stack)
+ledgers_dependency_group.add(ledgers_put_stack)
+ledgers_dependency_group.add(ledgers_delete_stack)
+ledgers_dependency_group.add(ledgers_state_stack)
+
+api_ledgers_stack = AccountsStack(
+    app,
+    "ark-gl-api-ledgers",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_ledgers_stack.node.add_dependency(
+    ledgers_dependency_group
+)
+
 
 methods = []
 
 stage_dependency_group = DependencyGroup()
 
 if os.getenv("STACKS"):
-    print('Stacks loaded!')
+
+    print(f"Stacks loaded: {os.getenv('STACKS')}")
 
     stacks = os.getenv("STACKS").split(",")
 
@@ -214,14 +248,17 @@ if os.getenv("STACKS"):
         methods.extend(api_account_attributes_stack.methods)
         stage_dependency_group.add(api_account_attributes_stack)
 
+    if get_stack_prefix() + "ark-gl-api-accounts" in stacks:
+        methods.extend(api_accounts_stack.methods)
+        stage_dependency_group.add(api_accounts_stack)
+
+    if get_stack_prefix() + "ark-gl-api-ledgers" in stacks:
+        methods.extend(api_ledgers_stack.methods)
+        stage_dependency_group.add(api_ledgers_stack)
+
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
 
 api_stage_stack.node.add_dependency(stage_dependency_group)
-
-# TODO: check if this method is still needed
-AccountsCopyStack(app, "ark-gl-accounts-copy-stack", env=cdk_env).add_dependency(
-    vpc_stack
-)
 
 cdk.Tags.of(app).add("project", "Ark PES")
 cdk.Tags.of(app).add(ENV["MAP_TAG"], ENV["MAP_VALUE"])
