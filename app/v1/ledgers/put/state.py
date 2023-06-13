@@ -1,5 +1,5 @@
 """Lambda that will perform Ledgers / state"""
-
+from datetime import datetime
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
@@ -67,7 +67,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     try:
         ark_qldb.post("ledger", ledger)
     except Exception as e:
-        ledgers.update_by_id(ledger_id, {'state': 'DRAFT'})
+        ledgers.update_by_id(ledger_id, {'state': 'DRAFT', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

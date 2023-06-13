@@ -69,7 +69,7 @@ def validate_new_journal_entry(journal_entry):
     __update_accounts_state(accts, [item["accountNo"] for item in type_safe_line_items])
 
     if ledger["state"] not in ["DRAFT", "POSTED"]:
-        ledgers.update_by_id(ledger["ledgerId"], {"state": "DRAFTED"})
+        ledgers.update_by_id(ledger["ledgerId"], {"state": "DRAFT"})
 
     return 201, "", {"state": "DRAFT", **post.__dict__}
 

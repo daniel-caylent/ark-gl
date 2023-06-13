@@ -1,5 +1,5 @@
 """Lambda that will perform the PUT for JournalEntries / state"""
-
+from datetime import datetime
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
@@ -49,7 +49,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": "State is invalid."}
 
     # hard coding the state so there's no chance of tampering
-    journal_entries.update_by_id(journal_entry_id, {'state': 'POSTED'})
+    journal_entries.update_by_id(journal_entry_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     journal_entry = journal_entries.select_by_id(journal_entry_id, translate=False)
     journal_entry["line_items"] = journal_entries.get_line_items(journal_entry["id"], translate=False)
     journal_entry["attachments"] = journal_entries.get_attachments(journal_entry["id"], translate=False)

@@ -8,6 +8,7 @@ from shared.dataclass_validators import (
     validate_bool,
     validate_str,
     validate_int,
+    validate_date
 )
 # pylint: enable=import-error
 
@@ -34,6 +35,7 @@ class JournalEntryPost:
             self.adjustingJournalEntry, "adjustingJournalEntry"
         )
         self.isHidden = validate_bool(self.isHidden, "isHidden")
+        self.date = validate_date(self.date, "date", "%Y-%m-%dT%H:%M:%SZ")
 
 
 @dataclass
