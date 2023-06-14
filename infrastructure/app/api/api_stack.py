@@ -27,6 +27,6 @@ class ApiStack(BaseStack):
 
         self.api.root.add_method("ANY")
 
-        CfnOutput(self, "ARK Ledger URL",
+        CfnOutput(self, "ark-gl-rest-api-url",
             value=f"https://{self.api.rest_api_id}.execute-api.{kwargs['env'].region}.amazonaws.com/"
         )
