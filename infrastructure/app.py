@@ -275,6 +275,20 @@ if os.getenv("STACKS"):
     if get_stack_prefix() + "ark-gl-api-journal-entries" in stacks:
         methods.extend(api_journal_entries_stack.methods)
         stage_dependency_group.add(api_journal_entries_stack)
+else:
+
+    methods.extend(api_account_attributes_stack.methods)
+    stage_dependency_group.add(api_account_attributes_stack)
+
+    methods.extend(api_accounts_stack.methods)
+    stage_dependency_group.add(api_accounts_stack)
+
+    methods.extend(api_ledgers_stack.methods)
+    stage_dependency_group.add(api_ledgers_stack)
+
+    methods.extend(api_journal_entries_stack.methods)
+    stage_dependency_group.add(api_journal_entries_stack)
+
 
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
 
