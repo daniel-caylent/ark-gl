@@ -84,6 +84,7 @@ phases:
       - git clone codecommit://wendigo
       - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({{}}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
       - echo $API_URL
+      - expot API_URL="$API_URL"/v1
       - cd wendigo
       - pip install -r test-requirements.txt
       - make caylent url=$API_URL
