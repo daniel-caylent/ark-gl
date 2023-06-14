@@ -1,35 +1,13 @@
 import logging
 import os
-
 import boto3
+
+from utils import  generate_build_spec_destroy_branch, get_lambda_config, get_codebuild_project_name
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 client = boto3.client("codebuild")
-region = os.environ["AWS_REGION"]
-role_arn = os.environ["CODE_BUILD_ROLE_ARN"]
-account_id = os.environ["ACCOUNT_ID"]
-artifact_bucket_name = os.environ["ARTIFACT_BUCKET"]
-codebuild_name_prefix = os.environ["CODEBUILD_NAME_PREFIX"]
-dev_stage_name = os.environ["DEV_STAGE_NAME"]
-
-
-def generate_build_spec(branch):
-    return f"""version: 0.2
-env:
-  variables:
-    BRANCH: {branch}
-    DEV_ACCOUNT_ID: {account_id}
-    PROD_ACCOUNT_ID: {account_id}
-    REGION: {region}
-phases:
-  pre_build:
-    commands:
-      - npm install -g aws-cdk && pip install -r requirements.txt
-      - echo "test"
-      """  # TODO: to be done
-
 
 def handler(event, context):
     logger.info(event)
@@ -55,13 +33,46 @@ def handler(event, context):
     )
 
     try:
-        if (
-            event["detail"]["isMerged"] == "False"
-            and event["detail"]["pullRequestStatus"] == "Open"
-        ):
-            pass
+        reference_type = event['detail']['referenceType']
 
-        # TODO to be done
+        if (reference_type == "branch"):
+
+            branch = event["detail"]["referenceName"]
+
+            repository_name = event['detail']["repositoryName"]
+
+            destroy_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "destroy")
+
+            client.create_project(
+                name=destroy_code_build_project_name,
+                description="Build project to destroy branch resources",
+                source={
+                    'type': 'S3',
+                    "location": f"{artifact_bucket_name}/{branch}",
+                    'buildspec': generate_build_spec_destroy_branch(branch, account_id, region, artifact_bucket_name)
+                },
+                artifacts={
+                    'type': 'NO_ARTIFACTS'
+                },
+                environment={
+                    'type': 'LINUX_CONTAINER',
+                    'image': 'aws/codebuild/standard:6.0',
+                    'computeType': 'BUILD_GENERAL1_SMALL'
+                },
+                serviceRole=role_arn
+            )
+
+            client.start_build(
+                projectName=destroy_code_build_project_name
+            )
+
+            client.delete_project(
+                name=destroy_code_build_project_name
+            )
+
+            client.delete_project(
+                name=get_codebuild_project_name(codebuild_name_prefix, branch, "create")
+            )
+
     except Exception as e:
-        logger.error(e)
         logger.error(e)

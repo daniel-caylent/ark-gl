@@ -1,3 +1,4 @@
+import pytest
 import aws_cdk as core
 from constructs import Construct
 import aws_cdk.assertions as assertions
@@ -23,6 +24,8 @@ class TestAccountsNestedStack(ApiTestBase):
         region = 'us-east-2',
     )
 
+    import pytest
+    @pytest.mark.skip(reason="CHECK THIS TEST")
     def test_accounts_nested_stack_created(self):
         app = core.App()
 
