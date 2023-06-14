@@ -70,6 +70,8 @@ phases:
       - BRANCH_FORMATTED=$(echo "$BRANCH" | sed 's/_//g')
       - BRANCH_FORMATTED=$(echo "$BRANCH_FORMATTED" | sed 's/\///g')
       - export DEPLOYMENT_ENV=$BRANCH_FORMATTED
+      - export API_STACK_NAME="$DEPLOYMENT_ENV"-ark-gl-api-stack
+      - echo $API_STACK_NAME
   build:
     commands:
       - cd infrastructure/scripts
