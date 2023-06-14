@@ -26,6 +26,8 @@ To have your own provisioned architecture (represented as a prefix in the CloudF
 DEPLOYMENT_ENV=environment
 ```
 
+> Note: It is recommended to use lower case values for naming branches and setting up the DEPLOYMENT_ENV
+
 This variable dictates what VPC, Subnets and Secrets should be used per environment.
 All the configurations resides in the file `infrastructure/app/env.py`.
 

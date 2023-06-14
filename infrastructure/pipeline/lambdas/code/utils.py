@@ -61,6 +61,7 @@ phases:
       - apt-get update
       - apt-get install bc -y
       - npm install -g aws-cdk && pip install -r requirements.txt && pip install -r requirements-dev.txt
+      - pip install git-remote-codecommit
       - ./infrastructure/scripts/build.sh
       - aws configure set aws_secret_access_key $AWS_CODEBUILD_USER_SECRET_KEY
       - aws configure set aws_access_key_id $AWS_CODEBUILD_USER_ACCESS_KEY
@@ -71,10 +72,12 @@ phases:
       - export DEPLOYMENT_ENV=$BRANCH_FORMATTED
   build:
     commands:
-      - pytest --cov=infrastructure --cov=app tests
       - cd infrastructure/scripts
       - ./check_pylint.sh
       - ./check_cdk.sh
+      - cd ../..
+      - pytest --cov=infrastructure --cov=app tests
+      - git clone codecommit://wendigo
 artifacts:
   files:
     - '**/*'"""
