@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	journal_entry_num INT,
 	`uuid` CHAR(36),
 	ledger_id INT NOT NULL,
-	`date` TIMESTAMP,
+	`date` date,
 	reference VARCHAR(255),
 	memo VARCHAR(255),
 	adjusting_journal_entry BOOL,
