@@ -78,12 +78,12 @@ class DefaultPipelineStack(BaseStack):
             handler="create_branch.handler",
             code=LAMBDA_DIR,
             environment=environment,
-            role=iam_stack.create_branch_role,
+            role=iam_stack.repo_events_role,
         )
 
-        repo.on_pull_request_state_change(
-            self.STACK_PREFIX + "ark-gl-repo-on_pull_request_state_change",
-            description="AWS CodeCommit Pull Request State Change event.",
+        repo.on_reference_created(
+            self.STACK_PREFIX + "ark-gl-repo-on_reference_created",
+            description="AWS CodeCommit On Reference Created",
             target=LambdaFunction(create_branch_func),
         )
 
@@ -93,13 +93,30 @@ class DefaultPipelineStack(BaseStack):
             runtime=Runtime.PYTHON_3_9,
             function_name=self.STACK_PREFIX + "ark-gl-lambda-destroy-build",
             handler="destroy_branch.handler",
-            role=iam_stack.delete_branch_role,
+            role=iam_stack.repo_events_role,
             environment=environment,
             code=LAMBDA_DIR,
         )
 
         repo.on_reference_deleted(
-            self.STACK_PREFIX + "ark-gl-repo-on-reference-deleted",
-            description="AWS CodeCommit reference deleted event.",
+            self.STACK_PREFIX + "ark-gl-repo-on_reference_deleted",
+            description="AWS CodeCommit On Reference Deleted",
             target=LambdaFunction(destroy_branch_func),
+        )
+
+        pull_request_func = Function(
+            self,
+            self.STACK_PREFIX + "ark-gl-lambda-pull-request-events",
+            runtime=Runtime.PYTHON_3_9,
+            function_name=self.STACK_PREFIX + "ark-gl-lambda-pull-request-events",
+            handler="pull_request_events.handler",
+            role=iam_stack.repo_events_role,
+            environment=environment,
+            code=LAMBDA_DIR,
+        )
+
+        repo.on_pull_request_state_change(
+            self.STACK_PREFIX + "ark-gl-repo-on_pull_request_state_change",
+            description="AWS CodeCommit Pull Request Events",
+            target=LambdaFunction(pull_request_func),
         )

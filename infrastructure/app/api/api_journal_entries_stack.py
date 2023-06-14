@@ -1,6 +1,6 @@
 from constructs import Construct
 
-from shared.base_nested_stack import BaseNestedStack
+from shared.base_stack import BaseStack
 
 from shared.get_cdk import (
     get_api_gateway_from_attributes,
@@ -10,7 +10,7 @@ from shared.get_cdk import (
 )
 
 
-class JournalEntryNestedStack(BaseNestedStack):
+class JournalEntriesStack(BaseStack):
     methods = []
 
     def __init__(
