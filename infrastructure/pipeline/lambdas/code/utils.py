@@ -74,10 +74,13 @@ phases:
     commands:
       - cd infrastructure/scripts
       - ./check_pylint.sh
-      - ./check_cdk.sh
       - cd ../..
       - pytest --cov=infrastructure --cov=app tests
+      - cd infrastructure/scripts
+      - ./check_cdk.sh
+      - cd ../..
       - git clone codecommit://wendigo
+      - aws cloudformation describe-stacks --stack-name featureARK-147-ark-gl-api-stack | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({}; .[$i.OutputKey] = $i.OutputValue) | .ark-gl-rest-api-url'
 artifacts:
   files:
     - '**/*'"""
