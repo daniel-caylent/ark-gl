@@ -21,6 +21,9 @@ app_to_db = {
     "date": "date",
     "attachments": "attachments",
     "lineItems": "line_items",
+    "currencyName": "currency",
+    "currencyDecimal": "decimals",
+    "fundId": "fund_entity_id",
 }
 
 
@@ -183,13 +186,17 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
     FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
         + db
         + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     where je.uuid = %s;"""
     )
 
@@ -215,13 +222,17 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
     FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
         + db
         + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     where le.uuid = %s;"""
     )
 
@@ -484,7 +495,9 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
         cursor.close()
 
 
-def update(db: str, uuid: str, input_: dict, region_name: str, secret_name: str) -> None:
+def update(
+    db: str, uuid: str, input_: dict, region_name: str, secret_name: str
+) -> None:
     """
     This function executes the update query with its parameters.
     It will also upsert all its related line_items.
@@ -530,7 +543,9 @@ def update(db: str, uuid: str, input_: dict, region_name: str, secret_name: str)
         if "lineItems" in input_:
             # Once updated, delete all its line_items and attachments
             # and keep only the upcoming ones (if these exist)
-            del_entry_params = line_item.get_delete_by_journal_query(db, journal_entry_id)
+            del_entry_params = line_item.get_delete_by_journal_query(
+                db, journal_entry_id
+            )
             cursor.execute(del_entry_params[0], del_entry_params[1])
 
             for item in input_["lineItems"]:
@@ -549,7 +564,9 @@ def update(db: str, uuid: str, input_: dict, region_name: str, secret_name: str)
 
         # Also, insert attachments
         if "attachments" in input_:
-            del_att_params = attachment.get_delete_by_journal_query(db, journal_entry_id)
+            del_att_params = attachment.get_delete_by_journal_query(
+                db, journal_entry_id
+            )
             cursor.execute(del_att_params[0], del_att_params[1])
 
             for att in input_["attachments"]:
@@ -693,13 +710,17 @@ def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
     FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
         + db
         + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
@@ -759,13 +780,17 @@ def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
     FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
         + db
         + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
