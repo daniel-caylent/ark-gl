@@ -7,7 +7,8 @@ import ark_qldb
 from arkdb import journal_entries
 from shared import (
     endpoint,
-    validate_uuid
+    validate_uuid,
+    dataclass_encoder
 )
 # pylint: enable=import-error
 
@@ -42,7 +43,8 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
-    if journal_entry['state'] == "POSTED":
+    original_state = journal_entry['state']
+    if original_state == "POSTED":
         return 400, {'detail': "Journal entry is already POSTED."}
 
     if state not in VALID_STATES:
@@ -58,10 +60,11 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     journal_entry["attachments"] = journal_entries.get_attachments(
         journal_entry["id"], translate=False)
     try:
-        ark_qldb.post("journal-entry", journal_entry)
+        print(f"journal-entry: {journal_entry}")
+        ark_qldb.post("journal-entry", dataclass_encoder.encode(journal_entry))
     except Exception as e:
         journal_entries.update_by_id(
-            journal_entry_id, {'state': journal_entry['state'], 'postDate': None})
+            journal_entry_id, {'state': original_state, 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

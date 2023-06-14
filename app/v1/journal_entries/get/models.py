@@ -19,6 +19,10 @@ class JournalEntry:
     date: datetime
     postDate: str
     isHidden: bool
+    currencyName: str
+    currencyDecimal: int
+    fundId: str
+
     attachments: list = field(default_factory=list)
     lineItems: list = field(default_factory=list)
     # pylint: enable=invalid-name

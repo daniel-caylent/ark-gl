@@ -21,4 +21,4 @@ class Ledger:
 
     def __post_init__(self):
         self.isHidden = bool(self.isHidden)
-        self.postDate = str(self.postDate)
+        self.postDate = None if self.postDate is None else str(self.postDate)

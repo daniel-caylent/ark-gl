@@ -7,7 +7,8 @@ import ark_qldb
 from arkdb import ledgers
 from shared import (
     endpoint,
-    validate_uuid
+    validate_uuid,
+    dataclass_encoder
 )
 # pylint: enable=import-error
 
@@ -52,7 +53,8 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if ledger is None:
         return 404, {"detail": "No ledger found."}
 
-    if ledger['state'] == "POSTED":
+    original_state = ledger['state']
+    if original_state == "POSTED":
         return 400, {'detail': "Ledger is already POSTED."}
 
     if state not in VALID_STATES:
@@ -62,9 +64,9 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     ledgers.update_by_id(ledger_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     ledger = ledgers.select_by_id(ledger_id, translate=False)
     try:
-        ark_qldb.post("ledger", ledger)
+        ark_qldb.post("ledger", dataclass_encoder.encode(ledger))
     except Exception as e:
-        ledgers.update_by_id(ledger_id, {'state': ledger['state'], 'postDate': None})
+        ledgers.update_by_id(ledger_id, {'state': original_state, 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

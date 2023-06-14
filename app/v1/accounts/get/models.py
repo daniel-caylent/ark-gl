@@ -26,4 +26,4 @@ class Account:
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
         self.isTaxable = bool(self.isTaxable)
-        self.postDate = str(self.postDate)
+        self.postDate = None if self.postDate is None else str(self.postDate)

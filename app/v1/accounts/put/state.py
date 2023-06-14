@@ -5,7 +5,7 @@ import json
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
 import ark_qldb
-from shared import endpoint, validate_uuid
+from shared import endpoint, validate_uuid, dataclass_encoder
 # pylint: enable=import-error
 
 VALID_STATES = ["POSTED"]
@@ -38,7 +38,8 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if acct is None:
         return 404, {"detail": "No account found."}
 
-    if acct['state'] == "POSTED":
+    original_state = acct['state']
+    if original_state == "POSTED":
         return 400, {'detail': "Account is already POSTED."}
 
     if state not in VALID_STATES:
@@ -48,9 +49,9 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     accounts.update_by_id(account_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
     account = accounts.select_by_id(account_id, translate=False)
     try:
-        ark_qldb.post("account", account)
+        ark_qldb.post("account", dataclass_encoder.encode(account))
     except Exception as e:
-        accounts.update_by_id(account_id, {'state': acct['state'], 'postDate': None})
+        accounts.update_by_id(account_id, {'state': original_state, 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

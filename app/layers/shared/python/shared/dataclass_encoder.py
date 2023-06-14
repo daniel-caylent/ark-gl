@@ -1,5 +1,6 @@
 """Module that contains util methods for dataclasses encoding"""
 import dataclasses
+import datetime
 from decimal import Decimal
 
 
@@ -18,5 +19,8 @@ def encode(obj):
     
     elif isinstance(obj, Decimal):
         return int(obj)
+    
+    elif isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date):
+        return str(obj)
 
     return obj

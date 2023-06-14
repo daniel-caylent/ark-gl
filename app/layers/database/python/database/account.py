@@ -275,7 +275,7 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
-        acc.is_taxable, acc.is_entity_required, acc.created_at
+        acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date
         FROM """
         + db
         + """.account acc
