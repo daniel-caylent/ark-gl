@@ -80,7 +80,12 @@ phases:
       - ./check_cdk.sh
       - cd ../..
       - git clone codecommit://wendigo
-      - aws cloudformation describe-stacks --stack-name featureARK-147-ark-gl-api-stack | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({}; .[$i.OutputKey] = $i.OutputValue) | .ark-gl-rest-api-url'
+      - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
+      - echo $API_URL
+      - cd wendigo
+      - pip install -r test-requirements.txt
+      - make caylent url=$API_URL
+
 artifacts:
   files:
     - '**/*'"""
