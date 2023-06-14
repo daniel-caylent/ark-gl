@@ -1090,7 +1090,7 @@ def get_recursive_childs_by_uuids(
         new_parent_list = [x.get("id") for x in internal_child_list]
 
         # Appending result to main list
-        childs_id_list.append(new_parent_list)
+        childs_id_list += new_parent_list
 
         # Getting next level childs
         internal_child_list = select_childs_by_ids(

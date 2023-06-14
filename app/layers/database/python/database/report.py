@@ -69,6 +69,42 @@ def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
     )
 
 
+def __get_account_tree_params(query_params: tuple, input_: dict, db: str, region_name: str, secret_name: str) -> tuple:
+    """
+    This function creates the report query's where clause using accountId parameters.
+
+    select_query: string
+    This parameter specifies the select query without filters, linked to the report
+
+    input: dictionary
+    This parameter contains all the common parameters inside a dictionary
+    that will be used for the query:
+    {
+      "accountId": [
+        "534b95b9-0aa6-11ee-b49c-0a3efd619f29",
+        "a9f912b2-f426-11ed-9a6e-0a3efd619f29"
+        ]
+    }
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = query_params[0]
+    q_params = query_params[1]
+
+    account_id_list = input_.get("accountId")
+    if account_id_list:
+        acc_child_list = account.get_recursive_childs_by_uuids(
+            db, account_id_list, region_name, secret_name
+        )
+        format_strings = ",".join(["%s"] * len(acc_child_list))
+        query += f" AND acc_uuid IN ({format_strings}) "
+        q_params += tuple(acc_child_list)
+    
+    return (query, q_params)
+
+
 def select_trial_balance(
     db: str, input_: dict, region_name: str, secret_name: str
 ) -> dict:
@@ -232,17 +268,9 @@ def select_balance_sheet_detail(
     )
 
     params = __get_query_with_common_params(select_query, input_)
+    params = __get_account_tree_params(params, input_, db, region_name, secret_name)
     query = params[0]
     q_params = params[1]
-
-    account_id_list = input_.get("accountId")
-    if account_id_list:
-        acc_child_list = account.get_recursive_childs_by_uuids(
-            db, account_id_list, region_name, secret_name
-        )
-        format_strings = ",".join(["%s"] * len(acc_child_list))
-        query += f" AND acc_uuid IN ({format_strings}) "
-        q_params += tuple(account_id_list)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
