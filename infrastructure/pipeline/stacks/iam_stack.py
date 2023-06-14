@@ -16,45 +16,22 @@ class IAMPipelineStack(Construct):
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        create_branch_role = Role(
+        repo_events_role = Role(
             self,
             "ark-gl-pipeline-create-lambda-role",
             assumed_by=ServicePrincipal("lambda.amazonaws.com"),
         )
-        create_branch_role.add_managed_policy(
+        repo_events_role.add_managed_policy(
             ManagedPolicy.from_aws_managed_policy_name(
                 "service-role/AWSLambdaBasicExecutionRole"
             )
         )
-        create_branch_role.add_to_policy(
+        repo_events_role.add_to_policy(
             PolicyStatement(
                 actions=[
                     "codebuild:CreateProject",
                     "codebuild:StartBuild",
                     "codebuild:DeleteProject",
-                ],
-                resources=[
-                    f"arn:aws:codebuild:{region}:{account}:project/{codebuild_prefix}*"
-                ],
-            )
-        )
-
-        delete_branch_role = Role(
-            self,
-            "ark-gl-pipeline-delete-lambda-role",
-            assumed_by=ServicePrincipal("lambda.amazonaws.com"),
-        )
-        delete_branch_role.add_managed_policy(
-            ManagedPolicy.from_aws_managed_policy_name(
-                "service-role/AWSLambdaBasicExecutionRole"
-            )
-        )
-        delete_branch_role.add_to_policy(
-            PolicyStatement(
-                actions=[
-                    "codebuild:StartBuild",
-                    "codebuild:DeleteProject",
-                    "codebuild:CreateProject",
                 ],
                 resources=[
                     f"arn:aws:codebuild:{region}:{account}:project/{codebuild_prefix}*"
@@ -134,9 +111,7 @@ class IAMPipelineStack(Construct):
                 },
             )
         )
-        code_build_role.grant_pass_role(create_branch_role)
-        code_build_role.grant_pass_role(delete_branch_role)
+        code_build_role.grant_pass_role(repo_events_role)
 
-        self.create_branch_role = create_branch_role
-        self.delete_branch_role = delete_branch_role
+        self.repo_events_role = repo_events_role
         self.code_build_role = code_build_role
