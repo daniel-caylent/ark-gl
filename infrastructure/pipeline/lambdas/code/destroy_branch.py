@@ -50,7 +50,7 @@ def handler(event, context):
                 description="Build project to destroy branch resources",
                 source={
                     'type': 'S3',
-                    "location": f"{artifact_bucket_name}/{branch}",
+                    "location": f"{artifact_bucket_name}/{branch}/{get_codebuild_project_name(codebuild_name_prefix, branch, 'create')}/",
                     'buildspec': generate_build_spec_destroy_branch(branch, account_id, region, artifact_bucket_name)
                 },
                 artifacts={
