@@ -82,15 +82,15 @@ phases:
       - ./check_cdk.sh
       - cd ../..
       - git clone codecommit://wendigo
-      - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
+      - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({{}}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
       - echo $API_URL
       - cd wendigo
       - pip install -r test-requirements.txt
       - make caylent url=$API_URL
-
 artifacts:
   files:
-    - '**/*'"""
+    - '**/*'
+    """
 
 
 def generate_build_spec_destroy_branch(branch: str, account_id: str, region: str, artifact_bucket_name: str) -> str:
