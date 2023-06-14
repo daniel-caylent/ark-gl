@@ -2,6 +2,8 @@ import logging
 import os
 import boto3
 
+from operator import itemgetter
+
 from utils import  generate_build_spec_destroy_branch, get_lambda_config, get_codebuild_project_name
 
 logger = logging.getLogger()
