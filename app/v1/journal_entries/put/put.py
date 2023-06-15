@@ -104,9 +104,11 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if missing is not None:
         return 400, {"detail": f"{missing} cannot be null or empty."}
 
-    __update_accounts_state(accts, [item["accountNo"] for item in line_items])
-    __update_unused_accounts(accts, line_items)
     journal_entries.update_by_id(journal_entry_id, type_safe_body)
+
+    if line_items:
+        __update_accounts_state(accts, [item["accountId"] for item in line_items])
+        __update_unused_accounts(accts, line_items)
     return 200, {}
 
 
@@ -140,10 +142,10 @@ def __validate_line_items_vs_accounts(line_items, accts):
     """Check line-items account connection exists and have entity ids if required"""
     account_lookup = {}
     for acct in accts:
-        account_lookup[acct["accountNo"]] = acct
+        account_lookup[acct["accountId"]] = acct
 
     for line_item in line_items:
-        acct = account_lookup.get(line_item["accountNo"])
+        acct = account_lookup.get(line_item["accountId"])
         if not acct:
             return False
 
@@ -152,10 +154,10 @@ def __validate_line_items_vs_accounts(line_items, accts):
                 return False
     return True
 
-def __update_accounts_state(accounts_, account_numbers):
+def __update_accounts_state(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
     for account in accounts_:
-        if account["accountNo"] in account_numbers:
+        if account["accountId"] in account_ids:
             if account["state"] not in ["DRAFT", "POSTED"]:
                 accounts.update_by_id(account["accountId"], {"state": "DRAFT"})
 

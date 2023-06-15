@@ -24,6 +24,7 @@ app_to_db = {
     "fsMappingId": "fs_mapping_id",
     "fsName": "fs_name",
     "isDryRun": "is_dry_run",
+    "postDate": "post_date"
 }
 
 
@@ -232,7 +233,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         """
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
-        acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
+        acc.name, acc.description, acc.post_date, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at
         FROM """
         + db
@@ -276,7 +277,7 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
         SELECT acc.id, acc.account_no, acc.uuid,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
-        acc.is_taxable, acc.is_entity_required, acc.created_at
+        acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date
         FROM """
         + db
         + """.account acc

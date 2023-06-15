@@ -132,7 +132,6 @@ def check_missing_fields(account_dict):
         "fundId",
         "isTaxable",
         "attributeId",
-        "fsMappingId",
         "fsName",
         "isHidden",
         "isEntityRequired",

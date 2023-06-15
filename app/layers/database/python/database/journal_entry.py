@@ -56,9 +56,9 @@ def __get_insert_query(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num, date)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
@@ -84,6 +84,7 @@ def __get_insert_query(
         translated_input.get("state"),
         translated_input.get("is_hidden"),
         journal_entry_num,
+        translated_input.get("date"),
     )
 
     return (query, params, uuid)
@@ -396,6 +397,7 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     A string specifying the recently added journal entry's uuid
     """
     params = __get_insert_query(db, input_, region_name, secret_name)
+
     query = params[0]
     q_params = params[1]
     uuid = params[2]

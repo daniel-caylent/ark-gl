@@ -66,10 +66,10 @@ def validate_new_journal_entry(journal_entry):
     if __sum_line_items(type_safe_line_items) != 0:
         return 400, "Line items do not sum to 0.", None
 
-    __update_accounts_state(accts, [item["accountNo"] for item in type_safe_line_items])
+    __update_accounts_state(accts, [item["accountId"] for item in type_safe_line_items])
 
     if ledger["state"] not in ["DRAFT", "POSTED"]:
-        ledgers.update_by_id(ledger["ledgerId"], {"state": "DRAFTED"})
+        ledgers.update_by_id(ledger["ledgerId"], {"state": "DRAFT"})
 
     return 201, "", {"state": "DRAFT", **post.__dict__}
 
@@ -88,10 +88,10 @@ def __validate_line_items_vs_accounts(line_items, accts):
     """Check line-items account connection exists and have entity ids if required"""
     account_lookup = {}
     for acct in accts:
-        account_lookup[acct["accountNo"]] = acct
+        account_lookup[acct["accountId"]] = acct
 
     for line_item in line_items:
-        acct = account_lookup.get(line_item["accountNo"])
+        acct = account_lookup.get(line_item["accountId"])
         if not acct:
             return False
 
@@ -100,9 +100,9 @@ def __validate_line_items_vs_accounts(line_items, accts):
                 return False
     return True
 
-def __update_accounts_state(accounts_, account_numbers):
+def __update_accounts_state(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
     for account in accounts_:
-        if account["accountNo"] in account_numbers:
+        if account["accountId"] in account_ids:
             if account["state"] not in ["DRAFT", "POSTED"]:
                 accounts.update_by_id(account["accountId"], {"state": "DRAFT"})
