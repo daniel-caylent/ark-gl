@@ -48,8 +48,9 @@ def validate_new_journal_entry(journal_entry):
         except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
             return 400, dataclass_error_to_str(e), None
 
-        if not __validate_line_items_vs_accounts(type_safe_line_items, accts):
-            return 400, "Line items are invalid", None
+        valid, reason = __validate_line_items_vs_accounts(type_safe_line_items, accts)
+        if not valid:
+            return 400, reason, None
 
     post.lineItems = type_safe_line_items
 
@@ -93,12 +94,12 @@ def __validate_line_items_vs_accounts(line_items, accts):
     for line_item in line_items:
         acct = account_lookup.get(line_item["accountId"])
         if not acct:
-            return False
+            return False, f"Line item references invalid account: {line_item['accountId']}"
 
         if acct["isEntityRequired"]:
             if not line_item.get("entityId"):
-                return False
-    return True
+                return False, f"Line items for account require entityId: {line_item['accountId']}"
+    return True, None
 
 def __update_accounts_state(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""

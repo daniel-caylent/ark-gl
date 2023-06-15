@@ -54,7 +54,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     # Validate that line items reference real accounts within the fund
     accts = accounts.select_by_fund_id(ledger["fundId"])
-    account_ids = [acct["accountId"] for acct in accts]
     type_safe_line_items = []
     if put.lineItems:
         line_item_no = 0
@@ -65,11 +64,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
                 type_safe_line_items.append(line_item_put.__dict__)
             except Exception as e:
                 return 400, {"detail": dataclass_error_to_str(e)}
-
-            if line_item_put.accountId not in account_ids:
-                return 400, {
-                    "detail": f"Line item references invalid account: {line_item_put.accountId}"
-                }
 
         put.lineItems = type_safe_line_items
 
@@ -95,8 +89,9 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         if len(line_items) == 0:
             return 400, {"detail": "Line items cannot be an empty array."}
 
-        if not __validate_line_items_vs_accounts(line_items, accts):
-            return 400, {"detail": "Line items are invalid."}
+        valid, reason = __validate_line_items_vs_accounts(line_items, accts)
+        if not valid:
+            return 400, {"detail": reason}
 
     missing = check_missing_fields(type_safe_body, REQUIRED_FIELDS)
     if missing is not None:
@@ -145,12 +140,13 @@ def __validate_line_items_vs_accounts(line_items, accts):
     for line_item in line_items:
         acct = account_lookup.get(line_item["accountId"])
         if not acct:
-            return False
+            return False, f"Line item references invalid account: {line_item['accountId']}"
 
         if acct["isEntityRequired"]:
             if not line_item.get("entityId"):
-                return False
-    return True
+                return False, f"Line items for account require entityId: {line_item['accountId']}"
+    return True, None
+
 
 def __update_accounts_state(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
