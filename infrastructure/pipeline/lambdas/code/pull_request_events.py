@@ -87,6 +87,7 @@ def handler(event, context):
 
             codebuild_arn = project["project"]["arn"]
 
+            # TODO: Enable Approval Rules
             #approval_rule_content = {
             #    "Version": "2018-11-08",
             #    "Statements": [
