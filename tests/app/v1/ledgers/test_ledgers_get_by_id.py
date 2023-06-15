@@ -2,9 +2,6 @@ import json
 from pathlib import PurePath
 
 from tests.app.data import (
-    get_with_account_id,
-    get_without_fund_id,
-    get_with_bad_account_id,
     LambdaContext
 )
 from tests.test_base import TestBase
@@ -16,21 +13,41 @@ PATHS = [MODELS, APP_SHARED_LAYER]
 class TestLedgersPost(TestBase(PATHS)):
 
     def test_good_api_request(self):
+        request = {
+            "pathParameters": {
+                "ledgerId":  "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+            }
+        }
+
         from app.v1.ledgers.get.get_by_id import handler
-        result = handler(get_with_account_id, LambdaContext())
+        result = handler(request, LambdaContext())
         assert 200 == result['statusCode']
 
-    def test_no_account_id(self):
+    def test_no_ledger_id(self):
+        request = {
+            "pathParameters": {}
+        }
         from app.v1.ledgers.get.get_by_id import handler
-        result = handler(get_without_fund_id, LambdaContext())
+        result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
 
-    def test_bad_account_id(self):
+    def test_bad_ledger_id(self):
+        request = {
+            "pathParameters": {
+                "ledgerId": "a92bde1e-7825-429d-aaae-909f2d7a8df2"
+            }
+        }
+
         from app.v1.ledgers.get.get_by_id import handler
-        result = handler(get_with_bad_account_id, LambdaContext())
+        result = handler(request, LambdaContext())
         assert 404 == result['statusCode']
 
     def test_is_json_encodable(self):
+        request = {
+            "pathParameters": {
+                "ledgerId":  "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+            }
+        }
         from app.v1.ledgers.get.get_by_id import handler
-        result = handler(get_with_account_id, LambdaContext())
+        result = handler(request, LambdaContext())
         json.dumps(result)

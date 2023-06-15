@@ -1,35 +1,43 @@
+import datetime
+
 def select_by_ledger_id(id):
     """Mock select by ledger id for journal entries"""
     return [
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
             "journalEntryId": "ab72493c-eb7c-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 1,
             "reference": "journal reference",
             "memo": "journal memo",
             "adjustingJournalEntry": True,
             "state": "POSTED",
-            "date": "2023-05-05 00:00:00",
-            "postDate": "2023-05-05 00:00:00",
+            "date": datetime.date.today(),
+            "postDate": datetime.datetime.now(),
             "isHidden": False,
             "attachments": [],
             "lineItems": [],
-            "id": 1
+            "id": 1,
+            "currencyName": "USD",
+            "currencyDecimal": 2
         },
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
             "reference": "Reference",
             "memo": "memo",
             "adjustingJournalEntry": False,
             "state": "DRAFT",
-            "date": "None",
-            "postDate": "None",
+            "date": datetime.date.today(),
+            "postDate": None,
             "isHidden": False,
             "attachments": [],
             "lineItems": [],
-            "id": 2
+            "id": 2,
+            "currencyName": "USD",
+            "currencyDecimal": 2
         },
     ]
 
@@ -38,6 +46,7 @@ def get_line_items(id, translate=True):
     return [
         {
             "accountNo": "5555602528",
+            "accountId": 1,
             "lineItemNo": 1,
             "journal_entry_id": 1,
             "memo": "memo",
@@ -47,6 +56,7 @@ def get_line_items(id, translate=True):
         },
         {
             "accountNo": "5555602528",
+            "accountId": 1,
             "lineItemNo": 2,
             "journal_entry_id": 1,
             "memo": "memo",
@@ -71,34 +81,40 @@ def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
             "reference": "Reference",
             "memo": "memo",
             "adjustingJournalEntry": False,
             "state": "POSTED",
-            "date": "None",
-            "postDate": "None",
+            "date": datetime.date.today(),
+            "postDate": None,
             "isHidden": False,
             "attachments": [],
             "lineItems": [],
-            "id": 2
+            "id": 2,
+            "currencyName": "USD",
+            "currencyDecimal": 2
         }
 
     return {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
             "reference": "Reference",
             "memo": "memo",
             "adjustingJournalEntry": False,
             "state": "DRAFT",
-            "date": "None",
-            "postDate": "None",
+            "date": datetime.date.today(),
+            "postDate": None,
             "isHidden": False,
             "attachments": [],
             "lineItems": [],
-            "id": 2
+            "id": 2,
+            "currencyName": "USD",
+            "currencyDecimal": 2
         }
 
 def create_new(*args):

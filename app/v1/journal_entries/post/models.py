@@ -8,6 +8,7 @@ from shared.dataclass_validators import (
     validate_bool,
     validate_str,
     validate_int,
+    validate_date
 )
 # pylint: enable=import-error
 
@@ -28,12 +29,13 @@ class JournalEntryPost:
 
     def __post_init__(self):
         self.ledgerId = check_uuid(self.ledgerId, "ledgerId")
-        self.reference = validate_str(self.reference, "reference", max_len=64)
+        self.reference = validate_str(self.reference, "reference")
         self.memo = validate_str(self.memo, "memo")
         self.adjustingJournalEntry = validate_bool(
             self.adjustingJournalEntry, "adjustingJournalEntry"
         )
         self.isHidden = validate_bool(self.isHidden, "isHidden")
+        self.date = validate_date(self.date, "date", "%Y-%m-%d")
 
 
 @dataclass
@@ -41,7 +43,7 @@ class LineItemPost:
     """Line Item POST model"""
 
     # pylint: disable=invalid-name; API standard
-    accountNo: str
+    accountId: str
     memo: str
     type: str
     amount: int
@@ -49,7 +51,7 @@ class LineItemPost:
     # pylint: enable=invalid-name;
 
     def __post_init__(self):
-        self.accountNo = validate_str(self.accountNo, "accountNo")
+        self.accountId = check_uuid(self.accountId, "accountId")
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
         self.amount = validate_int(self.amount, "amount", min_=0)

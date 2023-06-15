@@ -33,7 +33,7 @@ def get_connection(
     return
     A pymysql.connect that represents the actual connection
     """
-    global CONN, READ_CONN # pylint: disable=global-statement; Mechanism needed to reuse the connection
+    global CONN, READ_CONN  # pylint: disable=global-statement; Mechanism needed to reuse the connection
 
     if db_type == "ro" and READ_CONN is not None:
         READ_CONN.ping(reconnect=True)
@@ -77,7 +77,7 @@ def __get_secret(region_name, secret_name):
     return
     A dictionary that contains the credential fields for connecting to the db
     """
-    global SECRET_DICT # pylint: disable=global-statement; Mechanism needed to reuse the secrets
+    global SECRET_DICT  # pylint: disable=global-statement; Mechanism needed to reuse the secrets
 
     if SECRET_DICT is not None:
         return SECRET_DICT

@@ -2,7 +2,8 @@
 
 from . import db_main
 from . import connection
-from pymysql.cursors import Cursor
+from pymysql.cursors import Cursor, DictCursor
+from typing import Union
 
 
 def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
@@ -186,6 +187,7 @@ def get_delete_query_by_id(db: str, fund_entity_id: str) -> tuple:
 
     return (query, params)
 
+
 def get_delete_query_by_uuid(db: str, fund_entity_uuid: str) -> tuple:
     """
     This function creates the delete query with its parameters.
@@ -275,3 +277,29 @@ def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: Cursor) -> int
     record = cur.fetchone()
 
     return int(record[0]) if record else None
+
+
+def select_by_uuid_with_cursor(
+    db: str, uuid: str, cursor: Union[Cursor, DictCursor]
+) -> Union[tuple, dict]:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A dict or tuple containing the fund entity that matches with the upcoming uuid
+    """
+    params = __get_select_by_uuid_query(db, uuid)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
+
+    return record

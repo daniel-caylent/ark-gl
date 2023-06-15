@@ -6,7 +6,9 @@ from . import account
 
 app_to_db = {
     "lineItemNo": "line_number",
+    "accountId": "account_id",
     "accountNo": "account_no",
+    "accountName": "account_name",
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
@@ -57,8 +59,8 @@ def get_insert_query(
 
     translated_input = db_main.translate_to_db(app_to_db, parameters)
 
-    account_number = translated_input.get("account_no")
-    account_id = account.get_id_by_number(db, account_number, region_name, secret_name)
+    account_uuid = translated_input.get("account_id")
+    account_id = account.get_id_by_uuid(db, account_uuid, region_name, secret_name)
 
     # Getting new uuid from the db to return it in insertion
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
@@ -146,7 +148,8 @@ def __get_by_number_journal_query(
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -212,7 +215,8 @@ def __get_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -371,7 +375,8 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
     format_strings = ",".join(["%s"] * len(journal_entry_ids))
 
     query = (
-        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -432,7 +437,8 @@ def __get_by_account_id_query(db: str, account_id: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.account_no, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """

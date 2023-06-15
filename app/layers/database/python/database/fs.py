@@ -2,6 +2,8 @@
 
 from . import db_main
 from . import connection
+from pymysql.cursors import Cursor, DictCursor
+from typing import Union
 
 
 def get_insert_query(db: str, input_: dict) -> tuple:
@@ -172,5 +174,31 @@ def select_by_fs_mapping_id(
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     record = db_main.execute_single_record_select(conn, params)
+
+    return record
+
+
+def select_by_fs_mapping_id_with_cursor(
+    db: str, fs_mapping_id: str, cursor: Union[Cursor, DictCursor]
+) -> Union[tuple, dict]:
+    """
+    This function returns the record from the result of the "select by fs_mapping_id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fs_mapping_id: string
+    This parameter specifies the uuid that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A dict containing the FS entity that matches with the upcoming uuid
+    """
+    params = __get_select_by_fs_mapping_id_query(db, fs_mapping_id)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
 
     return record

@@ -1,5 +1,7 @@
 """Module that contains util methods for dataclasses validations"""
 from datetime import datetime
+import json
+
 from .validate_uuid import validate_uuid
 
 
@@ -112,7 +114,7 @@ def validate_int(
 
     return int_
 
-def validate_date(date_str, name):
+def validate_date(date_str, name, date_format="%Y-%m-%d"):
     """Validate date objects to be inserted into mysql"""
 
     if date_str is None:
@@ -121,24 +123,28 @@ def validate_date(date_str, name):
         )
 
     try:
-        datetime.strptime(date_str, "YYYY-MM-DD hh:mm:ss")
+        date = datetime.strptime(date_str, date_format)
     except:
-        raise Exception(f"Datetime is invalid for {name}. Use format: YYYY-MM-DD hh:mm:ss")
+        raise Exception(f"Datetime is invalid for {name}. Use format: {date_format}")
 
-    return date_str
+    return date.strftime("%Y-%m-%d")
 
-def validate_list(lst, name, min_len=0, max_len=0):
+def validate_list(lst, name, min_len=None, max_len=None, parse=False):
     """Validate a required list"""
+    if parse:
+        lst = json.loads(lst)
 
     if lst is None:
         raise Exception(
             f"Required argument is missing: {name}."
         )
 
-    if len(lst) < min_len:
-        raise Exception(f"List argument is too short: {name}")
+    if min_len is not None:
+        if len(lst) < min_len:
+            raise Exception(f"List argument is too short: {name}")
 
-    if len(lst) > max_len:
-        raise Exception(f"List argument is too long: {name}")
+    if max_len is not None:
+        if len(lst) > max_len:
+            raise Exception(f"List argument is too long: {name}")
     
     return lst

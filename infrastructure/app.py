@@ -14,7 +14,6 @@ from app.accounts import (
     AccountsPutStack,
     AccountsStateStack,
     AccountsUploadStack,
-    AccountsCopyStack,
     AccountsDeleteStack,
 )
 
@@ -36,6 +35,10 @@ from app.journal_entries import (
     JournalEntriesStateStack,
 )
 
+from app.reports import (
+    ReportsStack
+)
+
 from app.api.api_account_attribute_stack import (
     AccountAttributesStack
 )
@@ -50,6 +53,10 @@ from app.api.api_ledgers_stack import (
 
 from app.api.api_journal_entries_stack import (
     JournalEntriesStack
+)
+
+from app.api.api_reports_stack import (
+    ApiReportsStack
 )
 
 from app.api.stage_stack import (
@@ -159,8 +166,34 @@ journal_entries_state_stack = JournalEntriesStateStack(
 )
 journal_entries_state_stack.add_dependency(vpc_stack)
 
+reports_stack = ReportsStack(
+    app, "ark-gl-reports-stack", env=cdk_env
+)
+reports_stack.add_dependency(vpc_stack)
+
 dependency_group = DependencyGroup()
 dependency_group.add(vpc_stack)
+dependency_group.add(account_attributes_get_stack)
+dependency_group.add(accounts_get_stack)
+dependency_group.add(accounts_get_by_id_stack)
+dependency_group.add(accounts_post_stack)
+dependency_group.add(accounts_delete_stack)
+dependency_group.add(accounts_put_stack)
+dependency_group.add(accounts_state_stack)
+dependency_group.add(accounts_upload_stack)
+dependency_group.add(ledgers_get_stack)
+dependency_group.add(ledgers_get_by_id_stack)
+dependency_group.add(ledgers_post_stack)
+dependency_group.add(ledgers_put_stack)
+dependency_group.add(ledgers_delete_stack)
+dependency_group.add(ledgers_state_stack)
+dependency_group.add(journal_entries_get_by_id_stack)
+dependency_group.add(journal_entries_get_stack)
+dependency_group.add(journal_entries_post_stack)
+dependency_group.add(journal_entries_put_stack)
+dependency_group.add(journal_entries_state_stack)
+dependency_group.add(journal_entries_delete_stack)
+dependency_group.add(reports_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)
 
@@ -250,6 +283,21 @@ api_journal_entries_stack.node.add_dependency(
     journal_entries_dependency_group
 )
 
+reports_dependency_group = DependencyGroup()
+reports_dependency_group.add(reports_stack)
+
+api_reports_stack = ApiReportsStack(
+    app,
+    "ark-gl-api-reports",
+    rest_api.api.rest_api_id,
+    rest_api.api.rest_api_root_resource_id,
+    env=cdk_env
+)
+
+api_reports_stack.node.add_dependency(
+    reports_dependency_group
+)
+
 methods = []
 
 stage_dependency_group = DependencyGroup()
@@ -288,6 +336,9 @@ else:
 
     methods.extend(api_journal_entries_stack.methods)
     stage_dependency_group.add(api_journal_entries_stack)
+
+    methods.extend(api_reports_stack.methods)
+    stage_dependency_group.add(api_reports_stack)
 
 
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
