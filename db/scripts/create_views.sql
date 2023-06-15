@@ -199,4 +199,24 @@ line_item li
 inner join journal_entry je on li.journal_entry_id  = je.id
  inner join ledger le on le.id = je.ledger_id  
  inner join fund_entity fe on le.fund_entity_id = fe.id
+ inner join account acc on acc.id = li.account_id
+
+CREATE OR REPLACE VIEW ARKGL.DETAILED_INCOME_STATEMENT_VW AS 
+select 
+acc.uuid acc_uuid,
+je.`date` date,
+le.uuid le_uuid,
+le.name  le_name,
+je.journal_entry_num,
+fe.uuid ,
+li.memo,
+CONCAT(acc.name, ' ', acc.account_no) acc_name,
+case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1) end as "AMOUNT"
+from 
+line_item li 
+inner join journal_entry je on li.journal_entry_id  = je.id
+ inner join ledger le on le.id = je.ledger_id  
+ inner join fund_entity fe on le.fund_entity_id = fe.id
  inner join account acc on acc.id = li.account_id 
+ inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
+where acc_att.detail_type  like ('Income Statement') 
