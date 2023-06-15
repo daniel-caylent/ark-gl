@@ -74,13 +74,5 @@ def handler(event, context):
                 projectName=destroy_code_build_project_name
             )
 
-            #client.delete_project(
-            #    name=destroy_code_build_project_name
-            #)
-
-            #client.delete_project(
-            #    name=get_codebuild_project_name(codebuild_name_prefix, branch, "create")
-            #)
-
     except Exception as e:
         logger.error(e)
