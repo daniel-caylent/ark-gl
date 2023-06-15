@@ -59,6 +59,28 @@ def handler(event, context):
             pull_request_id = event["detail"]["pullRequestId"]
             revision_id = event["detail"]["revisionId"]
 
+            # TODO: Enable Approval Rules
+            #approval_rule_content = {
+            #    "Version": "2018-11-08",
+            #    "Statements": [
+            #        {
+            #            "Type": "Approvers",
+            #            "ApprovalPoolMembers": [
+            #                f'arn:aws:iam::{region}:user/caylent-codebuild-user'
+            #            ],
+            #            "NumberOfApprovalsNeeded": 1
+            #        }
+            #    ]
+            #}
+
+            #approval_rule_name = f'ark-gl-{branch}-approval-rule'
+
+            #response = codecommit_client.create_pull_request_approval_rule(
+            #    pullRequestId=event["detail"]["pullRequestId"],
+            #    approvalRuleName=f'{branch}-approval-rule',
+            #    approvalRuleContent=json.dumps(approval_rule_content)
+            #)
+
             project = codebuild_client.create_project(
                 name=project_name,
                 description="Build project to test the code in the branch",
@@ -86,28 +108,6 @@ def handler(event, context):
             )
 
             codebuild_arn = project["project"]["arn"]
-
-            # TODO: Enable Approval Rules
-            #approval_rule_content = {
-            #    "Version": "2018-11-08",
-            #    "Statements": [
-            #        {
-            #            "Type": "Approvers",
-            #            "ApprovalPoolMembers": [
-            #                f'arn:aws:iam::{region}:user/caylent-codebuild-user'
-            #            ],
-            #            "NumberOfApprovalsNeeded": 1
-            #        }
-            #    ]
-            #}
-
-            #approval_rule_name = f'ark-gl-{branch}-approval-rule'
-
-            #response = codecommit_client.create_pull_request_approval_rule(
-            #    pullRequestId=event["detail"]["pullRequestId"],
-            #    approvalRuleName=f'{branch}-approval-rule',
-            #    approvalRuleContent=json.dumps(approval_rule_content)
-            #)
 
             codebuild_client.start_build(projectName=project_name)
 
