@@ -723,9 +723,6 @@ def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-    INNER JOIN """
-        + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     where fe.uuid = %s;"""
     )
 
@@ -790,9 +787,6 @@ def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
     INNER JOIN """
         + db
         + """.ledger le ON (je.ledger_id = le.id)
-    INNER JOIN """
-        + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
