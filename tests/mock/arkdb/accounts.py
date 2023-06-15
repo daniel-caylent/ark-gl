@@ -19,7 +19,8 @@ def select_by_fund_id(fund_id, translate=True):
                 'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                'fundId': 'a-unique-fund-id'
+                'fundId': 'a-unique-fund-id',
+                'postDate': None
             },
             {
                 'id': 1,
@@ -35,7 +36,8 @@ def select_by_fund_id(fund_id, translate=True):
                 'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+                'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'postDate': None
             }
         ]
 
@@ -53,7 +55,8 @@ def select_by_fund_id(fund_id, translate=True):
             'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'fsName': 'fsName',
             'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-            'fundId': 'a-unique-fund-id'
+            'fundId': 'a-unique-fund-id',
+            'postDate': None
         },
         {
             'accountNo': '6',
@@ -68,7 +71,8 @@ def select_by_fund_id(fund_id, translate=True):
             'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'fsName': 'fsName',
             'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-            'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+            'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+            'postDate': None
         }
     ]
 
@@ -93,7 +97,8 @@ def select_by_id(id, translate=True):
                 'attributeId': 1,
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1"
+                'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'postDate': None
             }
     
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df5":
@@ -110,7 +115,8 @@ def select_by_id(id, translate=True):
                 'attributeId': 1,
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                'fundId': 'a-unique-fund-id'
+                'fundId': 'a-unique-fund-id',
+                'postDate': None
             }
 
     return None

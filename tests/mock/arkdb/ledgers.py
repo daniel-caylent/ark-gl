@@ -8,7 +8,8 @@ def select_by_fund_id(fund_id):
       "state": "ok",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False
+      "isHidden": False,
+      "postDate": None
     },
     {
       "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
@@ -18,7 +19,8 @@ def select_by_fund_id(fund_id):
       "state": "ok",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False
+      "isHidden": False,
+      "postDate": None
     },
     {
       "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
@@ -28,7 +30,8 @@ def select_by_fund_id(fund_id):
       "state": "ok",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False
+      "isHidden": False,
+      "postDate": None
     }
   ]
 
@@ -47,7 +50,8 @@ def select_by_id(id, translate=True):
       "state": "ok",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False
+      "isHidden": False,
+      "postDate": None
     }
 
 def update_by_id(id, dict):

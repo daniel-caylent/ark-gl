@@ -29,14 +29,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
               ],
               \"lineItems\": [
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
                       \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1000\",
@@ -69,14 +69,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
               ],
               \"lineItems\": [
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
                       \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",
@@ -108,14 +108,14 @@ class TestJournalEntriesPut(TestBase(PATHS)):
               ],
               \"lineItems\": [
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
                       \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",

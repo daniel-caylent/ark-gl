@@ -54,7 +54,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     # Validate that line items reference real accounts within the fund
     accts = accounts.select_by_fund_id(ledger["fundId"])
-    acct_numbers = [acct["accountNo"] for acct in accts]
+    account_ids = [acct["accountId"] for acct in accts]
     type_safe_line_items = []
     if put.lineItems:
         line_item_no = 0
@@ -62,15 +62,13 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
             line_item_no += 1
             try:
                 line_item_put = LineItemPost(**item)
-                type_safe_line_items.append(
-                    {"lineItemNo": line_item_no, **line_item_put.__dict__}
-                )
+                type_safe_line_items.append(line_item_put.__dict__)
             except Exception as e:
                 return 400, {"detail": dataclass_error_to_str(e)}
 
-            if line_item_put.accountNo not in acct_numbers:
+            if line_item_put.accountId not in account_ids:
                 return 400, {
-                    "detail": f"Line item references invalid account: {line_item_put.accountNo}"
+                    "detail": f"Line item references invalid account: {line_item_put.accountId}"
                 }
 
         put.lineItems = type_safe_line_items
@@ -165,10 +163,10 @@ def __update_unused_accounts(accounts_, line_items):
     """Check to see if line items still exist for old accounts"""
     account_lookup = {}
     for acct in accounts_:
-        account_lookup[acct["accountNo"]] = acct
+        account_lookup[acct["accountId"]] = acct
 
     for item in line_items:
-        acct = account_lookup.get(item["accountNo"])
+        acct = account_lookup.get(item["accountId"])
         if acct is not None:
             line_items = accounts.get_line_items(acct["accountId"])
 

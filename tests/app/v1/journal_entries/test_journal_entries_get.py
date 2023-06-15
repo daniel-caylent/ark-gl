@@ -21,6 +21,7 @@ class TestJournalEntriesGet(TestBase(PATHS)):
             }
         }
 
+        print(request)
         result = handler(request, LambdaContext())
         assert 200 == result['statusCode']
 

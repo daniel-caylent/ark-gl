@@ -46,9 +46,8 @@ class JournalEntryPut:
 
 @dataclass
 class LineItemPost:
-
     # pylint: disable=invalid-name; API standard
-    accountNo: str
+    accountId: str
     memo: str
     type: str
     amount: int
@@ -56,7 +55,7 @@ class LineItemPost:
     # pylint: enable=invalid-name;
 
     def __post_init__(self):
-        self.accountNo = validate_str(self.accountNo, "accountNo")
+        self.accountId = check_uuid(self.accountId, "accountId")
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
         self.amount = validate_int(self.amount, "amount", min_=0)

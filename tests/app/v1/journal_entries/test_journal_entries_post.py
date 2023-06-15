@@ -18,7 +18,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
         request = {
             "body": """{
               \"ledgerId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
-              \"date\": \"10-19-1991\",
+              \"date\": \"1991-10-10\",
               \"reference\": \"Reference\",
               \"memo\": \"memo\",
               \"adjustingJournalEntry\": false,
@@ -30,14 +30,14 @@ class TestJournalEntriesPost(TestBase(PATHS)):
               ],
               \"lineItems\": [
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
                       \"entityId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"
                   },
                   {
-                      \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1000\",
@@ -48,6 +48,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
         }
 
         result = handler(request, LambdaContext())
+        print(result)
         assert 201 == result['statusCode']
 
 
@@ -69,6 +70,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
               \"lineItems\": [
                   {
                       \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
@@ -76,6 +78,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
                   },
                   {
                       \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",
@@ -106,6 +109,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
               \"lineItems\": [
                   {
                       \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"CREDIT\",
                       \"amount\": 1000,
@@ -113,6 +117,7 @@ class TestJournalEntriesPost(TestBase(PATHS)):
                   },
                   {
                       \"accountNo\": \"5555\",
+                      \"accountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",
                       \"memo\": \"memo\",
                       \"type\": \"DEBIT\",
                       \"amount\": \"1001\",
