@@ -95,7 +95,14 @@ artifacts:
     """
 
 
-def generate_build_spec_destroy_branch(branch: str, account_id: str, region: str, artifact_bucket_name: str) -> str:
+def generate_build_spec_destroy_branch(
+  branch: str,
+  account_id: str,
+  region: str,
+  artifact_bucket_name: str,
+  codebuild_destroy_project: str,
+  codebuild_create_project: str
+  ) -> str:
     return f"""version: 0.2
 env:
   variables:
@@ -103,6 +110,8 @@ env:
     DEV_ACCOUNT_ID: {account_id}
     PROD_ACCOUNT_ID: {account_id}
     REGION: {region}
+    CODEBUILD_DESTROY_PROJECT: {codebuild_destroy_project}
+    CODEBUILD_CREATE_PROJECT: {codebuild_create_project}
   parameter-store:
     AWS_CODEBUILD_USER_ACCESS_KEY: CAYLENT_CODEBUILD_USER_ACCESSKEY
     AWS_CODEBUILD_USER_SECRET_KEY: CAYLENT_CODEBUILD_USER_SECRETKEY
@@ -121,6 +130,8 @@ phases:
     commands:
       - cdk destroy --app "python3 infrastructure/app.py" --all --force --require-approval never --method=direct
       - aws s3 rm s3://{artifact_bucket_name}/{branch} --recursive
+      - aws codebuild delete-project --name $CODEBUILD_CREATE_PROJECT
+      - aws codebuild delete-project --name $CODEBUILD_DESTROY_PROJECT
 """
 
 

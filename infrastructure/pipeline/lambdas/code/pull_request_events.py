@@ -11,7 +11,9 @@ from utils import generate_build_spec_update_branch, get_lambda_config, get_code
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-client = boto3.client("codebuild")
+codebuild_client = boto3.client("codebuild")
+
+codecommit_client = boto3.client("codecommit")
 
 SUPPORTED_EVENTS = ["pullRequestCreated", "pullRequestSourceBranchUpdated", "pullRequestStatusChanged", "pullRequestMergeStatusUpdated"]
 
@@ -53,7 +55,7 @@ def handler(event, context):
 
         if event["detail"]["event"] == "pullRequestCreated":
 
-            client.create_project(
+            project = codebuild_client.create_project(
                 name=project_name,
                 description="Build project to test the code in the branch",
                 source={
@@ -79,11 +81,50 @@ def handler(event, context):
                 serviceRole=role_arn
             )
 
-            client.start_build(projectName=project_name)
+            codebuild_arn = project["project"]["arn"]
+
+            approval_rule_content = {
+                "version": "2018-11-08",
+                "statements": [
+                    {
+                        "type": "Approvers",
+                        "approvers": [
+                            codebuild_project_arn
+                        ],
+                        "approvalPoolMembers": [
+                        ],
+                        "numberOfApprovalsNeeded": 1
+                    }
+                ]
+            }
+
+            approval_rule_name = f'ark-gl-{branch}-approval-rule'
+
+            response = codecommit_client.create_approval_rule_template(
+                approvalRuleTemplateName=approval_rule_name,
+                approvalRuleTemplateContent=json.dumps(approval_rule_content)
+            )
+
+            response = codecommit_client.get_repository(
+                repositoryName=repo_name
+            )
+            repository_arn = response['repositoryMetadata']['Arn']
+
+            codecommit_client.put_approval_rule_template(
+                approvalRuleTemplateName=approval_rule_name,
+                repositoryName=repo_name,
+                ruleContentSha256=response['repositoryMetadata']['ruleContentSha256'],
+                overridePullRequestApprovalRules=False,
+                approvalRuleTemplateContent=json.dumps(approval_rule_content),
+                approvalRuleTemplateNameSuggestion=approval_rule_name,
+                repositoryArn=repository_arn
+            )
+
+            codebuild_client.start_build(projectName=project_name)
 
 
         elif event["detail"]["event"] == "pullRequestSourceBranchUpdated":
-            client.start_build(projectName=project_name)
+            codebuild_client.start_build(projectName=project_name)
 
 
         elif (
@@ -94,7 +135,7 @@ def handler(event, context):
                 event["detail"]["event"] == "pullRequestMergeStatusUpdated" and \
                 event["detail"]["isMerged"] == "True"
             ):
-                client.delete_project(name=project_name)
+                codebuild_client.delete_project(name=project_name)
 
     except Exception as e:
         logger.error(e)

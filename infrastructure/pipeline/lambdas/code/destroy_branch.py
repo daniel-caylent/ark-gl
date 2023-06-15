@@ -51,7 +51,13 @@ def handler(event, context):
                 source={
                     'type': 'S3',
                     "location": f"{artifact_bucket_name}/{branch}/{get_codebuild_project_name(codebuild_name_prefix, branch, 'create')}/",
-                    'buildspec': generate_build_spec_destroy_branch(branch, account_id, region, artifact_bucket_name)
+                    'buildspec': generate_build_spec_destroy_branch(
+                        branch,
+                        account_id,
+                        region,
+                        artifact_bucket_name,
+                        destroy_code_build_project_name,
+                        get_codebuild_project_name(codebuild_name_prefix, branch, "create"))
                 },
                 artifacts={
                     'type': 'NO_ARTIFACTS'
@@ -68,13 +74,13 @@ def handler(event, context):
                 projectName=destroy_code_build_project_name
             )
 
-            client.delete_project(
-                name=destroy_code_build_project_name
-            )
+            #client.delete_project(
+            #    name=destroy_code_build_project_name
+            #)
 
-            client.delete_project(
-                name=get_codebuild_project_name(codebuild_name_prefix, branch, "create")
-            )
+            #client.delete_project(
+            #    name=get_codebuild_project_name(codebuild_name_prefix, branch, "create")
+            #)
 
     except Exception as e:
         logger.error(e)
