@@ -5,6 +5,8 @@ from . import connection
 from . import account_attribute
 from . import fund_entity
 from . import fs
+from pymysql.cursors import Cursor, DictCursor
+from typing import Union
 
 app_to_db = {
     "accountId": "uuid",
@@ -455,6 +457,40 @@ def check_fs(db: str, fs_mapping_id: str, region_name: str, secret_name: str) ->
     return insert_fs
 
 
+def check_fs_with_cursor(
+    db: str, fs_mapping_id: str, cursor: Union[Cursor, DictCursor]
+) -> bool:
+    """
+    This function checks for the existence and validity of the upcoming FS
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fs_mapping_id: string
+    This parameter specifies the fs_mapping_id that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A boolean indicating whether the FS should be inserted or not
+    """
+
+    # Checking if the upcoming fs_mapping_id exists
+    fs_acc_check = select_by_uuid_with_cursor(db, fs_mapping_id, cursor)
+
+    if not fs_acc_check:
+        raise Exception("The upcoming fsMappingId is invalid")
+
+    # Checking if the FS row already exists, to insert or update later
+    fs_check = fs.select_by_fs_mapping_id_with_cursor(db, fs_mapping_id, cursor)
+
+    insert_fs = bool(not fs_check)
+
+    return insert_fs
+
+
 def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     """
     This function executes the insert query with its parameters.
@@ -788,6 +824,32 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return record
 
 
+def select_by_uuid_with_cursor(
+    db: str, uuid: str, cursor: Union[Cursor, DictCursor]
+) -> Union[tuple, dict]:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A dict containing the account that matches with the upcoming uuid
+    """
+    params = __get_select_by_uuid_query(db, uuid)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
+
+    return record
+
+
 def get_id_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> str:
     """
     This function returns the id from an account with a specified account_number.
@@ -1106,3 +1168,96 @@ def get_recursive_childs_by_uuids(
     result_list = list(dict.fromkeys(result_list))
 
     return result_list
+
+
+def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -> list:
+    """
+    This function executes the bulk insert query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    input_list: list
+    This parameter contains a list with all the parameters inside
+    a dictionary that will be used for the query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of strings specifying the recently added accounts' uuids
+    """
+
+    uuids_list = []
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        for input_ in input_list:
+            fund_dict = {
+                "fund_entity_id": input_.get("fundId"),
+                "client_id": input_.get("clientId"),
+            }
+            fund_entity_uuid = fund_dict["fund_entity_id"]
+            if fund_entity_uuid:
+                fund = fund_entity.select_by_uuid_with_cursor(
+                    db, fund_entity_uuid, cursor
+                )
+            else:
+                fund = None
+
+            # First of all, check if we have to insert fund_entity
+            if fund:
+                fund_entity_id = fund.get("id")
+            else:
+                fund_params = fund_entity.get_insert_query(db, fund_dict)
+
+                cursor.execute(fund_params[0], fund_params[1])
+
+                # Once inserted, get the auto-generated id
+                fund_entity_id = cursor.lastrowid
+
+            # Get insert query of account
+            params = __get_insert_query(
+                db, input_, fund_entity_id, region_name, secret_name
+            )
+            query = params[0]
+            q_params = params[1]
+            uuid = params[2]
+            fs_dict = params[3]
+            fs_mapping_id = fs_dict["fs_mapping_id"]
+            fs_name = fs_dict["fs_name"]
+
+            # Then, check if the FS has to be inserted
+            if fs_mapping_id:
+                insert_fs = check_fs_with_cursor(db, fs_mapping_id, cursor)
+
+            # After that, execute insert of account
+            cursor.execute(query, q_params)
+
+            # Then, inserting/updating FS
+            if fs_mapping_id:
+                if insert_fs:
+                    fs_params = fs.get_insert_query(db, fs_dict)
+                else:
+                    fs_params = fs.get_update_query(
+                        db, fs_mapping_id, {"fs_name": fs_name}
+                    )
+
+                cursor.execute(fs_params[0], fs_params[1])
+
+            uuids_list.append(uuid)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
+    return uuids_list

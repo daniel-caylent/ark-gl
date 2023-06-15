@@ -1,6 +1,7 @@
 """This module provides the Aurora MySQL serverless capabilities for the common methods for all entities"""
 
 from pymysql import Connection, cursors
+from typing import Union
 
 
 def translate_to_db(app_to_db: dict, input_: dict) -> dict:
@@ -97,6 +98,31 @@ def execute_single_record_select(connection: Connection, query_params: tuple) ->
         record = cursor.fetchone()
     finally:
         cursor.close()
+
+    return record
+
+
+def execute_single_record_select_with_cursor(
+    cursor: Union[cursors.Cursor, cursors.DictCursor], query_params: tuple
+) -> Union[tuple, dict]:
+    """
+    This function executes a select query in the db to get a single record.
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    query_params: tuple
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+
+    return
+    A dict or tuple with the single record returned
+    """
+    query = query_params[0]
+    data = query_params[1]
+    cursor.execute(query, data)
+    record = cursor.fetchone()
 
     return record
 
