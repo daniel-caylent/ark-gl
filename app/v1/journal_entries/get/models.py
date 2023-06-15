@@ -30,5 +30,5 @@ class JournalEntry:
     def __post_init__(self):
         self.adjustingJournalEntry = bool(self.adjustingJournalEntry)
         self.isHidden = bool(self.isHidden)
-        self.postDate = None if self.postDate is None else str(self.postDate)
+        self.postDate = None if self.postDate is None else self.postDate.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.date = self.date.strftime("%Y-%m-%d")
