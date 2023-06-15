@@ -7,6 +7,8 @@ from . import account
 app_to_db = {
     "lineItemNo": "line_number",
     "accountId": "account_id",
+    "accountNo": "account_no",
+    "accountName": "account_name",
     "amount": "amount",
     "memo": "memo",
     "type": "posting_type",
@@ -146,7 +148,8 @@ def __get_by_number_journal_query(
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.uuid as account_id, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -212,7 +215,8 @@ def __get_by_journal_query(db: str, journal_entry_id: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.uuid as account_id, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -371,7 +375,8 @@ def __get_by_multiple_journals_query(db: str, journal_entry_ids: list) -> tuple:
     format_strings = ",".join(["%s"] * len(journal_entry_ids))
 
     query = (
-        """SELECT li.id, li.uuid, acc.uuid as account_id, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
@@ -432,7 +437,8 @@ def __get_by_account_id_query(db: str, account_id: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT li.id, li.uuid, acc.uuid as account_id, li.journal_entry_id,
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
         li.line_number, li.memo, li.entity_id,
         li.posting_type, li.amount, li.created_at
         FROM """
