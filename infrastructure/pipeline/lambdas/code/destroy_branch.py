@@ -44,20 +44,21 @@ def handler(event, context):
             repository_name = event['detail']["repositoryName"]
 
             destroy_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "destroy")
+            create_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
 
             client.create_project(
                 name=destroy_code_build_project_name,
                 description="Build project to destroy branch resources",
                 source={
                     'type': 'S3',
-                    "location": f"{artifact_bucket_name}/{branch}/{get_codebuild_project_name(codebuild_name_prefix, branch, 'create')}/",
+                    "location": f"{artifact_bucket_name}/{branch}/{create_code_build_project_name}/",
                     'buildspec': generate_build_spec_destroy_branch(
                         branch,
                         account_id,
                         region,
                         artifact_bucket_name,
                         destroy_code_build_project_name,
-                        get_codebuild_project_name(codebuild_name_prefix, branch, "create"))
+                        create_code_build_project_name)
                 },
                 artifacts={
                     'type': 'NO_ARTIFACTS'

@@ -39,6 +39,13 @@ class IAMPipelineStack(Construct):
             )
         )
 
+        repo_events_role.add_to_policy(
+            PolicyStatement(
+                actions=["codecommit:CreatePullRequestApprovalRule"],
+                resources=[f"arn:aws:codecommit:{region}:{account}:{repo_name}"],
+            )
+        )
+
         code_build_role = Role(
             self,
             "ark-gl-pipeline-codebuild-execution-role",
@@ -74,7 +81,7 @@ class IAMPipelineStack(Construct):
         )
         code_build_role.add_to_policy(
             PolicyStatement(
-                actions=["codecommit:Get*", "codecommit:List*", "codecommit:GitPull"],
+                actions=["codecommit:Get*", "codecommit:List*", "codecommit:GitPull", ],
                 resources=[f"arn:aws:codecommit:{region}:{account}:{repo_name}"],
             )
         )

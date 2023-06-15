@@ -37,14 +37,18 @@ phases:
       - export DEPLOYMENT_ENV=$BRANCH_FORMATTED
   build:
     commands:
-      # - cdk deploy --app "python3 infrastructure/app.py" --all --require-approval never
-      - cdk deploy --app "python3 infrastructure/app.py" "$DEPLOYMENT_ENV"-ark-gl-account-attributes-get-stack --require-approval never --method=direct
+      - cdk deploy --app "python3 infrastructure/app.py" --all --require-approval never
 artifacts:
   files:
     - '**/*'"""
 
 
-def generate_build_spec_update_branch(branch: str, account_id: str, region: str) -> str:
+def generate_build_spec_update_branch(
+  branch: str,
+  account_id: str,
+  region: str,
+  pull_request_id: str,
+  revision_id: str) -> str:
     """Generates the build spec file used for the CodeBuild project"""
     return f"""version: 0.2
 env:
@@ -53,6 +57,8 @@ env:
     DEV_ACCOUNT_ID: {account_id}
     PROD_ACCOUNT_ID: {account_id}
     REGION: {region}
+    PULL_REQUEST_ID: {pull_request_id}
+    REVISION_ID: {revision_id}
   parameter-store:
       AWS_CODEBUILD_USER_ACCESS_KEY: CAYLENT_CODEBUILD_USER_ACCESSKEY
       AWS_CODEBUILD_USER_SECRET_KEY: CAYLENT_CODEBUILD_USER_SECRETKEY
@@ -83,12 +89,13 @@ phases:
       - ./check_cdk.sh
       - cd ../..
       - git clone codecommit://wendigo
-      # - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({{}}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
-      # - echo $API_URL
-      # - export API_URL="$API_URL"v1
-      # - cd wendigo
-      # - pip install -r test-requirements.txt
-      # - make caylent url=$API_URL
+      - API_URL=$(aws cloudformation describe-stacks --stack-name $API_STACK_NAME | jq '.Stacks | .[] | .Outputs | reduce .[] as $i ({{}}; .[$i.OutputKey] = $i.OutputValue) | .arkglrestapiurl')
+      - echo $API_URL
+      - export API_URL="$API_URL"v1
+      - cd wendigo
+      - pip install -r test-requirements.txt
+      - make caylent url=$API_URL
+      - aws codecommit update-pull-request-approval-state --pull-request-id $PULL_REQUEST_ID --revision-id $REVISION_ID --approval-state APPROVE
 artifacts:
   files:
     - '**/*'
@@ -101,8 +108,7 @@ def generate_build_spec_destroy_branch(
   region: str,
   artifact_bucket_name: str,
   codebuild_destroy_project: str,
-  codebuild_create_project: str
-  ) -> str:
+  codebuild_create_project: str) -> str:
     return f"""version: 0.2
 env:
   variables:
