@@ -24,7 +24,7 @@ app_to_db = {
     "fsMappingId": "fs_mapping_id",
     "fsName": "fs_name",
     "isDryRun": "is_dry_run",
-    "postDate": "post_date"
+    "postDate": "post_date",
 }
 
 

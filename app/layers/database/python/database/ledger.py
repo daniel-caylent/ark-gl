@@ -14,7 +14,7 @@ app_to_db = {
     "currencyName": "currency",
     "currencyDecimal": "decimals",
     "isHidden": "is_hidden",
-    "postDate": "post_date"
+    "postDate": "post_date",
 }
 
 

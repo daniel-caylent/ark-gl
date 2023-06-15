@@ -69,7 +69,9 @@ def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
     )
 
 
-def __get_account_tree_params(query_params: tuple, input_: dict, db: str, region_name: str, secret_name: str) -> tuple:
+def __get_account_tree_params(
+    query_params: tuple, input_: dict, db: str, region_name: str, secret_name: str
+) -> tuple:
     """
     This function creates the report query's where clause using accountId parameters.
 
@@ -101,7 +103,7 @@ def __get_account_tree_params(query_params: tuple, input_: dict, db: str, region
         format_strings = ",".join(["%s"] * len(acc_child_list))
         query += f" AND acc_uuid IN ({format_strings}) "
         q_params += tuple(acc_child_list)
-    
+
     return (query, q_params)
 
 
