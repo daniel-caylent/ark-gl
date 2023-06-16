@@ -15,7 +15,6 @@ class ReplicationStack(BaseStack):
         super().__init__(scope, id, **kwargs)
 
         replica_conf = ENV.get("replication_configuration")
-        destination_bucket_aws_account_id = replica_conf.get("account", None)
         compliance_days = replica_conf.get("compliance_duration_days")
         compliance_conf = s3.ObjectLockRetention.compliance(Duration.days(compliance_days)) if compliance_days else None
 
@@ -81,8 +80,7 @@ class ReplicationStack(BaseStack):
             rules=[
                 s3.CfnBucket.ReplicationRuleProperty(
                     destination=s3.CfnBucket.ReplicationDestinationProperty(
-                        bucket=replica_bucket.bucket_arn,
-                        account=destination_bucket_aws_account_id,
+                        bucket=replica_bucket.bucket_arn
                     ),
                     status="Enabled"
                 )

@@ -22,7 +22,7 @@ dr_stack.add_dependency(vpc_stack)
 replica_conf = ENV.get("replication_configuration")
 if replica_conf:
     replication_env = cdk.Environment(
-        account=replica_conf.get("account",os.getenv("AWS_ACCOUNT")),
+        account=os.getenv("AWS_ACCOUNT"),
         region=replica_conf.get("region"),
     )
     replication_stack = ReplicationStack(
