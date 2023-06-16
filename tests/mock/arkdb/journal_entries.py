@@ -78,6 +78,44 @@ def get_attachments(id, translate=True):
 
 def select_by_id(id, translate=True):
     """Mock select select_by_id for journal entries"""
+    if not translate:
+        if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
+            return {
+                "ledger_id": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+                "fund_id": 1,
+                "uuid": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
+                "journal_entry_num": 2,
+                "reference": "Reference",
+                "memo": "memo",
+                "adjusting_journal_entry": False,
+                "state": "POSTED",
+                "date": datetime.date.today(),
+                "post_date": None,
+                "is_hidden": False,
+                "attachments": [],
+                "line_items": [],
+                "id": 2,
+                "currency": "USD",
+                "decimals": 2
+            }
+        return {
+                "ledger_id": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+                "fund_id": 1,
+                "uuid": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
+                "journal_entry_num": 2,
+                "reference": "Reference",
+                "memo": "memo",
+                "adjusting_journal_entry": False,
+                "state": "DRAFT",
+                "date": datetime.date.today(),
+                "post_date": None,
+                "is_hidden": False,
+                "attachments": [],
+                "line_items": [],
+                "id": 2,
+                "currency": "USD",
+                "decimals": 2
+            }
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",

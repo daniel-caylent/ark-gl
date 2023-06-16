@@ -67,7 +67,7 @@ def validate_new_journal_entry(journal_entry):
     if __sum_line_items(type_safe_line_items) != 0:
         return 400, "Line items do not sum to 0.", None
 
-    __update_accounts_state(accts, [item["accountId"] for item in type_safe_line_items])
+    __update_draft_accounts(accts, [item["accountId"] for item in type_safe_line_items])
 
     if ledger["state"] not in ["DRAFT", "POSTED"]:
         ledgers.update_by_id(ledger["ledgerId"], {"state": "DRAFT"})
@@ -101,7 +101,7 @@ def __validate_line_items_vs_accounts(line_items, accts):
                 return False, f"Line items for account require entityId: {line_item['accountId']}"
     return True, None
 
-def __update_accounts_state(accounts_, account_ids):
+def __update_draft_accounts(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
     for account in accounts_:
         if account["accountId"] in account_ids:
