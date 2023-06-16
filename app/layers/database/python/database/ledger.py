@@ -241,7 +241,7 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.decimals, le.created_at
+                le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
         + """.ledger le
@@ -274,7 +274,7 @@ def __get_by_client_id_query(db_: str, client_id: str) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.decimals, le.created_at
+                le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
         + """.ledger le
@@ -744,7 +744,7 @@ def __get_by_multiple_uuids_query(db: str, uuids_list: list) -> tuple:
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
                 le.name, le.description, le.state, le.is_hidden,
-                le.currency, le.decimals, le.created_at
+                le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db
         + """.ledger le
