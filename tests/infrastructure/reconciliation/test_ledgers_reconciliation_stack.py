@@ -4,13 +4,13 @@ import aws_cdk.assertions as assertions
 from .reconciliation_base_test import ReconciliationTestBase
 
 
-class TestLedgersStack(ReconciliationTestBase):
+class TestLedgersReconciliationStack(ReconciliationTestBase):
     cdk_env = core.Environment(
         account="131578276461",
         region="us-east-2",
     )
 
-    def test_ledgers_stack_created(self):
+    def test_ledgers_reconciliation_stack_created(self):
         from infrastructure.app.reconciliation import LedgersReconciliationStack
 
         app = core.App()

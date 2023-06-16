@@ -4,7 +4,7 @@ import aws_cdk.assertions as assertions
 from .api_base_test import ApiTestBase
 
 
-class TestLedgersNestedStack(ApiTestBase):
+class TestLedgersStack(ApiTestBase):
 
     cdk_env = core.Environment(
         account = '131578276461',
@@ -12,7 +12,7 @@ class TestLedgersNestedStack(ApiTestBase):
     )
 
 
-    def test_ledgers_nested_stack_created(self):
+    def test_ledgers_stack_created(self):
         from infrastructure.app.api.api_ledgers_stack import LedgersStack
 
         app = core.App()
@@ -21,4 +21,8 @@ class TestLedgersNestedStack(ApiTestBase):
 
         template = assertions.Template.from_stack(stack)
 
-        template.resource_count_is("AWS::CloudFormation::Stack", 1)
+        template.resource_count_is("AWS::ApiGateway::Resource", 3)
+        template.resource_count_is("AWS::ApiGateway::Method", 6)
+        template.resource_count_is("AWS::IAM::Role", 6)
+        template.resource_count_is("AWS::IAM::Policy", 6)
+

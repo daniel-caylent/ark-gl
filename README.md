@@ -101,9 +101,7 @@ For the tests execution the following command should be executed:
 pytest tests
 ```
 
-For gathering code coverage metrics, the following commands should be executed:
+For gathering code coverage metrics, the following command should be executed:
 ```
-pytest --cov=app tests
-
-pytest --cov=infrastructure tests
+pytest --cov=app --cov=infrastructure tests/
 ```

@@ -1,4 +1,4 @@
-from .accounts_stack import AccountsReconciliationStack
+from .accounts_reconciliation_stack import AccountsReconciliationStack
 from .ledgers_stack import LedgersReconciliationStack
 from .load_balancer_journal_entries_stack import LoadBalancerJournalEntriesStack
 from .sqs_stack import SQSStack
