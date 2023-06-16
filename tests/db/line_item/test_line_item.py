@@ -26,13 +26,13 @@ class TestLineItem(LineItemTestBase):
         import app.layers.database.python.database.connection as connection
         import app.layers.database.python.database.db_main as db_main
 
-        def get_id_by_number(db, account_number, region_name, secret_name):
+        def get_id_by_uuid(db, account_uuid, region_name, secret_name):
             return 10
 
         def get_new_uuid(ro_conn):
             return 'd559fa87-e51a-11ed-aede-0247c1ed2eeb'
 
-        monkeypatch.setattr(account, 'get_id_by_number', get_id_by_number)
+        monkeypatch.setattr(account, 'get_id_by_uuid', get_id_by_uuid)
         monkeypatch.setattr(connection, 'get_connection', Mock())
         monkeypatch.setattr(db_main, 'get_new_uuid', get_new_uuid)
 
