@@ -4,7 +4,7 @@ from pathlib import PurePath
 
 from aws_cdk import aws_s3 as s3
 from aws_cdk import aws_iam as iam
-from shared.get_cdk import build_dr_lambda_function, get_vpc
+from shared.get_cdk import build_dr_lambda_function
 from shared.layers import (
     get_shared_layer,
     get_qldb_layer,
@@ -21,10 +21,11 @@ EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
 class DRStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
+
         cron_hour = ENV["QLDB_EXPORT_TRIGGER_HOUR"]
-        vpc = get_vpc(self)
         dr_bucket_name = get_stack_prefix() + ENV["DR_BUCKET_NAME"]
         ledger_name = ENV["deploy"]["LEDGER_NAME"]
+
         self.source_bucket = s3.Bucket(
             self,
             "ark-dr-bucket",
@@ -158,25 +159,3 @@ class DRStack(BaseStack):
         )
 
         self.lambda_function_2.role.attach_inline_policy(dr_policy_2)
-        # Create the destination bucket in the replica region
-        # replica_region = 'us-east-2'  # Replace with your desired replica region
-        # replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'
-        # replica_bucket = s3.Bucket(
-        #    self,
-        #    'arkgl-dr-replica-bucket',
-        #    bucket_name=replica_bucket_name,
-        #    encryption=s3.BucketEncryption.S3_MANAGED,
-        #    block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-        #    versioned=True,
-        #    enforce_ssl=True,
-        #    bucket_key_enabled=True,
-        #    replication_destinations=[
-        #        s3.ReplicationDestination(
-        #            bucket=source_bucket,
-        #            region=replica_region,
-        #        )
-        #    ]
-        # )
-
-        # Enable compliance mode for the replica bucket
-        # replica_bucket.enable_compliance_mode()

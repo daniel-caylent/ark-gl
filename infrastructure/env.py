@@ -37,6 +37,11 @@ dev = {
     'QLDB_EXPORT_TRIGGER_HOUR': '1',
     'DR_BUCKET_NAME': 'arkgl-dr',
     'SQS_RECOVERY_PROCESS': 'ark-sqs-dr-recovery-process',
+    'replication_configuration': {
+        'account': '319244063014',
+        'region': 'us-east-2',
+        # 'compliance_duration_days': 2
+    },
     **map_tag,
 }
 
