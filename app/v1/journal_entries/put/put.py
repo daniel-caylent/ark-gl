@@ -143,7 +143,7 @@ def __validate_line_items_vs_accounts(line_items, accts):
         if not acct:
             return False, f"Line item references invalid account: {line_item['accountId']}"
 
-        if acct["isEntityRequired"]:
+        if acct["isEntityRequired"] is True:
             if not line_item.get("entityId"):
                 return False, f"Line items for account require entityId: {line_item['accountId']}"
     return True, None

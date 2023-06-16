@@ -21,9 +21,9 @@ class AccountPost:
     accountNo: str
     accountName: str
     isTaxable: bool
-    fsName: str
 
     # optional
+    fsName: str = None
     fsMappingId: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
@@ -40,9 +40,12 @@ class AccountPost:
         self.clientId = check_uuid(self.clientId, "clientId")
         self.attributeId = check_uuid(self.attributeId, "attributeId")
         self.isTaxable = validate_bool(self.isTaxable, "isTaxable")
-        self.fsName = validate_str(self.fsName, "fsName", min_len=3)
-
         # optional
+
+        self.fsName = (
+            None if self. fsName is None
+            else validate_str(self.fsName, "fsName", min_len=3)
+        )
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
         self.parentAccountId = (

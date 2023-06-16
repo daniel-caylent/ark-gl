@@ -22,7 +22,6 @@ class TestJournalEntriesDelete(TestBase(PATHS)):
         }
 
         result = handler(request, LambdaContext())
-        print(request)
         assert 200 == result['statusCode']
 
     def test_bad_id_request(self):

@@ -33,7 +33,5 @@ class LedgerPost:
         self.glDescription = (
             None
             if self.glDescription is None
-            else validate_str(
-                self.glDescription, "glDescription", min_len=3, max_len=256
-            )
+            else validate_str(self.glDescription, "glDescription")
         )
