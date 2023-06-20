@@ -41,18 +41,32 @@ def handler(event, context) -> tuple[int, dict]:
 
     lines = reports.get_trial_balance(valid_input.__dict__)
 
-    total = 0
-    for line in lines:
-        line["je_date"] = str(line["je_date"])
-        line["je_post_date"] = str(line["je_post_date"])
-        total += line["CREDIT"]
-        total -= line["DEBIT"]
-
     report = {
         "decimals": ledger["currencyDecimal"],
         "currencyName": ledger["currencyName"],
-        "total": total,
-        "data": lines
+        "total": 0,
+        "data": []
     }
 
+    accounts = {}
+    for line in lines:
+        report["total"] += line["CREDIT"]
+        report["total"] -= line["DEBIT"]
+
+        if not accounts.get(line["acc_uuid"]):
+            accounts[line["acc_uuid"]] = {
+                "accountName": line["name"],
+                "accountNo": line["account_no"],
+                #"ledgerName": "test-ledger-1",
+                "ledgerId": line["le_uuid"],
+                "fundId": line["fe_uuid"],
+                "accountId": line["acc_uuid"],
+                "debit": line["DEBIT"],
+                "credit": line["CREDIT"]
+            }
+        else:
+            accounts[line["acc_uuid"]]["debit"] += line["DEBIT"]
+            accounts[line["acc_uuid"]]["credit"] += line["CREDIT"]
+
+    report["data"] = [account for account in accounts.values()]
     return 200, {"data": report}

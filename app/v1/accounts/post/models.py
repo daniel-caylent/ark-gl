@@ -44,7 +44,7 @@ class AccountPost:
 
         self.fsName = (
             None if self. fsName is None
-            else validate_str(self.fsName, "fsName", min_len=3)
+            else validate_str(self.fsName, "fsName")
         )
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)

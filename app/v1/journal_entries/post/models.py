@@ -55,7 +55,7 @@ class LineItemPost:
         self.memo = validate_str(self.memo, "memo")
         self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
         self.amount = validate_int(self.amount, "amount", min_=0)
-        self.entityId = None if self.entityId is None else validate_str(self.entityId, "entityId")
+        self.entityId = None if self.entityId is None else check_uuid(self.entityId, "entityId")
 
 
 @dataclass

@@ -39,7 +39,7 @@ class LedgerPut:
             None
             if self.glDescription is None
             else validate_str(
-                self.glDescription, "glDescription", min_len=3, max_len=256
+                self.glDescription, "glDescription"
             )
         )
         self.isHidden = None if self.isHidden is None else bool(self.isHidden)

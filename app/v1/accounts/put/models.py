@@ -66,3 +66,7 @@ class AccountPut:
             if self.fsMappingId is None
             else check_uuid(self.fsMappingId, "fsMappingId")
         )
+        self.fsName = (
+            None if self. fsName is None
+            else validate_str(self.fsName, "fsName")
+        )
