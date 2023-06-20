@@ -60,7 +60,6 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     journal_entry["attachments"] = journal_entries.get_attachments(
         journal_entry["id"], translate=False)
     try:
-        print(f"journal-entry: {journal_entry}")
         ark_qldb.post("journal-entry", dataclass_encoder.encode(journal_entry))
     except Exception as e:
         journal_entries.update_by_id(

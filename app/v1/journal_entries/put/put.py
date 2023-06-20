@@ -40,12 +40,12 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": dataclass_error_to_str(e)}
 
     # verify journal entry exists
-    journal_entry = journal_entries.select_by_id(journal_entry_id)
+    journal_entry = journal_entries.select_by_id(journal_entry_id, translate=False)
     if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
     # verify ledger exists
-    ledger = ledgers.select_by_id(journal_entry["ledgerId"])
+    ledger = ledgers.select_by_id(journal_entry["ledger_id"])
 
     if journal_entry['state'] == 'POSTED':
         for key in body.keys():
@@ -53,8 +53,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
                 return 400, {'detail': f"POSTED ledger property cannot be modified: {key}."}
 
     # Validate that line items reference real accounts within the fund
-    accts = accounts.select_by_fund_id(ledger["fundId"])
-    account_ids = [acct["accountId"] for acct in accts]
+    accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
     type_safe_line_items = []
     if put.lineItems:
         line_item_no = 0
@@ -65,11 +64,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
                 type_safe_line_items.append(line_item_put.__dict__)
             except Exception as e:
                 return 400, {"detail": dataclass_error_to_str(e)}
-
-            if line_item_put.accountId not in account_ids:
-                return 400, {
-                    "detail": f"Line item references invalid account: {line_item_put.accountId}"
-                }
 
         put.lineItems = type_safe_line_items
 
@@ -95,18 +89,20 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         if len(line_items) == 0:
             return 400, {"detail": "Line items cannot be an empty array."}
 
-        if not __validate_line_items_vs_accounts(line_items, accts):
-            return 400, {"detail": "Line items are invalid."}
+        valid, reason = __validate_line_items_vs_accounts(line_items, accts)
+        if not valid:
+            return 400, {"detail": reason}
 
     missing = check_missing_fields(type_safe_body, REQUIRED_FIELDS)
     if missing is not None:
         return 400, {"detail": f"{missing} cannot be null or empty."}
 
+    old_line_items = journal_entries.get_line_items(journal_entry["id"])
     journal_entries.update_by_id(journal_entry_id, type_safe_body)
 
     if line_items:
-        __update_accounts_state(accts, [item["accountId"] for item in line_items])
-        __update_unused_accounts(accts, line_items)
+        __update_draft_accounts(accts, [item["accountId"] for item in line_items])
+        __update_unused_accounts(accts, old_line_items)
     return 200, {}
 
 
@@ -140,36 +136,37 @@ def __validate_line_items_vs_accounts(line_items, accts):
     """Check line-items account connection exists and have entity ids if required"""
     account_lookup = {}
     for acct in accts:
-        account_lookup[acct["accountId"]] = acct
+        account_lookup[acct["uuid"]] = acct
 
     for line_item in line_items:
         acct = account_lookup.get(line_item["accountId"])
         if not acct:
-            return False
+            return False, f"Line item references invalid account: {line_item['accountId']}"
 
-        if acct["isEntityRequired"]:
+        if acct["isEntityRequired"] is True:
             if not line_item.get("entityId"):
-                return False
-    return True
+                return False, f"Line items for account require entityId: {line_item['accountId']}"
+    return True, None
 
-def __update_accounts_state(accounts_, account_ids):
+
+def __update_draft_accounts(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
     for account in accounts_:
-        if account["accountId"] in account_ids:
+        if account["uuid"] in account_ids:
             if account["state"] not in ["DRAFT", "POSTED"]:
-                accounts.update_by_id(account["accountId"], {"state": "DRAFT"})
+                accounts.update_by_id(account["uuid"], {"state": "DRAFT"})
 
 def __update_unused_accounts(accounts_, line_items):
     """Check to see if line items still exist for old accounts"""
     account_lookup = {}
     for acct in accounts_:
-        account_lookup[acct["accountId"]] = acct
+        account_lookup[acct["uuid"]] = acct
 
     for item in line_items:
         acct = account_lookup.get(item["accountId"])
         if acct is not None:
-            line_items = accounts.get_line_items(acct["accountId"])
+            line_items = accounts.get_line_items(acct["uuid"])
 
-            if len(line_items) == 0:
-                accounts.update_by_id(acct["accountId"], {"state": "DRAFT"})
+            if len(line_items) == 0 and acct["state"] != "POSTED":
+                accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
             

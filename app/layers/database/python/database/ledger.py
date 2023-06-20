@@ -374,11 +374,6 @@ def insert(db_: str, input_: dict, region_name: str, secret_name: str) -> str:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
 
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
-
     return
     A string specifying the recently added ledger's uuid
     """
@@ -446,11 +441,6 @@ def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
 
     params = __get_delete_query(db_, id_)
@@ -491,7 +481,6 @@ def update(
     input_: dict,
     region_name: str,
     secret_name: str,
-    db_type: str = None,
 ) -> None:
     """
     This function executes the update query with its parameters.
@@ -512,15 +501,10 @@ def update(
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
     params = __get_update_query(db_, id_, input_)
 
-    conn = connection.get_connection(db_, region_name, secret_name, db_type)
+    conn = connection.get_connection(db_, region_name, secret_name)
 
     query_list = [(params[0], params[1])]
 

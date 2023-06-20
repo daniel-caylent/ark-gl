@@ -58,7 +58,7 @@ class TestAccount(AccountsTestBase):
         def get_delete_query(db, id):
             return (None, None)
 
-        def get_accounts_ledgers_count(db, fund_entity_id, region_name, secret_name):
+        def get_accounts_ledgers_count(db, fund_entity_id, cursor):
             return 1
 
         monkeypatch.setattr(account, '__get_delete_query', get_delete_query)

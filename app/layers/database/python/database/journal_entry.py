@@ -5,6 +5,8 @@ from . import connection
 from . import ledger
 from . import line_item
 from . import attachment
+from pymysql.cursors import Cursor, DictCursor
+from typing import Union
 
 
 app_to_db = {
@@ -388,11 +390,6 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
 
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
-
     return
     A string specifying the recently added journal entry's uuid
     """
@@ -461,11 +458,6 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
     params = __get_delete_query(db, uuid)
     query = params[0]
@@ -520,11 +512,6 @@ def update(
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
     params = __get_update_query(db, uuid, input_)
     query = params[0]
@@ -827,3 +814,177 @@ def select_by_client_id(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return records
+
+
+def select_max_number_by_ledger_with_cursor(
+    db: str, ledger_id: str, cursor: Union[Cursor, DictCursor]
+) -> str:
+    """
+    This function returns the record from the result of the "select max number by ledger" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_id: string
+    This parameter specifies the ledger_id that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A string containing the new max journal entry number by the upcoming ledger
+    """
+    params = __get_max_number_by_ledger_query(db, ledger_id)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
+
+    new_num = int(record.get("journal_entry_num")) + 1
+
+    return str(new_num)
+
+
+def __get_insert_query_with_cursor(
+    db: str,
+    input_: dict,
+    region_name: str,
+    secret_name: str,
+    cursor: Union[Cursor, DictCursor],
+) -> tuple:
+    """
+    This function creates the insert query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    input_: dictionary
+    This parameter contains all the parameters inside a dictionary that
+    will be used for the query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """
+        INSERT INTO """
+        + db
+        + """.journal_entry
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num, date)
+        VALUES
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+    )
+
+    translated_input = db_main.translate_to_db(app_to_db, input_)
+
+    ledger_uuid = translated_input.get("ledger_id")
+    ledger_id = ledger.get_id(db, ledger_uuid, region_name, secret_name)
+
+    # Getting new uuid from the db to return it in insertion
+    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
+    uuid = db_main.get_new_uuid(ro_conn)
+
+    # Getting max journal_entry_num +1 by ledger_id
+    journal_entry_num = select_max_number_by_ledger_with_cursor(db, ledger_id, cursor)
+
+    params = (
+        uuid,
+        ledger_id,
+        translated_input.get("reference"),
+        translated_input.get("memo"),
+        translated_input.get("adjusting_journal_entry"),
+        translated_input.get("state"),
+        translated_input.get("is_hidden"),
+        journal_entry_num,
+        translated_input.get("date"),
+    )
+
+    return (query, params, uuid)
+
+
+def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -> list:
+    """
+    This function executes the bulk insert query with its parameters.
+    It will also insert all its related line_items.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    input_list: list
+    This parameter contains a list with all the parameters inside
+    a dictionary that will be used for the query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of strings specifying the recently added journal entries' uuids
+    """
+    uuids_list = []
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        for input_ in input_list:
+            params = __get_insert_query_with_cursor(
+                db, input_, region_name, secret_name, cursor
+            )
+
+            query = params[0]
+            q_params = params[1]
+            uuid = params[2]
+
+            # Executing insert of journal entry first
+            cursor.execute(query, q_params)
+
+            # Once inserted, get the auto-generated id
+            journal_entry_id = cursor.lastrowid
+
+            # Then, insert debit and credit entries
+            if "lineItems" in input_:
+                for item in input_["lineItems"]:
+                    type_ = item.pop("type")
+                    line_number_ = str(input_["lineItems"].index(item) + 1)
+                    entry_params = line_item.get_insert_query(
+                        db,
+                        item,
+                        journal_entry_id,
+                        line_number_,
+                        type_,
+                        region_name,
+                        secret_name,
+                    )
+                    cursor.execute(entry_params[0], entry_params[1])
+
+            # Also, insert attachments
+            if "attachments" in input_:
+                for att in input_["attachments"]:
+                    att_params = attachment.get_insert_query(db, att, journal_entry_id)
+                    cursor.execute(att_params[0], att_params[1])
+
+            uuids_list.append(uuid)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
+    return uuids_list

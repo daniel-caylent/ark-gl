@@ -510,11 +510,6 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
 
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
-
     return
     A string specifying the recently added account's uuid
     """
@@ -598,11 +593,6 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
     secret_name: string
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
-
-    db_type: string (Optional)
-    This parameter when set with 'ro' value is used to point the
-    read only queries to a specific read only endpoint that will
-    be optimized for this type of operations
     """
     params = __get_delete_query(db, id_)
     query = params[0]
