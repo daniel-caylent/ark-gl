@@ -39,11 +39,9 @@ le.uuid le_uuid,
 acc.account_no,
 acc_att.account_type,
 le.currency,
-li.posting_type,
 je.state je_state,
 CONCAT(QUARTER(je.date), " ", YEAR(je.date)) as "QUARTER",
-sum(case when li.posting_type = 'CREDIT' then li.amount else 0 end) as "CREDIT",
-sum(case when li.posting_type = 'DEBIT' then li.amount*(-1) else 0 end) as "DEBIT"
+sum(case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1) end) as "TOTAL"
 FROM 
 line_item li 
 inner join journal_entry je on li.journal_entry_id  = je.id
@@ -56,7 +54,7 @@ where acc_att.detail_type  like ('Income Statement')
 -- and le.uuid = ?
 -- and fe.fund_id = ?
 -- and account.post_date between ? and ?
-group by 1,2,3,4,5,6,7,8,9,10;
+group by 1,2,3,4,5,6,7,8,9;
 
 CREATE OR REPLACE VIEW 1099_VW AS
 SELECT
