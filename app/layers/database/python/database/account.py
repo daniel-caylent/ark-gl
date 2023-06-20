@@ -146,8 +146,6 @@ def __get_update_query(
 
     if "fs_name" in translated_input:
         del translated_input["fs_name"]
-    if "fs_mapping_id" in translated_input:
-        del translated_input["fs_mapping_id"]
     if "client_id" in translated_input:
         del translated_input["client_id"]
 
