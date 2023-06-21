@@ -95,7 +95,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     missing = check_missing_fields(type_safe_body, REQUIRED_FIELDS)
     if missing is not None:
-        return 400, {"detail": f"{missing} cannot be null or empty."}
+        return 400, {"detail": f"{missing} cannot be null."}
 
     old_line_items = journal_entries.get_line_items(journal_entry["id"])
     journal_entries.update_by_id(journal_entry_id, type_safe_body)
@@ -116,7 +116,7 @@ def check_missing_fields(dict_, required):
         if field in keys:
             value = dict_[field]
 
-            if value is None or value == "":
+            if value is None:
                 return field
 
     return None

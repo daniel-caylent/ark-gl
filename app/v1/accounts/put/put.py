@@ -2,6 +2,7 @@
 
 import json
 
+
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, account_attributes
 from shared import endpoint, validate_uuid, update_dict, dataclass_error_to_str

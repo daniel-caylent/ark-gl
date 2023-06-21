@@ -31,7 +31,6 @@ class JournalEntryPut:
             None if self.memo is None else
             validate_str(self.memo, "memo")
         )
-        self.memo = None if self.memo is None else validate_str(self.memo, "memo")
         self.adjustingJournalEntry = (
             None
             if self.adjustingJournalEntry is None
