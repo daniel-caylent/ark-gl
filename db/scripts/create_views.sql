@@ -197,7 +197,7 @@ line_item li
 inner join journal_entry je on li.journal_entry_id  = je.id
  inner join ledger le on le.id = je.ledger_id  
  inner join fund_entity fe on le.fund_entity_id = fe.id
- inner join account acc on acc.id = li.account_id
+ inner join account acc on acc.id = li.account_id;
 
 CREATE OR REPLACE VIEW ARKGL.DETAILED_INCOME_STATEMENT_VW AS 
 select 
@@ -217,4 +217,4 @@ inner join journal_entry je on li.journal_entry_id  = je.id
  inner join fund_entity fe on le.fund_entity_id = fe.id
  inner join account acc on acc.id = li.account_id 
  inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
-where acc_att.detail_type  like ('Income Statement') 
+where acc_att.detail_type  like ('Income Statement'); 
