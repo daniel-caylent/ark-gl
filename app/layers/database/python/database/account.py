@@ -602,7 +602,7 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
     fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
 
     conn = connection.get_connection(db, region_name, secret_name)
-    cursor = conn.cursor()
+    cursor = conn.cursor(DictCursor)
 
     try:
         # Executing delete of account first

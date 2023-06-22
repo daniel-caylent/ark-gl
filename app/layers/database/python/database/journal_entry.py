@@ -444,7 +444,7 @@ def insert(db: str, input_: dict, region_name: str, secret_name: str) -> str:
 def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
     """
     This function executes the delete query with its parameters.
-    It will also delete all its related line_items.
+    It will also delete all its related line_items and attachments.
 
     db: string
     This parameter specifies the db name where the query will be executed
@@ -895,8 +895,13 @@ def __get_insert_query_with_cursor(
     ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
     uuid = db_main.get_new_uuid(ro_conn)
 
-    # Getting max journal_entry_num +1 by ledger_id
-    journal_entry_num = select_max_number_by_ledger_with_cursor(db, ledger_id, cursor)
+    # Try to get the journal_entry_num from the input first
+    journal_entry_num = translated_input.get("journal_entry_num")
+    if not journal_entry_num:
+        # Getting max journal_entry_num +1 by ledger_id
+        journal_entry_num = select_max_number_by_ledger_with_cursor(
+            db, ledger_id, cursor
+        )
 
     params = (
         uuid,

@@ -248,7 +248,7 @@ def __get_accounts_ledgers_count_query(db: str, fund_entity_id: str) -> tuple:
     return (query, params)
 
 
-def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: Cursor) -> int:
+def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: DictCursor) -> int:
     """
     This function returns the record from the result of the
     "select count ledgers and accounts" query with its parameters.
@@ -276,7 +276,7 @@ def get_accounts_ledgers_count(db: str, fund_entity_id: str, cur: Cursor) -> int
     cur.execute(query, data)
     record = cur.fetchone()
 
-    return int(record[0]) if record else None
+    return int(record["acc_le_count"]) if record else None
 
 
 def select_by_uuid_with_cursor(

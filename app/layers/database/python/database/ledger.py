@@ -3,6 +3,7 @@
 from . import db_main
 from . import connection
 from . import fund_entity
+from pymysql.cursors import DictCursor
 
 app_to_db = {
     "fundId": "fund_entity_id",
@@ -453,7 +454,7 @@ def delete(db_: str, id_: str, region_name: str, secret_name: str) -> None:
     fund_entity_id = fund_entity.get_id(db_, fund_entity_uuid, region_name, secret_name)
 
     conn = connection.get_connection(db_, region_name, secret_name)
-    cursor = conn.cursor()
+    cursor = conn.cursor(DictCursor)
 
     try:
         # Executing delete of ledger first
