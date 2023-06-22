@@ -23,6 +23,7 @@ from database.attachment import (
     app_to_db as attachment_app_to_db,
     select_by_journal as select_attachments,
     select_by_multiple_journals as select_by_multiple_journals_att,
+    select_by_uuid_journal,
 )
 
 # pylint: enable=import-error
@@ -138,4 +139,14 @@ def select_attachments_by_journals(journal_ids: list) -> list:
         DB_NAME, journal_ids, REGION_NAME, SECRET_NAME
     )
     results = translate_results(results, attachment_app_to_db)
+    return results
+
+
+def select_attachment_by_uuid_journal(attachment_uuid: str, journal_id: str) -> list:
+    """Select line items by line item number"""
+    results = select_by_uuid_journal(
+        DB_NAME, attachment_uuid, journal_id, REGION_NAME, SECRET_NAME
+    )
+
+    results = translate_results(results, line_app_to_db)
     return results

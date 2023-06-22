@@ -8,6 +8,8 @@ import boto3
 
 from ark_qldb import qldb  # pylint: disable=import-error; Lambda layer dependency
 
+region_name = os.getenv("AWS_REGION")
+
 
 def __divide_chunks(input_list, chunck_size):
     for i in range(0, len(input_list), chunck_size):
@@ -29,7 +31,7 @@ def handler(
     return: tuple[int, dict]
     Success code and an empty object
     """
-    driver = qldb.Driver("ARKGL", region_name="us-east-1")
+    driver = qldb.Driver("ARKGL", region_name=region_name)
     buffered_cursor = driver.read_document_fields("journal_entry", ["uuid"])
     sqs_name = os.getenv("sqs_name")
     processed_list = []
