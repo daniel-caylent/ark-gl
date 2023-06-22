@@ -229,8 +229,8 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
     db: string
     This parameter specifies the db name where the query will be executed
 
-    account_name: string
-    This parameter specifies the account name
+    ledger_name: string
+    This parameter specifies the ledger name that will be used for this query
 
     return
     A tuple containing the query on the first element, and the params on the second
@@ -580,7 +580,7 @@ def select_by_name(
     This parameter specifies the db name where the query will be executed
 
     ledger_name: string
-    This parameter specifies the ledger_name that will be used for this query
+    This parameter specifies the ledger name that will be used for this query
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -772,3 +772,75 @@ def select_by_multiple_uuids(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return records
+
+
+def __get_by_fund_and_name_query(db_: str, fund_uuid: str, ledger_name: str) -> tuple:
+    """
+    This function creates the select by fund uuid and ledger name query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_uuid: string
+    This parameter specifies the fund's uuid that will be used for this query
+
+    ledger_name: string
+    This parameter specifies the ledger name that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    ledger_name = ledger_name.lower().strip()
+
+    query = (
+        """
+        SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
+                le.name, le.description, le.state, le.is_hidden,
+                le.currency, le.decimals, le.created_at, le.post_date
+        FROM """
+        + db_
+        + """.ledger le
+        INNER JOIN """
+        + db_
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        where TRIM(LOWER(le.name)) = %s and fe.uuid = %s;"""
+    )
+
+    params = (ledger_name, fund_uuid)
+
+    return (query, params)
+
+
+def select_by_fund_and_name(
+    db: str, fund_uuid: str, ledger_name: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by fund and name" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    fund_uuid: string
+    This parameter specifies the fund's uuid that will be used for this query
+
+    ledger_name: string
+    This parameter specifies the ledger name that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the ledger that matches with the upcoming ledger_name and fund_uuid
+    """
+    params = __get_by_fund_and_name_query(db, fund_uuid, ledger_name)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
