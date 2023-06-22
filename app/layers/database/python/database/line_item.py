@@ -484,3 +484,124 @@ def select_by_account_id(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return records
+
+def __get_count_by_account_id_query(db: str, account_id: str) -> tuple:
+    """
+    This function creates the count by account_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_id: string
+    This parameter specifies the account_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT count(*)
+        FROM """
+        + db
+        + """.line_item li
+        INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
+        where li.account_id = %s;"""
+    )
+
+    params = (account_id,)
+
+    return (query, params)
+
+def __get_by_account_id_query_with_offset(db: str, account_id: str, limit: str, offset: str) -> tuple:
+    """
+    This function creates the select by account_id query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_id: string
+    This parameter specifies the account_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT li.id, li.uuid, acc.uuid as account_id,
+        acc.account_no, acc.name as account_name, li.journal_entry_id,
+        li.line_number, li.memo, li.entity_id,
+        li.posting_type, li.amount, li.created_at
+        FROM """
+        + db
+        + """.line_item li
+        INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
+        where li.account_id = %s ORDER BY acc.uuid limit %s offset %s;"""
+    )
+
+    params = (account_id, limit, offset)
+
+    return (query, params)
+
+def select_count_by_account_id(
+    db: str, account_id: str, region_name: str, secret_name: str
+) -> tuple:
+    """
+    This function returns the record count from the result of the "select by account_id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_id: string
+    This parameter specifies the account_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the line items that match with the upcoming account_id
+    """
+    params = __get_count_by_account_id_query(db, account_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_single_record_select(conn, params)
+
+    return records
+
+def select_by_account_id_with_offset(
+    db: str, account_id: str, limit: str, offset:str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by account_id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_id: string
+    This parameter specifies the account_id that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of dicts containing the line items that match with the upcoming account_id
+    """
+    params = __get_by_account_id_query_with_offset(db, account_id, limit, offset)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
