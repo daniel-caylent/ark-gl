@@ -16,6 +16,8 @@ from shared.utils import get_stack_prefix, DR_DIR
 from env import ENV
 
 EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
+DISTRIBUTE_CODE_DIR = str(PurePath(DR_DIR, "distribute"))
+
 
 
 class DRStack(BaseStack):
@@ -126,7 +128,7 @@ class DRStack(BaseStack):
 
         self.lambda_function_2 = build_dr_lambda_function(
             self,
-            EXPORT_CODE_DIR,
+            DISTRIBUTE_CODE_DIR,
             handler="distribute_export.handler",
             layers=[shared_layer, qldb_layer, qldb_reqs],
             description="dr qldb export lambda",

@@ -35,7 +35,7 @@ dev = {
     'reconciliation_trigger_hour': 1,
     'reconciliation_trigger_minute': 0,
     'QLDB_EXPORT_TRIGGER_HOUR': '1',
-    'DR_BUCKET_NAME': 'arkgl-dr',
+    'DR_BUCKET_NAME': 'arkgl-disaster-recovery',
     'SQS_RECOVERY_PROCESS': 'ark-sqs-dr-recovery-process',
     # 'replication_configuration': {
     #     'region': 'us-east-2',
