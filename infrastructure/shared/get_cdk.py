@@ -295,3 +295,23 @@ def get_subnets(context, name=""):
         )
 
     return subnets
+
+
+def get_replication_vpc(context, name=""):
+    return cdk.aws_ec2.Vpc.from_lookup(
+        context, f"ark-ledger-replication-vpc-{name}", is_default=False, vpc_id=ENV["replication_configuration"]["vpc"]
+    )
+
+
+def get_replication_subnets(context, name=""):
+    subnet_ids = ENV["replication_configuration"]["subnets"]
+
+    subnets = []
+    for subnet in subnet_ids:
+        subnets.append(
+            cdk.aws_ec2.Subnet.from_subnet_id(
+                context, f"ark-pes-replication-subnet-{subnet}-{name}", subnet
+            )
+        )
+
+    return subnets

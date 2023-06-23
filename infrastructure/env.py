@@ -30,7 +30,7 @@ prod = {
     "DR_BUCKET_NAME": "arkgl-dr",
     "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
     "ACCOUNT_ID": "466731580695",
-    ** map_tag,
+    **map_tag,
 }
 
 qa = {
@@ -55,7 +55,7 @@ qa = {
     "DR_BUCKET_NAME": "arkgl-dr",
     "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
     "ACCOUNT_ID": "057034653783",
-    ** map_tag,
+    **map_tag,
 }
 
 dev = {
@@ -67,18 +67,24 @@ dev = {
         "DB_SECRET_NAME": "/secret/arkgl_poc",
         "LEDGER_NAME": "ARKGL",
     },
-    'sqs_name': 'ark-sqs-reconciliation',
-    'sns_name': 'ark-sns-notifications',
-    'reconciliation_trigger_hour': 1,
-    'reconciliation_trigger_minute': 0,
-    'QLDB_EXPORT_TRIGGER_HOUR': '1',
-    'DR_BUCKET_NAME': 'arkgl-disaster-recovery',
-    'SQS_RECOVERY_PROCESS': 'ark-sqs-dr-recovery-process',
-    'ACCOUNT_ID': '319244063014',
-    # 'replication_configuration': {
-    #     'region': 'us-east-2',
-    #     # 'compliance_duration_days': 2
-    # },
+    "sqs_name": "ark-sqs-reconciliation",
+    "sns_name": "ark-sns-notifications",
+    "reconciliation_trigger_hour": 1,
+    "reconciliation_trigger_minute": 0,
+    "QLDB_EXPORT_TRIGGER_HOUR": "1",
+    "DR_BUCKET_NAME": "arkgl-disaster-recovery",
+    "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
+    "ACCOUNT_ID": "319244063014",
+    "replication_configuration": {
+        "region": "us-east-2",
+        # 'compliance_duration_days': 2,
+        "vpc": "vpc-0acbf36a4d1313153",
+        "subnets": [
+            "subnet-06f2911d2e6c326d3",
+            "subnet-0e2577d2f32013a24",
+            "subnet-072f5dff0589da023",
+        ],
+    },
     **map_tag,
 }
 
