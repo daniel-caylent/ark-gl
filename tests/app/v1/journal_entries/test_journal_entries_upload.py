@@ -16,6 +16,16 @@ PATHS = [MODELS, APP_SHARED_LAYER]
 DATA_DIR =  str(PurePath(os.path.dirname(__file__), "data"))
 
 
+def mock_urlopen(url, *args, **kwargs):
+    class Response:
+        file = url
+        def read(self, *args, **kwargs):
+            with open(self.file, 'r') as f:
+                text = f.read()
+            return text.encode()
+        
+    return Response()
+
 class TestJournalEntriesUpload(TestBase(PATHS)):
 
     def test_success(self):
@@ -28,18 +38,8 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
             "body": json.dumps(body)
         }
 
-        def mock_return(url, *args, **kwargs):
-            class Response:
-                file = url
-                def read(self, *args, **kwargs):
-                    with open(self.file, 'r') as f:
-                        text = f.read()
-                    return text.encode()
-                
-            return Response()
-
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_return)
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -55,18 +55,8 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
             "body": json.dumps(body)
         }
 
-        def mock_return(url, *args, **kwargs):
-            class Response:
-                file = url
-                def read(self, *args, **kwargs):
-                    with open(self.file, 'r') as f:
-                        text = f.read()
-                    return text.encode()
-                
-            return Response()
-
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_return)
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -82,18 +72,8 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
             "body": json.dumps(body)
         }
 
-        def mock_return(url, *args, **kwargs):
-            class Response:
-                file = url
-                def read(self, *args, **kwargs):
-                    with open(self.file, 'r') as f:
-                        text = f.read()
-                    return text.encode()
-                
-            return Response()
-
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_return)
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -109,18 +89,8 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
             "body": json.dumps(body)
         }
 
-        def mock_return(url, *args, **kwargs):
-            class Response:
-                file = url
-                def read(self, *args, **kwargs):
-                    with open(self.file, 'r') as f:
-                        text = f.read()
-                    return text.encode()
-                
-            return Response()
-
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_return)
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
 
