@@ -9,14 +9,12 @@ from database.account import (
     insert,
     delete,
     update,
+    commit,
 )
-# pylint: enable=import-error
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
 from database.line_item import select_by_account_id as get_line_items_by_id
-
-# pylint: enable=import-error
 
 from .utils import (
     DB_NAME,
@@ -25,6 +23,8 @@ from .utils import (
     translate_result,
     translate_results,
 )
+
+# pylint: enable=import-error
 
 
 def select_by_fund_id(fund_id: str, translate=True) -> list:
@@ -75,3 +75,8 @@ def get_line_items(account_id):
     """Retrieve all line items for an account"""
 
     return get_line_items_by_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)
+
+
+def commit_by_id(account_uuid) -> None:
+    """Commit an existing account"""
+    commit(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)

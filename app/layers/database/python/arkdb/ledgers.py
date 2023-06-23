@@ -10,7 +10,9 @@ from database.ledger import (
     update,
     select_by_client_id as __select_by_client_id,
     select_count_with_post_date,
+    commit,
 )
+
 # pylint: enable=import-error
 
 from .utils import (
@@ -69,3 +71,8 @@ def create_new(ledger: dict) -> str:
     result = insert(DB_NAME, ledger, REGION_NAME, SECRET_NAME)
 
     return result
+
+
+def commit_by_id(ledger_uuid) -> None:
+    """Commit an existing ledger"""
+    commit(DB_NAME, ledger_uuid, REGION_NAME, SECRET_NAME)

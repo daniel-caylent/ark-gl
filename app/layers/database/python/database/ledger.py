@@ -3,7 +3,11 @@
 from . import db_main
 from . import connection
 from . import fund_entity
-from pymysql.cursors import DictCursor
+from pymysql.cursors import Cursor, DictCursor
+from typing import Union
+from datetime import datetime
+import ark_qldb
+from shared import dataclass_encoder
 
 app_to_db = {
     "fundId": "fund_entity_id",
@@ -844,3 +848,74 @@ def select_by_fund_and_name(
     record = db_main.execute_single_record_select(conn, params)
 
     return record
+
+
+def select_by_uuid_with_cursor(
+    db: str, uuid: str, cursor: Union[Cursor, DictCursor]
+) -> Union[tuple, dict]:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A dict containing the ledger that matches with the upcoming uuid
+    """
+    params = __get_by_uuid_query(db, uuid)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
+
+    return record
+
+
+def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
+    """
+    This function commits a ledger, which implies updating the state and post_date
+    and then inserting it into QLDB
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    id_: string
+    This parameter specifies the uuid of the ledger that will be commited
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+    input_ = {
+        "state": "POSTED",
+        "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    params = __get_update_query(db, id_, input_)
+    query = params[0]
+    q_params = params[1]
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        # Executing update of ledger first
+        cursor.execute(query, q_params)
+
+        # Then, inserting into QLDB
+        ledger_ = select_by_uuid_with_cursor(db, id_, cursor)
+        ark_qldb.post("ledger", dataclass_encoder.encode(ledger_))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()

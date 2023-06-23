@@ -7,6 +7,9 @@ from . import fund_entity
 from . import fs
 from pymysql.cursors import Cursor, DictCursor
 from typing import Union
+from datetime import datetime
+import ark_qldb
+from shared import dataclass_encoder
 
 app_to_db = {
     "accountId": "uuid",
@@ -1250,3 +1253,48 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
         cursor.close()
 
     return uuids_list
+
+
+def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
+    """
+    This function commits an account, which implies updating the state and post_date
+    and then inserting it into QLDB
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    id_: string
+    This parameter specifies the uuid of the account that will be commited
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+    input_ = {
+        "state": "POSTED",
+        "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    params = __get_update_query(db, id_, input_, region_name, secret_name)
+    query = params[0]
+    q_params = params[1]
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        # Executing update of account first
+        cursor.execute(query, q_params)
+
+        # Then, inserting into QLDB
+        account_ = select_by_uuid_with_cursor(db, id_, cursor)
+        ark_qldb.post("account", dataclass_encoder.encode(account_))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()

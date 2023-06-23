@@ -1,14 +1,11 @@
 """Lambda that will perform the PUT for JournalEntries / state"""
-from datetime import datetime
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
-import ark_qldb
 from arkdb import journal_entries
 from shared import (
     endpoint,
     validate_uuid,
-    dataclass_encoder
 )
 # pylint: enable=import-error
 
@@ -50,20 +47,9 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     if state not in VALID_STATES:
         return 400, {"detail": "State is invalid."}
 
-    # hard coding the state so there's no chance of tampering
-    journal_entries.update_by_id(journal_entry_id, {
-                                 'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-    journal_entry = journal_entries.select_by_id(
-        journal_entry_id, translate=False)
-    journal_entry["line_items"] = journal_entries.get_line_items(
-        journal_entry["id"], translate=False)
-    journal_entry["attachments"] = journal_entries.get_attachments(
-        journal_entry["id"], translate=False)
     try:
-        ark_qldb.post("journal-entry", dataclass_encoder.encode(journal_entry))
+        journal_entries.commit_by_id(journal_entry_id)
     except Exception as e:
-        journal_entries.update_by_id(
-            journal_entry_id, {'state': original_state, 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}

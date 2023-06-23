@@ -11,6 +11,7 @@ from database.journal_entry import (
     insert,
     update,
     delete,
+    commit,
 )
 from database.line_item import (
     app_to_db as line_app_to_db,
@@ -150,3 +151,8 @@ def select_attachment_by_uuid_journal(attachment_uuid: str, journal_id: str) -> 
 
     results = translate_results(results, line_app_to_db)
     return results
+
+
+def commit_by_id(journal_uuid) -> None:
+    """Commit an existing journal"""
+    commit(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)

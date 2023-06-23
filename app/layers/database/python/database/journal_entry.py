@@ -7,7 +7,9 @@ from . import line_item
 from . import attachment
 from pymysql.cursors import Cursor, DictCursor
 from typing import Union
-
+from datetime import datetime
+import ark_qldb
+from shared import dataclass_encoder
 
 app_to_db = {
     "id": "id",
@@ -993,3 +995,81 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
         cursor.close()
 
     return uuids_list
+
+
+def select_by_uuid_with_cursor(
+    db: str, uuid: str, cursor: Union[Cursor, DictCursor]
+) -> Union[tuple, dict]:
+    """
+    This function returns the record from the result of the "select by uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid: string
+    This parameter specifies the uuid that will be used for this query
+
+    cursor: Cursor
+    This parameter is a pymysql.cursors that specifies
+    which cursor will be used to execute the query
+
+    return
+    A dict containing the journal that matches with the upcoming uuid
+    """
+    params = __get_select_by_uuid_query(db, uuid)
+
+    record = db_main.execute_single_record_select_with_cursor(cursor, params)
+
+    return record
+
+
+def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
+    """
+    This function commits a journal, which implies updating the state and post_date
+    and then inserting it into QLDB
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    id_: string
+    This parameter specifies the uuid of the journal that will be commited
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+    input_ = {
+        "state": "POSTED",
+        "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    params = __get_update_query(db, id_, input_)
+    query = params[0]
+    q_params = params[1]
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        # Executing update of ledger first
+        cursor.execute(query, q_params)
+
+        # Then, inserting into QLDB
+        journal_entry = select_by_uuid_with_cursor(db, id_, cursor)
+        journal_entry["line_items"] = line_item.select_by_journal(
+            db, journal_entry["id"], region_name, secret_name
+        )
+        journal_entry["attachments"] = attachment.select_by_journal(
+            db, journal_entry["id"], region_name, secret_name
+        )
+
+        ark_qldb.post("journal-entry", dataclass_encoder.encode(journal_entry))
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()

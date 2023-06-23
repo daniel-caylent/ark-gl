@@ -1,14 +1,11 @@
 """Lambda that will perform Ledgers / state"""
-from datetime import datetime
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
-import ark_qldb
 from arkdb import ledgers
 from shared import (
     endpoint,
     validate_uuid,
-    dataclass_encoder
 )
 # pylint: enable=import-error
 
@@ -59,14 +56,10 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     if state not in VALID_STATES:
         return 400, {"detail": "State is invalid."}
-
-    # hard coding the state so there's no chance of tampering
-    ledgers.update_by_id(ledger_id, {'state': 'POSTED', 'postDate': datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
-    ledger = ledgers.select_by_id(ledger_id, translate=False)
+    
     try:
-        ark_qldb.post("ledger", dataclass_encoder.encode(ledger))
+        ledgers.commit_by_id(ledger_id)
     except Exception as e:
-        ledgers.update_by_id(ledger_id, {'state': original_state, 'postDate': None})
         return 500, {"detail": f"An error occurred when posting to QLDB: {str(e)}"}
 
     return 200, {}
