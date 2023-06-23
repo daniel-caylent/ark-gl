@@ -241,3 +241,6 @@ def select_attachments_by_journals(id):
 
 def bulk_insert(journal_entries):
     return None
+
+def commit_by_id(*args):
+    return None

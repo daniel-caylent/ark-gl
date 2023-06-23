@@ -25,7 +25,6 @@ class TestLedgersState(TestBase(PATHS)):
          "body": json.dumps(body)
       }
       response = handler(request, LambdaContext())
-
       assert 200 == response['statusCode']
 
     def test_bad_state(self):

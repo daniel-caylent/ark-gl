@@ -1,14 +1,13 @@
 {
   "journalEntries": [
     {
-      "fundId": "d344f0f2-ee8b-11ed-9a6e-0a3efd619f29",
+      "fundId": "d344f0f2-ee8b-11ed-9a6e-0a3efd619f21",
       "clientId": "90b25612-955c-40b6-961a-c15f977d3062",
       "ledgerName": "Avon Riel connect methodical",
       "date": "2017-01-01",
       "memo": "These charges describe catered lunches.",
       "adjustingJournalEntry": true,
       "reference": "",
-      "journalEntryNum": 13455,
       "lineItems": [
         {
           "accountName": "Miscellaneous Expensesfranco3.",
@@ -29,12 +28,11 @@
     {
       "fundId": "d344f0f2-ee8b-11ed-9a6e-0a3efd619f29",
       "clientId": "90b25612-955c-40b6-961a-c15f977d3062",
-      "ledgerName": "Avon Riel connect methodical-DOES_NOT_EXIST!!",
+      "ledgerName": "Avon Riel connect methodical",
       "date": "2021-01-01",
       "memo": "These charges describe catered lunches.",
       "adjustingJournalEntry": true,
       "reference": "",
-      "journalEntryNum": 13455,
       "lineItems": [
         {
           "accountName": "Miscellaneous Expensesfranco3.",

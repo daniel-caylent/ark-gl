@@ -26,7 +26,7 @@ def select_by_fund_id(fund_id, translate=True):
             {
                 'id': 1,
                 'account_no': '6',
-                'name': 'account name-2',
+                'name': 'Miscellaneous Expensesfranco3.',
                 'account_id': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'uuid': 'a92bde1e-7825-429d-aaae-909f2d7a8df1',
                 'accountDescription': 'account description',
@@ -128,3 +128,6 @@ def update_by_id(*args):
 
 def get_line_items(*args):
     return []
+
+def commit_by_id(*args):
+    return None

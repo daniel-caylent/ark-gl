@@ -76,3 +76,6 @@ def create_new(*args):
 
 def delete_by_id(*args):
     return None
+
+def commit_by_id(*args):
+    return None

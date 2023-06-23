@@ -106,7 +106,7 @@ def __add_ledger_ids_to_journals(journal_entry_list):
             ledger = ledgers.select_by_fund_and_name(fund, ledgerName)
 
             if ledger is None:
-                raise Exception(f"Cannot associate with ledger: {ledger_key}")
+                raise Exception(f"Cannot find ledger name ({ledgerName}) in fund: {fund}")
             ledgers_dict[ledger_key] = ledger
 
         new_list.append({**entry, "ledgerId": ledger["ledgerId"]})

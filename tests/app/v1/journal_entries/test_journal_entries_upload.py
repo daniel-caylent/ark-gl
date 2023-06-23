@@ -1,3 +1,5 @@
+import json
+import os
 from pathlib import PurePath
 
 import pytest
@@ -11,47 +13,28 @@ from tests.utils import APP_DIR, APP_SHARED_LAYER
 MODELS = str(PurePath(APP_DIR, 'journal_entries', 'post'))
 PATHS = [MODELS, APP_SHARED_LAYER]
 
+DATA_DIR =  str(PurePath(os.path.dirname(__file__), "data"))
+
+
 class TestJournalEntriesUpload(TestBase(PATHS)):
 
     def test_success(self):
         from app.v1.journal_entries.post.upload import handler
+
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "je.json"))
+        }
         request = {
-            "body": "{\"signedS3Url\": \"URL\"}"
+            "body": json.dumps(body)
         }
 
-        def mock_return(*args, **kwargs):
+        def mock_return(url, *args, **kwargs):
             class Response:
-                def read(*args, **kwargs):
-                    return b"""{
-              "journalEntries": [
-                {
-                  "fundId": "e6a9ebc1-59e3-4cd7-b16c-45ae6e0e05ba",
-                  "clientId": "90b25612-955c-40b6-961a-c15f977d3062",
-                  "ledgerName": "Unique Ledger Name",
-                  "date": "2017-01-01",
-                  "memo": "These charges describe catered lunches.",
-                  "adjustingJournalEntry": true,
-                  "reference": "",
-                  "journalEntryNum": 13455,
-                  "lineItems": [
-                    {
-                      "accountName": "account name-2",
-                      "memo": "These charges describe catered Pizza.",
-                      "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
-                      "amount": 10012,
-                      "type": "CREDIT"
-                    },
-                    {
-                      "accountName": "account name",
-                      "memo": "These charges describe catered Pizza.",
-                      "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
-                      "amount": 10012,
-                      "type": "DEBIT"
-                    }
-                  ]
-                }
-              ]
-            }"""
+                file = url
+                def read(self, *args, **kwargs):
+                    with open(self.file, 'r') as f:
+                        text = f.read()
+                    return text.encode()
                 
             return Response()
 
@@ -60,5 +43,85 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
 
         result = handler(request, LambdaContext())
 
-        print(result)
         assert 201 == result['statusCode']
+  
+    def test_bad_date(self):
+        from app.v1.journal_entries.post.upload import handler
+
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "je_bad_date.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        def mock_return(url, *args, **kwargs):
+            class Response:
+                file = url
+                def read(self, *args, **kwargs):
+                    with open(self.file, 'r') as f:
+                        text = f.read()
+                    return text.encode()
+                
+            return Response()
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_return)
+
+        result = handler(request, LambdaContext())
+
+        assert 400 == result['statusCode']
+  
+    def test_bad_line_item_type(self):
+        from app.v1.journal_entries.post.upload import handler
+
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "je_bad_line_item_type.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        def mock_return(url, *args, **kwargs):
+            class Response:
+                file = url
+                def read(self, *args, **kwargs):
+                    with open(self.file, 'r') as f:
+                        text = f.read()
+                    return text.encode()
+                
+            return Response()
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_return)
+
+        result = handler(request, LambdaContext())
+
+        assert 400 == result['statusCode']
+  
+    def test_no_line_items(self):
+        from app.v1.journal_entries.post.upload import handler
+
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "je_no_line_items.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        def mock_return(url, *args, **kwargs):
+            class Response:
+                file = url
+                def read(self, *args, **kwargs):
+                    with open(self.file, 'r') as f:
+                        text = f.read()
+                    return text.encode()
+                
+            return Response()
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_return)
+
+        result = handler(request, LambdaContext())
+
+        assert 400 == result['statusCode']
