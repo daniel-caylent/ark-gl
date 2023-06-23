@@ -55,7 +55,7 @@ def build_lambda_function(
 
     # Secrets Manager permission
     secret = cdk.aws_secretsmanager.Secret.from_secret_name_v2(
-        context, f"db-secret-{name}", "/secret/arkgl_poc-??????"
+        context, f"db-secret-{name}", f"{ENV['deploy']['DB_SECRET_NAME']}-??????"
     )
 
     secret_policy = cdk.aws_iam.PolicyStatement(

@@ -5,7 +5,7 @@ class TestFundEntity(FundEntityTestBase):
 
     db = "ARKGL"
 
-    # TODO: check the value of this test
+
     def test_get_id(self, monkeypatch):
         import app.layers.database.python.database.fund_entity as fund_entity
 

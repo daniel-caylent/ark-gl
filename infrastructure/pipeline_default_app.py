@@ -3,7 +3,7 @@ import os
 
 import aws_cdk as cdk
 
-from env import ENV
+from env import dev, qa, prod, map_tag
 
 from pipeline.stacks.pipeline_default import DefaultPipelineStack
 
@@ -16,18 +16,19 @@ cdk_env = cdk.Environment(  # Caylent env:
 app = cdk.App()
 
 config = {
-    "dev_account_id": "319244063014",
-    "prod_account_id": "319244063014",
-    "branch": "main",
-    "default_branch": "main",
     "region": "us-east-1",
     "codebuild_prefix": "ark-gl-codebuild",
     "repository_name": "ark-ledger",
+    "dev_account_id": dev['ACCOUNT_ID'],
+    "qa_account_id": qa['ACCOUNT_ID'],
+    "prod_account_id": prod['ACCOUNT_ID'],
+    "qa_role_arn": qa['deploy']['ROLE_ARN'],
+    "prod_role_arn": prod['deploy']['ROLE_ARN'],
 }
 
 DefaultPipelineStack(app, f"ark-gl-default-pipeline", config, env=cdk_env)
 
 cdk.Tags.of(app).add("project", "Ark PES")
-cdk.Tags.of(app).add(ENV["MAP_TAG"], ENV["MAP_VALUE"])
+cdk.Tags.of(app).add(map_tag["MAP_TAG"], map_tag["MAP_VALUE"])
 
 app.synth()

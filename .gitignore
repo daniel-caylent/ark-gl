@@ -145,5 +145,6 @@ infrastructure/shared/layers/pyqldb/python/
 # Mac
 .DS_Store
 
-
 .idea
+
+output/*

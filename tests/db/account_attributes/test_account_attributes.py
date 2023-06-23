@@ -1,6 +1,5 @@
 from .account_attributes_test_base import AccountAttributesTestBase
 
-#TODO: it is needed to create test methods for the following methods: select_all, select_by_uuid
 class TestAccountAttributes(AccountAttributesTestBase):
 
     insert_input = {

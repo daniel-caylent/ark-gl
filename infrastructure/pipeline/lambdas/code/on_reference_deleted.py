@@ -22,39 +22,39 @@ def handler(event, context):
         codebuild_name_prefix,
         artifact_bucket_name,
         role_arn,
-        account_id,
+        dev_account_id,
         region,
     ) = itemgetter(
         "codebuild_name_prefix",
         "artifact_bucket_name",
         "role_arn",
-        "account_id",
+        "dev_account_id",
         "region",
     )(
         lambda_config
     )
 
-    try:
-        reference_type = event['detail']['referenceType']
+    reference_type = event['detail']['referenceType']
+    reference_name = event['detail']['referenceName']
 
-        if (reference_type == "branch"):
+    if reference_type == "branch":
+        if not reference_name.startswith("rc-"):
 
-            branch = event["detail"]["referenceName"]
+            branch = reference_name
+            branch_lower = branch.lower()
 
-            repository_name = event['detail']["repositoryName"]
-
-            destroy_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "destroy")
-            create_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
+            destroy_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch_lower, "destroy")
+            create_code_build_project_name = get_codebuild_project_name(codebuild_name_prefix, branch_lower, "create")
 
             client.create_project(
                 name=destroy_code_build_project_name,
-                description="Build project to destroy branch resources",
+                description="Build project to destroy branch infrastructure",
                 source={
                     'type': 'S3',
-                    "location": f"{artifact_bucket_name}/{branch}/{create_code_build_project_name}/",
+                    "location": f"{artifact_bucket_name}/{branch_lower}/{create_code_build_project_name}/",
                     'buildspec': generate_build_spec_destroy_branch(
-                        branch,
-                        account_id,
+                        branch_lower,
+                        dev_account_id,
                         region,
                         artifact_bucket_name,
                         destroy_code_build_project_name,
@@ -74,6 +74,13 @@ def handler(event, context):
             client.start_build(
                 projectName=destroy_code_build_project_name
             )
+        elif reference_name.startswith("rc-"):
 
-    except Exception as e:
-        logger.error(e)
+            branch = reference_name
+            branch_lower = branch.lower()
+
+            project_name = get_codebuild_project_name(codebuild_name_prefix, branch_lower, "deploy")
+
+            client.delete_project(
+                name=project_name
+            )

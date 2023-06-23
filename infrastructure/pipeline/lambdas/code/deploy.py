@@ -6,7 +6,7 @@ from operator import itemgetter
 
 import boto3
 
-from utils import generate_build_spec_create_branch, get_lambda_config, get_codebuild_project_name
+from utils import generate_build_spec_deploy, get_lambda_config, get_codebuild_project_name
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -42,9 +42,11 @@ def handler(event, context):
             event["detail"]["referenceType"] == "branch":
 
             branch = event["detail"]["referenceName"]
+            branch_lower = branch.lower()
+
             repo_name = event["detail"]["repositoryName"]
 
-            project_name = get_codebuild_project_name(codebuild_name_prefix, branch, "create")
+            project_name = get_codebuild_project_name(codebuild_name_prefix, branch_lower, "deploy")
 
             client.create_project(
                 name=project_name,
@@ -52,17 +54,13 @@ def handler(event, context):
                 source={
                     "type": "CODECOMMIT",
                     "location": f"https://git-codecommit.{region}.amazonaws.com/v1/repos/{repo_name}",
-                    "buildspec": generate_build_spec_create_branch(
-                        branch, account_id, region
+                    "buildspec": generate_build_spec_deploy(
+                        branch_lower, account_id, region, ""
                     ),
                 },
                 sourceVersion=f"refs/heads/{branch}",
                 artifacts={
-                    "type": "S3",
-                    "location": artifact_bucket_name,
-                    "path": branch,
-                    "packaging": "NONE",
-                    "artifactIdentifier": "BranchBuildArtifact",
+                    "type": "NO_ARTIFACTS",
                 },
                 environment={
                     "type": "LINUX_CONTAINER",
