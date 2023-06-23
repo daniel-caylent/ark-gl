@@ -8,7 +8,6 @@ from . import attachment
 from pymysql.cursors import Cursor, DictCursor
 from typing import Union
 from datetime import datetime
-import ark_qldb
 from shared import dataclass_encoder
 
 app_to_db = {
@@ -1041,6 +1040,8 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
     """
+    import ark_qldb
+
     input_ = {
         "state": "POSTED",
         "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
