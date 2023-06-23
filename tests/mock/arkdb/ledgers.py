@@ -54,6 +54,20 @@ def select_by_id(id, translate=True):
       "postDate": None
     }
 
+def select_by_fund_and_name(fund, name):
+    
+    return {
+      "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
+      "glName": "ledger nam",
+      "glDescription": "ledger description",
+      "ledgerId": "b7e84f41-eaa5-11ed-9a6e-0a3efd619f29",
+      "state": "ok",
+      "currencyName": "USD",
+      "currencyDecimal": 3,
+      "isHidden": False,
+      "postDate": None
+    }
+
 def update_by_id(id, dict):
     return None
 

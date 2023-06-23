@@ -1,15 +1,38 @@
 from dataclasses import dataclass
 def get(url):
-    return CsvResponse()
+    return Response()
 
 @dataclass
-class CsvResponse:
-    content: str = b"""accountNo,parentAccountNo,accountName,accountDescription,accountType,fsMappingId,fsName,arkTransaction,isTaxable,isEntityRequired
-1010000,,Cash & Cash Equivalents,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N
-1010100,,Cash & Cash Equivalents-child,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N
-1010200,,Cash Money Market,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N
-1010300,,Restricted Cash,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N
-1020000,,Accounts Receivable,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N
-1020100,,Due From Portfolio Company,description,Assets,2882beed-33f0-47a0-a3f2-aa935ff937f4,Do Not Map,,N,N"""
+class Response:
+    content: str = b"""{
+  "journalEntries": [
+    {
+      "fundId": "e6a9ebc1-59e3-4cd7-b16c-45ae6e0e05ba",
+      "clientId": "90b25612-955c-40b6-961a-c15f977d3062",
+      "ledgerName": "Unique Ledger Name",
+      "date": "2017-01-01",
+      "memo": "These charges describe catered lunches.",
+      "adjustingJournalEntry": true,
+      "reference": "",
+      "journalEntryNum": 13455,
+      "lineItems": [
+        {
+          "accountName": "account name-2",
+          "memo": "These charges describe catered Pizza.",
+          "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
+          "amount": 10012,
+          "type": "CREDIT"
+        },
+        {
+          "accountName": "account name",
+          "memo": "These charges describe catered Pizza.",
+          "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
+          "amount": 10012,
+          "type": "DEBIT"
+        }
+      ]
+    }
+  ]
+}"""
     status_code: int = 200
     

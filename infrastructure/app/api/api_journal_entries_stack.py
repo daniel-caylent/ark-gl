@@ -28,6 +28,7 @@ class JournalEntriesStack(BaseStack):
         )
 
         journal_entry_resource = rest_api.root.add_resource("journal-entries")
+        journal_upload_resource = journal_entry_resource.add_resource("upload")
         journal_entry_id_resource = journal_entry_resource.add_resource(
             "{journalEntryId}"
         )
@@ -39,6 +40,7 @@ class JournalEntriesStack(BaseStack):
         self.__register_journal_entry_get_by_id_method(journal_entry_id_resource)
         self.__register_journal_entry_delete_method(journal_entry_id_resource)
         self.__register_journal_entry_state_method(journal_entry_state_resource)
+        self.__register_journal_entry_upload_method(journal_upload_resource)
 
     def __register_journal_entry_get_by_id_method(self, resource):
         ark_journal_entry_get_function_arn = get_imported_value(
@@ -151,5 +153,24 @@ class JournalEntriesStack(BaseStack):
         )
 
         method = resource.add_method("DELETE", lambda_integration)
+
+        self.methods.append(method)
+
+    def __register_journal_entry_upload_method(self, resource):
+        ark_journal_entry_upload_function_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-journal-entries-upload-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self,
+            "ark-journal-entries-upload-function-arn",
+            ark_journal_entry_upload_function_arn,
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "journal-entries-upload"
+        )
+
+        method = resource.add_method("POST", lambda_integration)
 
         self.methods.append(method)

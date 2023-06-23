@@ -11,6 +11,7 @@ from database.ledger import (
     select_by_client_id as __select_by_client_id,
     select_count_with_post_date,
     commit,
+    select_by_fund_and_name as __select_by_fund_and_name,
 )
 
 # pylint: enable=import-error
@@ -36,6 +37,13 @@ def select_by_fund_id(fund_id):
     results = translate_results(results, app_to_db)
     return results
 
+def select_by_fund_and_name(fund_id: str, name: str) -> dict:
+    """Select a ledger using a fund id and unique name"""
+    result = __select_by_fund_and_name(DB_NAME, fund_id, name, REGION_NAME, SECRET_NAME)
+
+    result = translate_result(result, app_to_db)
+
+    return result
 
 def select_by_id(uuid: str, translate=True) -> dict:
     """Select a ledger by UUID"""

@@ -8,6 +8,7 @@ from database.journal_entry import (
     select_by_ledger_uuid,
     select_by_client_id as __select_by_client_id,
     select_by_fund_id as __select_by_fund_id,
+    bulk_insert as __bulk_insert,
     insert,
     update,
     delete,
@@ -73,8 +74,12 @@ def select_by_client_id(uuid: str) -> dict:
     results = translate_results(results, journal_app_to_db)
     return results
 
+def bulk_insert(journal_entries: list):
+    """Insert a list of multiple journal entries"""
+    result = __bulk_insert(DB_NAME, journal_entries, REGION_NAME, SECRET_NAME)
+    return result
 
-def create_new(journal_entry):
+def create_new(journal_entry: dict):
     """Create a new journal entry"""
     id_ = insert(DB_NAME, journal_entry, REGION_NAME, SECRET_NAME)
     return id_

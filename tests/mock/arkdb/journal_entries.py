@@ -41,6 +41,48 @@ def select_by_ledger_id(id):
         },
     ]
 
+
+def select_by_fund_id(id):
+    """Mock select by ledger id for journal entries"""
+    return [
+        {
+            "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
+            "journalEntryId": "ab72493c-eb7c-11ed-9a6e-0a3efd619f29",
+            "journalEntryNum": 1,
+            "reference": "journal reference",
+            "memo": "journal memo",
+            "adjustingJournalEntry": True,
+            "state": "POSTED",
+            "date": datetime.date.today(),
+            "postDate": datetime.datetime.now(),
+            "isHidden": False,
+            "attachments": [],
+            "lineItems": [],
+            "id": 1,
+            "currencyName": "USD",
+            "currencyDecimal": 2
+        },
+        {
+            "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "fundId": 1,
+            "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
+            "journalEntryNum": 2,
+            "reference": "Reference",
+            "memo": "memo",
+            "adjustingJournalEntry": False,
+            "state": "DRAFT",
+            "date": datetime.date.today(),
+            "postDate": None,
+            "isHidden": False,
+            "attachments": [],
+            "lineItems": [],
+            "id": 2,
+            "currencyName": "USD",
+            "currencyDecimal": 2
+        },
+    ]
+
 def get_line_items(id, translate=True):
     """Mock select get_line_items for journal entries"""
     return [
@@ -196,3 +238,6 @@ def select_attachments_by_journals(id):
 		    "created_at" : "2023-05-26 22:08:38"
 	    }
     ]
+
+def bulk_insert(journal_entries):
+    return None

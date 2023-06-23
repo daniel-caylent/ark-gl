@@ -4,7 +4,7 @@ Module that validates a journal entry
 
 # pylint: disable=import-error; Lambda layer dependency
 from models import JournalEntryPost, LineItemPost, AttachmentPost
-from arkdb import accounts, ledgers
+from arkdb import accounts, ledgers, journal_entries
 from shared import dataclass_error_to_str
 # pylint: enable=import-error
 
@@ -34,8 +34,15 @@ def validate_new_journal_entry(journal_entry):
     if ledger is None:
         return 400, "Specified ledger does not exist.", None
 
-    accts = accounts.select_by_fund_id(ledger["fundId"])
 
+    if post.journalEntryNum is not None:
+        existing_journal_entries = journal_entries.select_by_fund_id(ledger["fundId"])
+        valid = __validate_unique_journal_entry_num(post.__dict__, existing_journal_entries)
+
+        if not valid:
+            return 400, f"Journal entry number is not unique: {post.journalEntryNum}", None
+
+    accts = accounts.select_by_fund_id(ledger["fundId"])
     type_safe_line_items = []
     line_item_no = 0
     for item in post.lineItems:
@@ -107,3 +114,7 @@ def __update_draft_accounts(accounts_, account_ids):
         if account["accountId"] in account_ids:
             if account["state"] not in ["DRAFT", "POSTED"]:
                 accounts.update_by_id(account["accountId"], {"state": "DRAFT"})
+
+def __validate_unique_journal_entry_num(journal, journal_entry_list):
+    journal_entry_nums = [journal["journalEntryNum"] for journal in journal_entry_list]
+    return journal["journalEntryNum"] not in journal_entry_nums

@@ -23,7 +23,7 @@ from app.ledgers import (
     LedgersPostStack,
     LedgersPutStack,
     LedgersDeleteStack,
-    LedgersStateStack,
+    LedgersStateStack
 )
 
 from app.journal_entries import (
@@ -33,6 +33,7 @@ from app.journal_entries import (
     JournalEntriesPutStack,
     JournalEntriesDeleteStack,
     JournalEntriesStateStack,
+    JournalEntriesUploadStack,
 )
 
 from app.reports import (
@@ -166,6 +167,11 @@ journal_entries_state_stack = JournalEntriesStateStack(
 )
 journal_entries_state_stack.add_dependency(vpc_stack)
 
+journal_entries_upload_stack = JournalEntriesUploadStack(
+    app, "ark-gl-journal-entries-upload-stack", env=cdk_env
+)
+journal_entries_upload_stack.add_dependency(vpc_stack)
+
 reports_stack = ReportsStack(
     app, "ark-gl-reports-stack", env=cdk_env
 )
@@ -192,6 +198,7 @@ dependency_group.add(journal_entries_get_stack)
 dependency_group.add(journal_entries_post_stack)
 dependency_group.add(journal_entries_put_stack)
 dependency_group.add(journal_entries_state_stack)
+dependency_group.add(journal_entries_upload_stack)
 dependency_group.add(journal_entries_delete_stack)
 dependency_group.add(reports_stack)
 

@@ -13,9 +13,10 @@ from shared.utils import JOURNAL_ENTRIES_DIR
 
 import aws_cdk as cdk
 
-CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "delete"))
+CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "post"))
 
-class JournalEntriesDeleteStack(BaseStack):
+
+class JournalEntriesUploadStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -26,14 +27,15 @@ class JournalEntriesDeleteStack(BaseStack):
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="delete.handler",
+            handler="upload.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries delete",
+            description="journal entries upload",
+            exclude=["post*"],
         )
 
         cdk.CfnOutput(
             self,
-            "ark-journal-entries-delete-function-arn",
+            "ark-journal-entries-upload-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX + "ark-journal-entries-delete-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-upload-function-arn",
         )

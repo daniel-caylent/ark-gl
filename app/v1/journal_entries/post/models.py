@@ -23,6 +23,7 @@ class JournalEntryPost:
     memo: str
     adjustingJournalEntry: bool
     lineItems: list
+    journalEntryNum: int = None
     attachments: list = field(default_factory=list)
     isHidden: bool = False
     # pylint: enable=invalid-name;
@@ -36,6 +37,10 @@ class JournalEntryPost:
         )
         self.isHidden = validate_bool(self.isHidden, "isHidden")
         self.date = validate_date(self.date, "date", "%Y-%m-%d")
+        self.journalEntryNum = (
+            None if self.journalEntryNum is None
+            else validate_int(self.journalEntryNum, "journalEntryNum")
+        )
 
 
 @dataclass
@@ -70,3 +75,32 @@ class AttachmentPost:
     def __post_init__(self):
         self.documentId = validate_str(self.documentId, "documentId", min_len=1, max_len=64)
         self.documentMemo = validate_str(self.documentMemo, "documentMemo")
+
+
+@dataclass
+class BulkJournalEntryPost:
+    fundId: str
+    clientId: str
+    ledgerName: str
+    date: str
+    reference: str
+    memo: str 
+    adjustingJournalEntry: str
+    lineItems: list
+    journalEntryNum: str = None
+    attachments: list = field(default_factory=list)
+
+    def __post_init__(self):
+        self.fundId = check_uuid(self.fundId, "ledgerId")
+        self.clientId = check_uuid(self.clientId, "ledgerId")
+        self.ledgerName = validate_str(self.ledgerName, "ledgerName")
+        self.reference = validate_str(self.reference, "reference")
+        self.memo = validate_str(self.memo, "memo")
+        self.adjustingJournalEntry = validate_bool(
+            self.adjustingJournalEntry, "adjustingJournalEntry"
+        )
+        self.date = validate_date(self.date, "date", "%Y-%m-%d")
+        self.journalEntryNum = (
+            None if self.journalEntryNum is None
+            else validate_int(self.journalEntryNum, "journalEntryNum")
+        )
