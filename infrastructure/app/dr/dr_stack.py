@@ -16,7 +16,6 @@ from shared.utils import get_stack_prefix, DR_DIR
 from env import ENV
 
 EXPORT_CODE_DIR = str(PurePath(DR_DIR, "export"))
-DISTRIBUTE_CODE_DIR = str(PurePath(DR_DIR, "distribute"))
 
 
 
@@ -42,7 +41,6 @@ class DRStack(BaseStack):
             self,
             "dr-qldb-export-Role",
             assumed_by=iam.ServicePrincipal("qldb.amazonaws.com"),
-            description="Example role...",
         )
 
         dr_actions_statement = cdk.aws_iam.PolicyStatement(
@@ -82,8 +80,6 @@ class DRStack(BaseStack):
 
         qldb_role.attach_inline_policy(dr_policy)
         shared_layer = get_shared_layer(self)
-        # pymysql_layer = get_pymysql_layer(self)
-        # db_layer = get_database_layer(self)
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
 
@@ -118,46 +114,3 @@ class DRStack(BaseStack):
         eventbridge_cron.add_target(
             cdk.aws_events_targets.LambdaFunction(self.lambda_function)
         )
-
-        self.queue = cdk.aws_sqs.Queue(
-            self,
-            id="ark-sqs-dr-recovery-process",
-            queue_name=self.STACK_PREFIX + ENV["SQS_RECOVERY_PROCESS"],
-            visibility_timeout=cdk.Duration.seconds(60),
-        )
-
-        self.lambda_function_2 = build_dr_lambda_function(
-            self,
-            DISTRIBUTE_CODE_DIR,
-            handler="distribute_export.handler",
-            layers=[shared_layer, qldb_layer, qldb_reqs],
-            description="dr qldb export lambda",
-            env={
-                "ROLE_ARN": qldb_role.role_arn,
-                "DR_BUCKET_NAME": dr_bucket_name,
-                "SQS_QUEUE_URL": self.queue.queue_url,
-                "LOG_LEVEL": "INFO",
-            },
-            cdk_env=kwargs["env"],
-            name="distribute-export",
-        )
-
-        sqs_actions_statement = cdk.aws_iam.PolicyStatement(
-            actions=[
-                "sqs:SendMessage",
-            ],
-            resources=[self.queue.queue_arn],
-        )
-
-        dr_policy_2 = cdk.aws_iam.Policy(
-            self,
-            "ark-dr-export-policy2",
-            policy_name="ark-dr-export-policy2",
-            statements=[
-                dr_actions_statement,
-                dr_actions_statement2,
-                sqs_actions_statement,
-            ],
-        )
-
-        self.lambda_function_2.role.attach_inline_policy(dr_policy_2)

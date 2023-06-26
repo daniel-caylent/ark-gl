@@ -20,8 +20,8 @@ class ReplicationStack(BaseStack):
 
         # S3 CROSS-REGION REPLICATION
         # Create the destination bucket in the replica region
-        replica_bucket_name = get_stack_prefix() + 'arkgl-dr-replica'
-        replica_bucket = s3.Bucket(
+        replica_bucket_name = get_stack_prefix() + ENV["DR_BUCKET_NAME"] + '-replica'
+        self.replica_bucket = s3.Bucket(
            self,
            'arkgl-dr-replica-bucket',
            bucket_name=replica_bucket_name,
@@ -64,7 +64,7 @@ class ReplicationStack(BaseStack):
 
         replication_role.add_to_policy(
             iam.PolicyStatement(
-                resources=[replica_bucket.arn_for_objects("*")],
+                resources=[self.replica_bucket.arn_for_objects("*")],
                 actions=[
                     "s3:ReplicateObject",
                     "s3:ReplicateDelete",
@@ -80,7 +80,7 @@ class ReplicationStack(BaseStack):
             rules=[
                 s3.CfnBucket.ReplicationRuleProperty(
                     destination=s3.CfnBucket.ReplicationDestinationProperty(
-                        bucket=replica_bucket.bucket_arn
+                        bucket=self.replica_bucket.bucket_arn
                     ),
                     status="Enabled"
                 )

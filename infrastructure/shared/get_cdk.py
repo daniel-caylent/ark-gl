@@ -13,6 +13,7 @@ def build_lambda_function(
     env={},
     timeout=60,
     exclude=[],
+    is_replication=False,
     **kwargs,
 ):
     """
@@ -20,11 +21,18 @@ def build_lambda_function(
     passed in as parameters. Call from a CDK Stack to add a lambda function
     to the stack
     """
-    vpc = get_vpc(context, name)
-
-    security_group_id = cdk.Fn.import_value(
-        context.STACK_PREFIX + "lambda-security-group"
-    )
+    if is_replication:
+        vpc = get_replication_vpc(context, name)
+        subnets = get_replication_subnets(context, name)
+        security_group_id = cdk.Fn.import_value(
+            context.STACK_PREFIX + "lambda-replica-security-group"
+        )
+    else:
+        vpc = get_vpc(context, name)
+        subnets = get_subnets(context, name)
+        security_group_id = cdk.Fn.import_value(
+            context.STACK_PREFIX + "lambda-security-group"
+        )
 
     security_group = cdk.aws_ec2.SecurityGroup.from_security_group_id(
         context, f"ark-lambda-security-group-{name}", security_group_id
@@ -43,7 +51,7 @@ def build_lambda_function(
         code=cdk.aws_lambda.Code.from_asset(code_dir, exclude=exclude),
         handler=handler,
         vpc=vpc,
-        vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=get_subnets(context, name)),
+        vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=subnets),
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
         memory_size=512,
@@ -298,8 +306,13 @@ def get_subnets(context, name=""):
 
 
 def get_replication_vpc(context, name=""):
+    replication_region = ENV["replication_configuration"]["region"]
     return cdk.aws_ec2.Vpc.from_lookup(
-        context, f"ark-ledger-replication-vpc-{name}", is_default=False, vpc_id=ENV["replication_configuration"]["vpc"]
+        context,
+        f"ark-ledger-replication-vpc-{name}",
+        is_default=False,
+        vpc_id=ENV["replication_configuration"]["vpc"],
+        region=replication_region,
     )
 
 

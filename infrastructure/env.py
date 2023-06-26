@@ -80,9 +80,8 @@ dev = {
         # 'compliance_duration_days': 2,
         "vpc": "vpc-0acbf36a4d1313153",
         "subnets": [
-            "subnet-06f2911d2e6c326d3",
-            "subnet-0e2577d2f32013a24",
-            "subnet-072f5dff0589da023",
+            "subnet-025f3e7ea356535b6",
+            "subnet-095fbe87b18fc2192",
         ],
     },
     **map_tag,

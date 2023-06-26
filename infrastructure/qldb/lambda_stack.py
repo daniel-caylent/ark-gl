@@ -10,13 +10,13 @@ from shared.utils import get_stack_prefix, QLDB_DIR
 
 from shared.layers import get_qldb_layer, get_pyqldb_layer
 
-from shared.get_cdk import get_vpc, get_subnets
+from shared.get_cdk import get_vpc, get_subnets, get_replication_vpc, get_replication_subnets
 
 CODE_DIR = str(PurePath(QLDB_DIR, "qldb_tables"))
 
 
 class LambdaTriggerStack(BaseStack):
-    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, id: str, is_replication: bool = False, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         ledger_name = ENV["deploy"]["LEDGER_NAME"]
@@ -24,8 +24,12 @@ class LambdaTriggerStack(BaseStack):
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
 
-        vpc = get_vpc(self)
-        subnets = get_subnets(self)
+        if is_replication:
+            vpc = get_replication_vpc(self)
+            subnets = get_replication_subnets(self)
+        else:
+            vpc = get_vpc(self)
+            subnets = get_subnets(self)
 
         function = cdk.triggers.TriggerFunction(
             self,

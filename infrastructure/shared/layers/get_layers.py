@@ -57,7 +57,7 @@ def get_models_layer(context, models_dir):
     )
 
 
-def get_awswrangler_layer(context):
-    arn = "arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python39:7"
+def get_awswrangler_layer(context, region):
+    arn = "arn:aws:lambda:"+region+":336392948345:layer:AWSSDKPandas-Python39:7"
 
     return get_lambda_layer_from_arn(context, "layer" + arn, arn)
