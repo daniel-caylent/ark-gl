@@ -9,7 +9,12 @@ from shared.get_cdk import (
     build_method_response,
     build_lambda_integration,
 )
-from shared.layers import get_shared_layer, get_pymysql_layer, get_database_layer
+from shared.layers import (
+    get_shared_layer,
+    get_pymysql_layer,
+    get_database_layer,
+    get_codeguru_profiler_agent_layer
+)
 from shared.utils import ACCOUNTS_ATTR_DIR
 
 import aws_cdk as cdk
@@ -30,7 +35,7 @@ class AccountAttributesGetStack(BaseStack):
             CODE_DIR,
             "get.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="account attributes get",
+            description="account attributes get"
         )
 
         cdk.CfnOutput(

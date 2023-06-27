@@ -5,6 +5,10 @@ from .utils import get_stack_prefix
 from env import ENV
 
 
+def check_profiling_enabled(stack_prefix: str) -> bool:
+    return ENV['enable_profiling'] and ENV['environment'] == stack_prefix
+
+
 def build_lambda_function(
     context,
     code_dir: str,
@@ -45,6 +49,36 @@ def build_lambda_function(
         True,
     )
 
+    if check_profiling_enabled(context.STACK_PREFIX):
+        profile_app_role = cdk.aws_iam.Role(context, context.artifact_id + '-profiling-role',
+            assumed_by=cdk.aws_iam.AccountRootPrincipal()
+        )
+
+        profiling_group_name = context.artifact_id + '-profiling-group'
+
+        profiling_group = cdk.aws_codeguruprofiler.ProfilingGroup(
+            context,
+            profiling_group_name,
+            compute_platform=cdk.aws_codeguruprofiler.ComputePlatform.AWS_LAMBDA,
+            profiling_group_name=profiling_group_name
+        )
+
+        profiling_group.grant_publish(profile_app_role)
+
+        code_guru_lambda_layer = get_lambda_layer_from_arn(
+            context,
+            "ark-code-guru-lambda-layer",
+            "arn:aws:lambda:us-east-1:157417159150:layer:AWSCodeGuruProfilerPythonAgentLambdaLayer:11"
+        )
+
+        kwargs['layers'].append(code_guru_lambda_layer)
+
+        env={
+            "AWS_CODEGURU_PROFILER_ENABLED": 'TRUE',
+            "AWS_CODEGURU_PROFILER_GROUP_ARN": profiling_group.profiling_group_arn,
+            "AWS_LAMBDA_EXEC_WRAPPER": "/opt/codeguru_profiler_lambda_exec"
+        }
+
     function = cdk.aws_lambda.Function(
         context,
         name,
@@ -78,6 +112,10 @@ def build_lambda_function(
             statements=[secret_policy],
         )
     )
+
+    if check_profiling_enabled(context.STACK_PREFIX):
+        code_guru_policy = cdk.aws_iam.ManagedPolicy.from_aws_managed_policy_name('AmazonCodeGuruProfilerAgentAccess')
+        function.role.add_managed_policy(code_guru_policy)
 
     return function
 

@@ -30,6 +30,7 @@ prod = {
     "DR_BUCKET_NAME": "arkgl-dr",
     "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
     "ACCOUNT_ID": "466731580695",
+    "enable_profiling": False,
     **map_tag,
 }
 
@@ -55,6 +56,7 @@ qa = {
     "DR_BUCKET_NAME": "arkgl-dr",
     "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
     "ACCOUNT_ID": "057034653783",
+    "enable_profiling": True,
     **map_tag,
 }
 
@@ -75,6 +77,7 @@ dev = {
     "DR_BUCKET_NAME": "arkgl-disaster-recovery",
     "SQS_RECOVERY_PROCESS": "ark-sqs-dr-recovery-process",
     "ACCOUNT_ID": "319244063014",
+    "enable_profiling": True,
     "replication_configuration": {
         "region": "us-east-2",
         # 'compliance_duration_days': 2,

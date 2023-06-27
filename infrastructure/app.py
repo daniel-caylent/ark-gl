@@ -88,8 +88,8 @@ account_attributes_get_stack = AccountAttributesGetStack(
 account_attributes_get_stack.add_dependency(vpc_stack)
 
 accounts_get_stack = AccountsGetStack(app, "ark-gl-accounts-get-stack", env=cdk_env)
-accounts_get_stack.add_dependency(vpc_stack)
 
+accounts_get_stack.add_dependency(vpc_stack)
 accounts_get_by_id_stack = AccountsGetByIdStack(
     app, "ark-gl-accounts-get-by-id-stack", env=cdk_env
 )
@@ -349,7 +349,6 @@ else:
 
 
 api_stage_stack = StageStack(app, "ark-gl-api-stage-stack", rest_api.api, methods, env=cdk_env)
-
 api_stage_stack.node.add_dependency(stage_dependency_group)
 
 cdk.Tags.of(app).add("project", "Ark PES")
