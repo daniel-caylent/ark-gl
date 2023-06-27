@@ -30,6 +30,7 @@ class JournalEntriesPostStack(BaseStack):
             handler="post.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries post",
+            exclude=["upload*"]
         )
 
         cdk.CfnOutput(

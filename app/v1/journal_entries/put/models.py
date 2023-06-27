@@ -13,6 +13,7 @@ class JournalEntryPut:
     """Validate journal entry data from a put"""
 
     # pylint: disable=invalid-name; API standard
+    ledgerId: str
     reference: str = None
     memo: str = None
     adjustingJournalEntry: bool = None
@@ -23,6 +24,10 @@ class JournalEntryPut:
     # pylint: enable=invalid-name;
 
     def __post_init__(self):
+        self.ledgerId = (
+            None if self.ledgerId is None else
+            check_uuid(self.ledgerId, "ledgerId")
+        )
         self.reference = (
             None if self.reference is None else
             validate_str(self.reference, "reference")

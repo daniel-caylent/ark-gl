@@ -22,12 +22,12 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if result is None:
         return 404, {"detail": "No account found."}
 
-    if result["state"] == "COMMITTED":
-        return 400, {"detail": "COMMITTED accounts cannot be deleted."}
+    if result["state"] == "POSTED":
+        return 400, {"detail": "POSTED accounts cannot be deleted."}
 
     try:
         accounts.delete_by_id(account_id)
     except Exception as e:
-        return 400, {"detail": f"Unable to delete. This account may have children. {e}"}
+        return 400, {"detail": f"Unable to delete. This account may have children."}
 
     return 200, {}

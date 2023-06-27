@@ -93,7 +93,7 @@ def __get_insert_query(
     return (query, params, uuid)
 
 
-def __get_update_query(db: str, id_: str, input_: dict) -> tuple:
+def __get_update_query(db: str, id_: str, input_: dict, region_name, secret_name) -> tuple:
     """
     This function creates the update query with its parameters.
 
@@ -107,6 +107,10 @@ def __get_update_query(db: str, id_: str, input_: dict) -> tuple:
     input_: dictionary
     This parameter contains all the parameters inside a dictionary that
     will be used for the query
+
+    region_name: aws region
+
+    secret_name: name of the db secret_name
 
     return
     A tuple containing the query on the first element, and the params on the second
@@ -132,7 +136,12 @@ def __get_update_query(db: str, id_: str, input_: dict) -> tuple:
     params = ()
     for key in translated_input.keys():
         set_clause += str(key) + " = %s,\n"
-        params += (translated_input.get(key),)
+
+        value = translated_input.get(key)
+        if key == "ledger_id":
+            value = ledger.get_id(db, translated_input.get(key), region_name, secret_name)
+
+        params += (value,)
 
     size = len(set_clause)
     # Slice string to remove last 3 characters from string
@@ -581,7 +590,7 @@ def update(
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
     """
-    params = __get_update_query(db, uuid, input_)
+    params = __get_update_query(db, uuid, input_, region_name, secret_name)
     query = params[0]
     q_params = params[1]
 
@@ -1113,7 +1122,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
         "state": "POSTED",
         "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
-    params = __get_update_query(db, id_, input_)
+    params = __get_update_query(db, id_, input_, region_name, secret_name)
     query = params[0]
     q_params = params[1]
 

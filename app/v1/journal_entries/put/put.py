@@ -9,7 +9,7 @@ from models import JournalEntryPut, LineItemPost, AttachmentPost
 # pylint: enable=import-error
 
 COMMITED_CHANGEABLE = []
-REQUIRED_FIELDS = ["date", "reference", "memo", "adjustingJournalEntry"]
+REQUIRED_FIELDS = ["date", "reference", "memo", "adjustingJournalEntry", "ledgerId"]
 
 
 @endpoint
@@ -44,8 +44,14 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
-    # verify ledger exists
-    ledger = ledgers.select_by_id(journal_entry["ledger_id"])
+    if put.ledgerId:
+        ledger = ledgers.select_by_id(put.ledgerId)
+    else:
+        # verify ledger exists
+        ledger = ledgers.select_by_id(journal_entry["ledger_id"])
+
+    if not ledger:
+        return 400, {"detail", "Supplied ledger ID does not match an existing ledger."}
 
     if journal_entry['state'] == 'POSTED':
         for key in body.keys():
