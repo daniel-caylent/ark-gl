@@ -4,9 +4,7 @@ from datetime import datetime
 from shared.base_stack import BaseStack
 
 from shared.get_cdk import (
-    build_api_gateway,
-    build_api_gateway_deployment,
-    build_api_gateway_stage,
+    build_api_gateway
 )
 
 from aws_cdk import aws_apigateway as apigtw, aws_logs as logs, CfnOutput

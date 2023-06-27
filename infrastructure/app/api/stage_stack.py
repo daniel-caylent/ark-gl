@@ -36,9 +36,11 @@ class StageStack(BaseStack):
             stage_name="v1",
             deployment=deployment,
             metrics_enabled=True,
+            tracing_enabled=True,
+            data_trace_enabled=True,
             access_log_destination=apigtw.LogGroupLogDestination(log_group),
             access_log_format=apigtw.AccessLogFormat.json_with_standard_fields(
-                caller=False,
+                caller=True,
                 http_method=True,
                 ip=True,
                 protocol=True,

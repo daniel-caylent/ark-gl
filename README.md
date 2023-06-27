@@ -62,7 +62,7 @@ python --version
 
 ### Building up the layer's dependencies
 
-Before the deployment of the CDK, we need to build the CDK dependencies.
+**Before the deployment of the CDK**, we need to build the CDK dependencies.
 
 In the root folder of the repo, consider executing the following script:
 
@@ -74,24 +74,42 @@ In the root folder of the repo, consider executing the following script:
 
 For provisioning the resources before the deploy (Just execute this a single time per account):
 ```bash
-cdk bootstrap
+cdk bootstrap "aws://ACCOUNT_ID/REGION"
 ```
 
 For creating the infrastructure CloudFormating scripts locally
 ```bash
-cdk synth
+cdk synth --app "python3 <app_path>"
 ```
 
 For deploying the application in the default AWS account
 ```bash
-cdk deploy --all
-
-cdk deploy <stack_name>
+cdk deploy --app "python3 infrastructure/app.py" --all
 ```
 
-For deploying the pipeline
+For deploying the CICD Pipeline
 ```bash
-cdk deploy --app "python3 pipeline_app.py"
+cdk deploy --app "python3 infrastructure/pipeline_default_app.py" --all
+```
+
+For deploying the DR App
+```bash
+cdk deploy --app "python3 infrastructure/dr_app.py" --all
+```
+
+For deploying the QLDB App
+```bash
+cdk deploy --app "python3 infrastructure/qldb_app.py" --all
+```
+
+For deploying the Reconciliation App
+```bash
+cdk deploy --app "python3 infrastructure/reconciliation_app.py" --all
+```
+
+For destroying any application
+```bash
+cdk destroy --app "python3 <app_path>" --all
 ```
 
 ### Tests execution / Code Coverage
@@ -103,5 +121,5 @@ pytest tests
 
 For gathering code coverage metrics, the following command should be executed:
 ```
-pytest --cov=app --cov=infrastructure tests/
+pytest --cov=app tests/
 ```
