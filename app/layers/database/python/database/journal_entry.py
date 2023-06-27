@@ -244,6 +244,43 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
 
     return (query, params)
 
+def __get_select_by_ledger_uuid_with_order_query(db: str, ledger_uuid: str, order_list: list) -> tuple:
+    """
+    This function creates the select by ledger query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    format_strings = ",".join(["%s"] * len(order_list))
+
+    query = (
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+    where le.uuid = %s ORDER BY %s;"""
+    )
+
+    params = (ledger_uuid, format_strings)
+
+    return (query, params)
+
 
 def __get_select_posted_between_dates_query(
     db: str, start_date: str, end_date: str
@@ -330,6 +367,36 @@ def select_by_ledger_uuid(
     A list containing the journal entries that match with the upcoming ledger_id
     """
     params = __get_select_by_ledger_uuid_query(db, ledger_uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+def select_by_ledger_uuid_with_order(
+    db: str, ledger_uuid: str, order_list: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_select_by_ledger_uuid_with_order_query(db, ledger_uuid, order_list)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
