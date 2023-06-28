@@ -17,6 +17,7 @@ app_to_db = {
     "accountNo": "account_no",
     "state": "state",
     "parentAccountId": "parent_id",
+    "parentAccountNo": "parent_no",
     "accountName": "name",
     "accountDescription": "description",
     "attributeId": "account_attribute_id",
@@ -24,6 +25,7 @@ app_to_db = {
     "isTaxable": "is_taxable",
     "isEntityRequired": "is_entity_required",
     "fsMappingId": "fs_mapping_id",
+    "fsMappingNo": "fs_mapping_no",
     "fsName": "fs_name",
     "isDryRun": "is_dry_run",
     "postDate": "post_date",
@@ -701,6 +703,32 @@ def __get_by_number_query(db: str, account_number: str) -> tuple:
 
     return (query, params)
 
+def __get_by_number_and_fund_query(db: str, account_number: str, fund_id: str) -> tuple:
+    """
+    This function creates the select by account_no query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_number: string
+    This parameter specifies the account_number that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = """
+        SELECT acc.id, acc.account_no, acc.uuid,
+        acc.name, acc.description, acc.state, acc.is_hidden,
+        acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date
+        FROM """ + db + """.account acc
+        INNER JOIN """ + db + """.fund_entity ON fe.uuid = %s
+        WHERE acc.account_no = %s """
+
+    params = (fund_id, account_number,)
+
+    return (query, params)
+
 
 def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> dict:
     """
@@ -728,6 +756,40 @@ def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> 
     return record
 
 
+def select_by_number_and_fund(
+    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+) -> dict:
+    """
+    This function returns the record from the result of the "select by number" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_number: string
+    This parameter specifies the account_number that will be used for this query
+
+    fund_id: string
+    UUID to reference a specific fund
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A dict containing the account that matches with the upcoming account_number
+    """
+    params = __get_by_number_and_fund_query(db, account_number, fund_id)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    record = db_main.execute_single_record_select(conn, params)
+
+    return record
+
+
 def select_by_number(
     db: str, account_number: str, region_name: str, secret_name: str
 ) -> dict:
@@ -739,6 +801,9 @@ def select_by_number(
 
     account_number: string
     This parameter specifies the account_number that will be used for this query
+
+    fund_id: string
+    UUID to reference a specific fund
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -782,6 +847,37 @@ def get_id_by_number(
     A string representing the id of that Account record with account_no equals to the input
     """
     record = select_by_number(db, account_number, region_name, secret_name)
+
+    return record.get("id") if record else None
+
+
+
+def get_id_by_number_and_fund(
+    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+) -> str:
+    """
+    This function returns the id from an account with a specified account_number.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_number: string
+    This parameter specifies the account_number that will be used for this query
+
+    fund_id: string
+    UUID to reference a specific fund
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A string representing the id of that Account record with account_no equals to the input
+    """
+    record = select_by_number_and_fund(db, account_number, fund_id, region_name, secret_name)
 
     return record.get("id") if record else None
 
@@ -1189,6 +1285,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
     cursor = conn.cursor(DictCursor)
 
     try:
+        id_lookup = {}
         for input_ in input_list:
             fund_dict = {
                 "fund_entity_id": input_.get("fundId"),
@@ -1213,6 +1310,22 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 # Once inserted, get the auto-generated id
                 fund_entity_id = cursor.lastrowid
 
+            parent_no = input_.get("parent_account_no")
+            fs_mapping_no = input_.get("fs_mapping_no")
+            if parent_no:
+                parent_id = id_lookup.get(parent_no)
+                if parent_id is None:
+                    parent_id = get_id_by_number_and_fund(db, parent_no, fund_entity_uuid)
+                
+                input_["parentAccountId"] = parent_id
+            
+            if fs_mapping_no:
+                fs_mapping_id = id_lookup.get(fs_mapping_no)
+                if fs_mapping_id is None:
+                    fs_mapping_id = get_id_by_number_and_fund(db, fs_mapping_no, fund_entity_uuid)
+                
+                input_["fsMappingId"] = fs_mapping_id
+            
             # Get insert query of account
             params = __get_insert_query(
                 db, input_, fund_entity_id, region_name, secret_name
@@ -1230,6 +1343,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
 
             # After that, execute insert of account
             cursor.execute(query, q_params)
+            id_lookup[input_["accountNo"]] = cursor.lastrowid
 
             # Then, inserting/updating FS
             if fs_mapping_id:

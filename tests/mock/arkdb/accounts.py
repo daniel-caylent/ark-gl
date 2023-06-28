@@ -131,3 +131,6 @@ def get_line_items(*args):
 
 def commit_by_id(*args):
     return None
+
+def bulk_insert(accounts_list):
+    return ["id", "id2"]

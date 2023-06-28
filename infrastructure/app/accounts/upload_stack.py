@@ -10,7 +10,7 @@ from shared.utils import ACCOUNTS_DIR
 
 import aws_cdk as cdk
 
-CODE_DIR = str(PurePath(ACCOUNTS_DIR, "get"))
+CODE_DIR = str(PurePath(ACCOUNTS_DIR, "post"))
 
 
 class AccountsUploadStack(BaseStack):
@@ -26,7 +26,7 @@ class AccountsUploadStack(BaseStack):
             CODE_DIR,
             handler="upload.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="accounts post from a csv",
+            description="accounts post from a json object",
         )
 
         cdk.CfnOutput(

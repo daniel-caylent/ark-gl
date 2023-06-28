@@ -66,14 +66,14 @@ class BulkAccountPost:
     # pylint: disable=invalid-name; API standard
     fundId: str
     clientId: str
-    attributeName: str
+    attributeType: str
     accountNo: str
     accountName: str
     isTaxable: bool
 
     # optional
     fsName: str = None
-    fsMappingId: str = None
+    fsMappingNo: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
     isDryRun: bool = False
@@ -87,7 +87,7 @@ class BulkAccountPost:
         self.accountName = validate_str(self.accountName, "accountName", min_len=3)
         self.fundId = check_uuid(self.fundId, "fundId")
         self.clientId = check_uuid(self.clientId, "clientId")
-        self.attributeName = validate_str(self.attributeName, "attributeName")
+        self.attributeType = validate_str(self.attributeType, "attributeType")
         self.isTaxable = validate_bool(self.isTaxable, "isTaxable")
         # optional
 
@@ -100,10 +100,10 @@ class BulkAccountPost:
         self.parentAccountNo = (
             None
             if self.parentAccountNo is None
-            else check_uuid(self.parentAccountNo, "parentAccountNo")
+            else validate_str(self.parentAccountNo, "parentAccountNo")
         )
-        self.fsMappingId = (
+        self.fsMappingNo = (
             None
-            if self.fsMappingId is None
-            else check_uuid(self.fsMappingId, "fsMappingId")
+            if self.fsMappingNo is None
+            else validate_str(self.fsMappingNo, "fsMappingNo")
         )
