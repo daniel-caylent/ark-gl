@@ -1,0 +1,34 @@
+{
+  "accounts": [
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeType": "Assets",
+      "accountNo": "5463728170",
+      "accountName": "THE FIRST PARENT ACCOUNT4",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingNo": null,
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountNo": null,
+      "isHidden": false
+    },
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeType": "Assets",
+      "accountNo": "222553",
+      "accountName": "THE FIRST CHILD ACCOUNT4",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingNo": null,
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountNo": "5463728170",
+      "isHidden": false
+    }
+  ]
+}

@@ -28,6 +28,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     try:
         accounts.delete_by_id(account_id)
     except Exception as e:
-        return 400, {"detail": f"Unable to delete. This account may have children."}
+        return 400, {"detail": f"Unable to delete. This account may have children or journal entries."}
 
     return 200, {}

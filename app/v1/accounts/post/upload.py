@@ -13,7 +13,7 @@ from shared.bulk import download_from_s3
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters 
     """Handler for the journal entries upload request
 
     event: dict
@@ -86,7 +86,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         post_entries.append({**post, "parentAccountNo": parent, "fsMappingNo": fs_mapping})
 
     # insert the new account
-    result = accounts.bulk_insert(accounts_list)
+    result = accounts.bulk_insert(post_entries)
     return code, {"accountIds": result}
 
 def __add_attributes_to_accounts(accounts_list: list, account_attributes_list: list):

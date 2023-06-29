@@ -84,11 +84,9 @@ def __get_insert_query(
 
     # Evaluating if "parent_id" is null, to insert the uuid by default
     # if not, get the id from the parent's uuid
-    parent_uuid = translated_input.get("parent_id")
-    if parent_uuid:
-        parent_id = get_id_by_uuid(db, parent_uuid, region_name, secret_name)
-    else:
-        parent_id = None
+    parent_id = translated_input.get("parent_id")
+    if parent_id and not isinstance(parent_id, int):
+        parent_id = get_id_by_uuid(db, parent_id, region_name, secret_name)
 
     # Evaluating if "fs_mapping_id" is null, to insert the uuid by default
     fs_mapping_id = translated_input.get("fs_mapping_id")
@@ -446,11 +444,11 @@ def check_fs(db: str, fs_mapping_id: str, region_name: str, secret_name: str) ->
     A boolean indicating whether the FS should be inserted or not
     """
 
-    # Checking if the upcoming fs_mapping_id exists
-    fs_acc_check = select_by_uuid(db, fs_mapping_id, region_name, secret_name)
+    # # Checking if the upcoming fs_mapping_id exists
+    # fs_acc_check = select_by_uuid(db, fs_mapping_id, region_name, secret_name)
 
-    if not fs_acc_check:
-        raise Exception("The upcoming fsMappingId is invalid")
+    # if not fs_acc_check:
+    #     raise Exception("The upcoming fsMappingId is invalid")
 
     # Checking if the FS row already exists, to insert or update later
     fs_check = fs.select_by_fs_mapping_id(db, fs_mapping_id, region_name, secret_name)
@@ -722,8 +720,8 @@ def __get_by_number_and_fund_query(db: str, account_number: str, fund_id: str) -
         acc.name, acc.description, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date
         FROM """ + db + """.account acc
-        INNER JOIN """ + db + """.fund_entity ON fe.uuid = %s
-        WHERE acc.account_no = %s """
+        INNER JOIN """ + db + """.fund_entity fe ON fe.id = acc.fund_entity_id
+        WHERE fe.uuid = %s and acc.account_no = %s"""
 
     params = (fund_id, account_number,)
 
@@ -880,6 +878,36 @@ def get_id_by_number_and_fund(
     record = select_by_number_and_fund(db, account_number, fund_id, region_name, secret_name)
 
     return record.get("id") if record else None
+
+
+def get_uuid_by_number_and_fund(
+    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+) -> str:
+    """
+    This function returns the id from an account with a specified account_number.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_number: string
+    This parameter specifies the account_number that will be used for this query
+
+    fund_id: string
+    UUID to reference a specific fund
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A string representing the uuid of that Account record with account_no equals to the input
+    """
+    record = select_by_number_and_fund(db, account_number, fund_id, region_name, secret_name)
+
+    return record.get("uuid") if record else None
 
 
 def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> dict:
@@ -1310,26 +1338,31 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 # Once inserted, get the auto-generated id
                 fund_entity_id = cursor.lastrowid
 
-            parent_no = input_.get("parent_account_no")
-            fs_mapping_no = input_.get("fs_mapping_no")
+            parent_no = input_.get("parentAccountNo")
             if parent_no:
-                parent_id = id_lookup.get(parent_no)
+                parent_id = id_lookup.get(parent_no, {}).get("id")
                 if parent_id is None:
-                    parent_id = get_id_by_number_and_fund(db, parent_no, fund_entity_uuid)
+                    parent_id = get_id_by_number_and_fund(db, parent_no, fund_entity_uuid, region_name, secret_name)
                 
+                if parent_id is None:
+                    raise Exception(f"Could not find a match for parent account number: {parent_no}")
                 input_["parentAccountId"] = parent_id
             
+            fs_mapping_no = input_.get("fsMappingNo")
             if fs_mapping_no:
-                fs_mapping_id = id_lookup.get(fs_mapping_no)
+                fs_mapping_id = id_lookup.get(fs_mapping_no, {}).get("uuid")
                 if fs_mapping_id is None:
-                    fs_mapping_id = get_id_by_number_and_fund(db, fs_mapping_no, fund_entity_uuid)
-                
+                    fs_mapping_id = get_uuid_by_number_and_fund(db, fs_mapping_no, fund_entity_uuid, region_name, secret_name)
+
+                if fs_mapping_id is None:
+                    raise Exception(f"Invalid fs_mapping_id: {fs_mapping_id}")
                 input_["fsMappingId"] = fs_mapping_id
-            
+
             # Get insert query of account
             params = __get_insert_query(
                 db, input_, fund_entity_id, region_name, secret_name
             )
+
             query = params[0]
             q_params = params[1]
             uuid = params[2]
@@ -1343,7 +1376,10 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
 
             # After that, execute insert of account
             cursor.execute(query, q_params)
-            id_lookup[input_["accountNo"]] = cursor.lastrowid
+            id_lookup[input_["accountNo"]] = {
+                "id": cursor.lastrowid,
+                "uuid": uuid
+            }
 
             # Then, inserting/updating FS
             if fs_mapping_id:

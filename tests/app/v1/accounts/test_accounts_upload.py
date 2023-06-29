@@ -45,3 +45,90 @@ class TestAccountsUpload(TestBase(PATHS)):
         print(result)
         assert 201 == result['statusCode']
 
+    def test_malformed(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accts_malformed.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+
+        print(result)
+        assert 400 == result['statusCode']
+
+    def test_missing_accountNo(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accts_missing_accountNo.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+
+        print(result)
+        assert 400 == result['statusCode']
+
+
+    def test_empty_accounts(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accts_empty_accounts.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+
+        print(result)
+        assert 400 == result['statusCode']
+
+
+    def test_with_parents(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accounts_parents.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+
+        print(result)
+        assert 201 == result['statusCode']
+
+
+    def test_with_fs_mapping(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accts_fs_mapping.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+
+        print(result)
+        assert 201 == result['statusCode']

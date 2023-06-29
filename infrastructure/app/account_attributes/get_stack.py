@@ -12,8 +12,7 @@ from shared.get_cdk import (
 from shared.layers import (
     get_shared_layer,
     get_pymysql_layer,
-    get_database_layer,
-    get_codeguru_profiler_agent_layer
+    get_database_layer
 )
 from shared.utils import ACCOUNTS_ATTR_DIR
 

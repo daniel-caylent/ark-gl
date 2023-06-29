@@ -1,0 +1,34 @@
+{
+  "accounts": [
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeType": "Assets",
+      "accountNo": "1466367",
+      "accountName": "Test fs mapping parent2",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingNo": "222553",
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountNo": null,
+      "isHidden": false
+    },
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeType": "Assets",
+      "accountNo": "54663673",
+      "accountName": "Test fs mapping child2",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingNo": "1466367",
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountNo": "1466367",
+      "isHidden": false
+    }
+  ]
+}
