@@ -21,7 +21,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     cary the POST request as a JSON string
 
     context: LambdaContext
-    Context about the instance of the lambda function
+    Context about the instance of the lambda function 
     """
 
     # validate the request body
@@ -60,14 +60,6 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         except Exception as e:
             return 400, {"detail": dataclass_error_to_str(e)}
 
-    account_attributes_list = account_attributes.select_all()
-
-    # extract and replace account attribute name with ID
-    try:
-        accounts_list = __add_attributes_to_accounts(accounts_list, account_attributes_list)
-    except Exception as e:
-        return 400, {"detail": str(e)}
-
     # ensure journal entry IDs are unique within submission
     valid, reason = __validate_account_names_and_numbers(accounts_list)
     if valid is False:
@@ -75,38 +67,20 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     post_entries = []
     for account in accounts_list:
-        parent = account.pop("parentAccountNo")
-        fs_mapping = account.pop("fsMappingNo")
+        parent = account.pop("parentAccountName")
+        fs_mapping = account.pop("fsMappingName")
 
         code, detail, post = validate_new_account(account)
 
         if code != 201:
             return code, {"detail": detail}
         
-        post_entries.append({**post, "parentAccountNo": parent, "fsMappingNo": fs_mapping})
+        post_entries.append({**post, "parentAccountName": parent, "fsMappingName": fs_mapping})
 
     # insert the new account
     result = accounts.bulk_insert(post_entries)
     return code, {"accountIds": result}
 
-def __add_attributes_to_accounts(accounts_list: list, account_attributes_list: list):
-    """Convert account attribute names in IDs"""
-    attribute_lookup = {}
-    for attribute in account_attributes_list:
-        attribute_lookup[attribute["accountType"]] = attribute
-
-    new_list = []
-    for account in accounts_list:
-        attribute_type = account.pop("attributeType")
-
-        attribute = attribute_lookup.get(attribute_type)
-        if not attribute:
-            raise Exception(f"Cannot find attribute by type: {attribute_type}")
-
-        new_list.append({**account, "attributeId": attribute["attributeId"]})
-
-    print(f"NEW LIST: {new_list}")
-    return new_list
 
 def __validate_account_names_and_numbers(accounts_list):
     """Ensure submitted journal entry IDs are unique in the list"""

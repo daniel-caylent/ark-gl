@@ -8,11 +8,11 @@
       "accountName": "Test account upload",
       "isTaxable": false,
       "fsName": "test",
-      "fsMappingNo": null,
+      "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
       "isDryRun": false,
-      "parentAccountNo": null,,
+      "parentAccountName": null,,
       "isHidden": false
     }
   ]

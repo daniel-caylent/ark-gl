@@ -17,7 +17,7 @@ app_to_db = {
     "accountNo": "account_no",
     "state": "state",
     "parentAccountId": "parent_id",
-    "parentAccountNo": "parent_no",
+    "parentAccountName": "parent_name",
     "accountName": "name",
     "accountDescription": "description",
     "attributeId": "account_attribute_id",
@@ -25,7 +25,7 @@ app_to_db = {
     "isTaxable": "is_taxable",
     "isEntityRequired": "is_entity_required",
     "fsMappingId": "fs_mapping_id",
-    "fsMappingNo": "fs_mapping_no",
+    "fsMappingName": "fs_mapping_name",
     "fsName": "fs_name",
     "isDryRun": "is_dry_run",
     "postDate": "post_date",
@@ -701,7 +701,7 @@ def __get_by_number_query(db: str, account_number: str) -> tuple:
 
     return (query, params)
 
-def __get_by_number_and_fund_query(db: str, account_number: str, fund_id: str) -> tuple:
+def __get_by_name_and_fund_query(db: str, account_name: str, fund_id: str) -> tuple:
     """
     This function creates the select by account_no query with its parameters.
 
@@ -721,9 +721,9 @@ def __get_by_number_and_fund_query(db: str, account_number: str, fund_id: str) -
         acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date
         FROM """ + db + """.account acc
         INNER JOIN """ + db + """.fund_entity fe ON fe.id = acc.fund_entity_id
-        WHERE fe.uuid = %s and acc.account_no = %s"""
+        WHERE fe.uuid = %s and acc.name = %s"""
 
-    params = (fund_id, account_number,)
+    params = (fund_id, account_name,)
 
     return (query, params)
 
@@ -754,8 +754,8 @@ def select_count_with_post_date(db: str, region_name: str, secret_name: str) -> 
     return record
 
 
-def select_by_number_and_fund(
-    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+def select_by_name_and_fund(
+    db: str, account_name: str, fund_id: str, region_name: str, secret_name: str
 ) -> dict:
     """
     This function returns the record from the result of the "select by number" query with its parameters.
@@ -779,7 +779,7 @@ def select_by_number_and_fund(
     return
     A dict containing the account that matches with the upcoming account_number
     """
-    params = __get_by_number_and_fund_query(db, account_number, fund_id)
+    params = __get_by_name_and_fund_query(db, account_name, fund_id)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -850,8 +850,8 @@ def get_id_by_number(
 
 
 
-def get_id_by_number_and_fund(
-    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+def get_id_by_name_and_fund(
+    db: str, account_name: str, fund_id: str, region_name: str, secret_name: str
 ) -> str:
     """
     This function returns the id from an account with a specified account_number.
@@ -875,13 +875,13 @@ def get_id_by_number_and_fund(
     return
     A string representing the id of that Account record with account_no equals to the input
     """
-    record = select_by_number_and_fund(db, account_number, fund_id, region_name, secret_name)
+    record = select_by_name_and_fund(db, account_name, fund_id, region_name, secret_name)
 
     return record.get("id") if record else None
 
 
-def get_uuid_by_number_and_fund(
-    db: str, account_number: str, fund_id: str, region_name: str, secret_name: str
+def get_uuid_by_name_and_fund(
+    db: str, account_name: str, fund_id: str, region_name: str, secret_name: str
 ) -> str:
     """
     This function returns the id from an account with a specified account_number.
@@ -905,7 +905,7 @@ def get_uuid_by_number_and_fund(
     return
     A string representing the uuid of that Account record with account_no equals to the input
     """
-    record = select_by_number_and_fund(db, account_number, fund_id, region_name, secret_name)
+    record = select_by_name_and_fund(db, account_name, fund_id, region_name, secret_name)
 
     return record.get("uuid") if record else None
 
@@ -1338,24 +1338,24 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 # Once inserted, get the auto-generated id
                 fund_entity_id = cursor.lastrowid
 
-            parent_no = input_.get("parentAccountNo")
-            if parent_no:
-                parent_id = id_lookup.get(parent_no, {}).get("id")
+            parent_name = input_.get("parentAccountName")
+            if parent_name:
+                parent_id = id_lookup.get(parent_name, {}).get("id")
                 if parent_id is None:
-                    parent_id = get_id_by_number_and_fund(db, parent_no, fund_entity_uuid, region_name, secret_name)
+                    parent_id = get_id_by_name_and_fund(db, parent_name, fund_entity_uuid, region_name, secret_name)
                 
                 if parent_id is None:
-                    raise Exception(f"Could not find a match for parent account number: {parent_no}")
+                    raise Exception(f"Could not find a match for account name: {parent_name}")
                 input_["parentAccountId"] = parent_id
             
-            fs_mapping_no = input_.get("fsMappingNo")
-            if fs_mapping_no:
-                fs_mapping_id = id_lookup.get(fs_mapping_no, {}).get("uuid")
+            fs_mapping_name = input_.get("fsMappingName")
+            if fs_mapping_name:
+                fs_mapping_id = id_lookup.get(fs_mapping_name, {}).get("uuid")
                 if fs_mapping_id is None:
-                    fs_mapping_id = get_uuid_by_number_and_fund(db, fs_mapping_no, fund_entity_uuid, region_name, secret_name)
+                    fs_mapping_id = get_uuid_by_name_and_fund(db, fs_mapping_name, fund_entity_uuid, region_name, secret_name)
 
                 if fs_mapping_id is None:
-                    raise Exception(f"Invalid fs_mapping_id: {fs_mapping_id}")
+                    raise Exception(f"Could not find a match for account name: {fs_mapping_name}")
                 input_["fsMappingId"] = fs_mapping_id
 
             # Get insert query of account
@@ -1376,7 +1376,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
 
             # After that, execute insert of account
             cursor.execute(query, q_params)
-            id_lookup[input_["accountNo"]] = {
+            id_lookup[input_["accountName"]] = {
                 "id": cursor.lastrowid,
                 "uuid": uuid
             }

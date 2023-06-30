@@ -66,18 +66,18 @@ class BulkAccountPost:
     # pylint: disable=invalid-name; API standard
     fundId: str
     clientId: str
-    attributeType: str
+    attributeId: str
     accountNo: str
     accountName: str
     isTaxable: bool
 
     # optional
     fsName: str = None
-    fsMappingNo: str = None
+    fsMappingName: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
     isDryRun: bool = False
-    parentAccountNo: str = None
+    parentAccountName: str = None
     isHidden: bool = False
     # pylint: enable=invalid-name
 
@@ -87,7 +87,7 @@ class BulkAccountPost:
         self.accountName = validate_str(self.accountName, "accountName", min_len=3)
         self.fundId = check_uuid(self.fundId, "fundId")
         self.clientId = check_uuid(self.clientId, "clientId")
-        self.attributeType = validate_str(self.attributeType, "attributeType")
+        self.attributeId = check_uuid(self.attributeId, "attributeId")
         self.isTaxable = validate_bool(self.isTaxable, "isTaxable")
         # optional
 
@@ -97,13 +97,13 @@ class BulkAccountPost:
         )
         self.isEntityRequired = bool(self.isEntityRequired)
         self.isHidden = bool(self.isHidden)
-        self.parentAccountNo = (
+        self.parentAccountName = (
             None
-            if self.parentAccountNo is None
-            else validate_str(self.parentAccountNo, "parentAccountNo")
+            if self.parentAccountName is None
+            else validate_str(self.parentAccountName, "parentAccountName")
         )
-        self.fsMappingNo = (
+        self.fsMappingName = (
             None
-            if self.fsMappingNo is None
-            else validate_str(self.fsMappingNo, "fsMappingNo")
+            if self.fsMappingName is None
+            else validate_str(self.fsMappingName, "fsMappingName")
         )
