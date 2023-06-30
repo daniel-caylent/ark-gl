@@ -78,7 +78,10 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         post_entries.append({**post, "parentAccountName": parent, "fsMappingName": fs_mapping})
 
     # insert the new account
-    result = accounts.bulk_insert(post_entries)
+    try:
+        result = accounts.bulk_insert(post_entries)
+    except AssertionError as e:
+        return 400, {"detail": str(e)}
     return code, {"accountIds": result}
 
 
@@ -88,7 +91,7 @@ def __validate_account_names_and_numbers(accounts_list):
 
     for account in accounts_list:
         if account["fundId"] not in fund_lookup:
-            fund_lookup[account["fundId"]] = accounts.select_by_fund_id(account["fundId"])
+            fund_lookup[account["fundId"]] = []
         
         fund_lookup[account["fundId"]] += [account]
     
@@ -97,12 +100,12 @@ def __validate_account_names_and_numbers(accounts_list):
         number_list = []
         for account in fund:
             if account["accountName"] not in name_list:
-                name_list.append([account["accountName"]])
+                name_list.append(account["accountName"])
             else:
                 return False, f"Duplicate account name: {account['accountName']}"
             
             if account["accountNo"] not in number_list:
-                number_list.append([account["accountNo"]])
+                number_list.append(account["accountNo"])
             else:
                 return False, f"Duplicate account number: {account['accountNo']}"
 

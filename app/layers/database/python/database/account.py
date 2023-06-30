@@ -1345,7 +1345,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     parent_id = get_id_by_name_and_fund(db, parent_name, fund_entity_uuid, region_name, secret_name)
                 
                 if parent_id is None:
-                    raise Exception(f"Could not find a match for account name: {parent_name}")
+                    raise AssertionError(f"Could not find a match for account name: {parent_name}")
                 input_["parentAccountId"] = parent_id
             
             fs_mapping_name = input_.get("fsMappingName")
@@ -1355,7 +1355,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     fs_mapping_id = get_uuid_by_name_and_fund(db, fs_mapping_name, fund_entity_uuid, region_name, secret_name)
 
                 if fs_mapping_id is None:
-                    raise Exception(f"Could not find a match for account name: {fs_mapping_name}")
+                    raise AssertionError(f"Could not find a match for account name: {fs_mapping_name}")
                 input_["fsMappingId"] = fs_mapping_id
 
             # Get insert query of account

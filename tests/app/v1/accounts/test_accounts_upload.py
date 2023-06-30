@@ -41,8 +41,6 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 201 == result['statusCode']
 
     def test_malformed(self):
@@ -58,8 +56,6 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 400 == result['statusCode']
 
     def test_missing_accountNo(self):
@@ -75,8 +71,6 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 400 == result['statusCode']
 
 
@@ -93,8 +87,6 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 400 == result['statusCode']
 
 
@@ -111,8 +103,6 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 201 == result['statusCode']
 
 
@@ -129,6 +119,35 @@ class TestAccountsUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 201 == result['statusCode']
+
+
+    def test_duplicate_name(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accounts_name_dup.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+        assert 400 == result['statusCode']
+
+    def test_duplicate_number(self):
+        from app.v1.accounts.post.upload import handler
+        body = {
+            "signedS3Url": str(PurePath(DATA_DIR, "accounts_number_dup.json"))
+        }
+        request = {
+            "body": json.dumps(body)
+        }
+
+        mp = pytest.MonkeyPatch()
+        mp.setattr("urllib.request.urlopen", mock_urlopen)
+
+        result = handler(request, LambdaContext())
+        assert 400 == result['statusCode']
