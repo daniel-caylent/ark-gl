@@ -1314,7 +1314,11 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
 
     try:
         id_lookup = {}
-        for input_ in input_list:
+        error_count = 0
+        insert_count = 0
+
+        while len(input_list) > 0:
+            input_ = input_list[0]
             fund_dict = {
                 "fund_entity_id": input_.get("fundId"),
                 "client_id": input_.get("clientId"),
@@ -1345,7 +1349,15 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     parent_id = get_id_by_name_and_fund(db, parent_name, fund_entity_uuid, region_name, secret_name)
                 
                 if parent_id is None:
-                    raise AssertionError(f"Could not find a match for account name: {parent_name}")
+                    error_count += 1
+                    if error_count > len(input_list):
+                        raise AssertionError(f"Circular reference detected in bulk insert.")
+
+                    # move the account to the back of the line
+                    input_list.append(input_)
+                    del input_list[0]
+                    continue
+
                 input_["parentAccountId"] = parent_id
             
             fs_mapping_name = input_.get("fsMappingName")
@@ -1355,7 +1367,15 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     fs_mapping_id = get_uuid_by_name_and_fund(db, fs_mapping_name, fund_entity_uuid, region_name, secret_name)
 
                 if fs_mapping_id is None:
-                    raise AssertionError(f"Could not find a match for account name: {fs_mapping_name}")
+                    error_count += 1
+                    if error_count > len(input_list):
+                        raise AssertionError(f"Circular reference detected in bulk insert.")
+
+                    # move the account to the back of the line
+                    input_list.append(input_)
+                    del input_list[0]
+                    continue
+
                 input_["fsMappingId"] = fs_mapping_id
 
             # Get insert query of account
@@ -1393,7 +1413,9 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 cursor.execute(fs_params[0], fs_params[1])
 
             uuids_list.append(uuid)
-
+            insert_count += 1
+            error_count = 0
+            del input_list[0]
         conn.commit()
     except Exception as e:
         conn.rollback()

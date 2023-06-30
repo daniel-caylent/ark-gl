@@ -19,9 +19,9 @@ def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
 
     # get accounts with the same name
     accts = accounts.select_by_fund_id(post.fundId)
-    unique = validate_unique_account(post, accts)
+    unique, reason = validate_unique_account(post, accts)
     if unique is False:
-        return 409, "Account number or name already exists in this fund.", None
+        return 409, reason, None
 
     # validate the parent account exists
     if post.parentAccountId:
@@ -45,13 +45,12 @@ def validate_unique_account(account: AccountPost, existing_accounts):
     """Validate the incoming account has a unique name and number"""
 
     for acct in existing_accounts:
-        if (
-            acct["accountName"].lower() == account.accountName.lower()
-            or acct["accountNo"] == account.accountNo
-        ):
-            return False
+        if acct["accountName"].lower() == account.accountName.lower():
+            return False, f"Account name already exists in this fund: {acct['accountName'].lower() }"
+        elif acct["accountNo"] == account.accountNo:
+            return False, f"Account number already exists in this fund: {acct['accountNo']}"
 
-    return True
+    return True, None
 
 
 def validate_parent_account(account: AccountPost, existing_accounts):

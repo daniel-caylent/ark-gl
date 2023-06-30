@@ -1,0 +1,49 @@
+{
+  "accounts": [
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeId": "4ebb2c7b-eb7e-11ed-9a6e-0a3efd619f29",
+      "accountNo": "75653468",
+      "accountName": "TESSTTTTtt CHILD",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingName": "TESSTTTTtt PARENT2",
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountName": "TESSTTTTtt PARENT",
+      "isHidden": false
+    },
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeId": "4ebb2c7b-eb7e-11ed-9a6e-0a3efd619f29",
+      "accountNo": "87634568",
+      "accountName": "TESSTTTTtt PARENT",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingName": null,
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountName": null,
+      "isHidden": false
+    },
+    {
+      "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
+      "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
+      "attributeId": "4ebb2c7b-eb7e-11ed-9a6e-0a3efd619f29",
+      "accountNo": "876345692",
+      "accountName": "TESSTTTTtt PARENT2",
+      "isTaxable": false,
+      "fsName": "test",
+      "fsMappingName": null,
+      "isEntityRequired": false,
+      "accountDescription": "Acct description",
+      "isDryRun": false,
+      "parentAccountName": "TESSTTTTtt PARENT",
+      "isHidden": false
+    }
+  ]
+}
