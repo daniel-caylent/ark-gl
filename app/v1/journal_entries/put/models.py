@@ -13,7 +13,7 @@ class JournalEntryPut:
     """Validate journal entry data from a put"""
 
     # pylint: disable=invalid-name; API standard
-    ledgerId: str
+    ledgerId: str = None
     reference: str = None
     memo: str = None
     adjustingJournalEntry: bool = None

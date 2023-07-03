@@ -104,3 +104,48 @@ class BulkJournalEntryPost:
             None if self.journalEntryNum is None
             else validate_int(self.journalEntryNum, "journalEntryNum")
         )
+
+
+@dataclass
+class BulkLineItemPost:
+    """Line Item POST model"""
+
+    # pylint: disable=invalid-name; API standard
+    accountId: str
+    memo: str
+    type: str
+    amount: float
+    decimals: int
+    entityId: str = None
+    # pylint: enable=invalid-name;
+
+    def __post_init__(self):
+        self.accountId = check_uuid(self.accountId, "accountId")
+        self.memo = validate_str(self.memo, "memo")
+        self.type = validate_str(self.type, "type", allowed=["CREDIT", "DEBIT"])
+        self.amount = validate_int(
+            self.convert_amount(self.amount, self.decimals), "amount", min_=0
+        )
+        self.entityId = None if self.entityId is None else check_uuid(self.entityId, "entityId")
+
+    @staticmethod
+    def convert_amount(amount: float, decimals: int):
+        """Convert floating point amounts to integers"""
+        try:
+            amount = float(amount)
+        except:
+            raise Exception(f"Invalid amount for line item: {amount}")
+
+        amount_str = str(amount)
+        split_amount = amount_str.split(".")
+
+        dollars = split_amount[0]
+        cents = split_amount[1]
+
+        if len(cents) > decimals:
+            raise Exception(f"Line item amount has too many decimals: {amount}")
+        elif len(cents) < decimals:
+            dif = decimals - len(cents)
+            cents = cents + '0' * dif
+
+        return int(dollars + cents)

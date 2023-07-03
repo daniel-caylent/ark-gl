@@ -3,9 +3,9 @@ This Lambda is responsible for serving the journal entries POST request
 """
 import json
 
- # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries, ledgers, accounts
-from models import BulkJournalEntryPost
+from models import BulkJournalEntryPost, BulkLineItemPost
 from validate_new_journal_entry import validate_new_journal_entry
 from shared import endpoint, dataclass_error_to_str
 from shared.bulk import download_from_s3
@@ -13,7 +13,9 @@ from shared.bulk import download_from_s3
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+def handler(
+    event, context
+) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the journal entries upload request
 
     event: dict
@@ -27,13 +29,15 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except Exception: # pylint: disable=broad-exception-caught; Unhandled exception is not allowed
+    except (
+        Exception
+    ):  # pylint: disable=broad-exception-caught; Unhandled exception is not allowed
         return 400, {"detail": "Body does not contain valid json."}
 
     s3_url = body.get("signedS3Url")
     if not s3_url:
         return 400, {"detail": "Missing s3 URL."}
-    
+
     # download from s3
     try:
         download = download_from_s3(s3_url)
@@ -41,7 +45,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
             return 400, {"detail": "Unable to download from S3."}
     except:
         return 400, {"detail": "Unable to download from S3."}
-  
+
     # validate json from file
     try:
         json_dict = json.loads(download)
@@ -64,7 +68,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         journal_entries_list = __add_ledger_ids_to_journals(journal_entries_list)
     except Exception as e:
         return 400, {"detail": str(e)}
-  
+
     # extract and transform account name to ID
     try:
         journal_entries_list = __add_account_ids_to_line_items(journal_entries_list)
@@ -72,24 +76,31 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": str(e)}
 
     # ensure journal entry IDs are unique within submission
-    valid, reason = __validate_journal_entry_ids(journal_entries_list)
+    valid, reason = __validate_journal_entry_numbers(journal_entries_list)
     if valid is False:
         return 400, {"detail": reason}
+
+    try:
+        journal_entries_list = __validate_bulk_line_items(journal_entries_list)
+    except Exception as e:
+        return 400, {"detail": str(e)}
 
     post_entries = []
     for journal_entry in journal_entries_list:
         journal_entry.pop("fundId")
+        journal_entry.pop("decimals")
 
         code, detail, post = validate_new_journal_entry(journal_entry)
 
         if code != 201:
             return code, {"detail": detail}
-        
+
         post_entries.append(post)
 
     # insert the new account
     result = journal_entries.bulk_insert(post_entries)
     return code, {"journalEntryIds": result}
+
 
 def __add_ledger_ids_to_journals(journal_entry_list):
     """Retrieve ledgerIds from db for journal entries"""
@@ -106,13 +117,22 @@ def __add_ledger_ids_to_journals(journal_entry_list):
             ledger = ledgers.select_by_fund_and_name(fund, ledgerName)
 
             if ledger is None:
-                raise Exception(f"Cannot find ledger name ({ledgerName}) in fund: {fund}")
+                raise Exception(
+                    f"Cannot find ledger name ({ledgerName}) in fund: {fund}"
+                )
             ledgers_dict[ledger_key] = ledger
 
-        new_list.append({**entry, "ledgerId": ledger["ledgerId"]})
+        new_list.append(
+            {
+                **entry,
+                "ledgerId": ledger["ledgerId"],
+                "decimals": ledger["currencyDecimal"],
+            }
+        )
     return new_list
 
-def __validate_journal_entry_ids(journal_entry_list):
+
+def __validate_journal_entry_numbers(journal_entry_list):
     """Ensure submitted journal entry IDs are unique in the list"""
     numbers = []
     for entry in journal_entry_list:
@@ -121,11 +141,15 @@ def __validate_journal_entry_ids(journal_entry_list):
             continue
 
         if journal_number in numbers:
-            return False, f"Submission includes duplicate journal entry numbers: {entry['journalEntryNum']}"
+            return (
+                False,
+                f"Submission includes duplicate journal entry numbers: {entry['journalEntryNum']}",
+            )
 
         numbers.append(journal_number)
 
     return True, None
+
 
 def __add_account_ids_to_line_items(journal_entry_list):
     """Add account ids to line items using fundId and account name"""
@@ -140,16 +164,37 @@ def __add_account_ids_to_line_items(journal_entry_list):
             for account in accounts_list:
                 account_key = f"{entry['fundId']}+{account['name']}"
                 accounts_dict[account_key] = account
-        
+
         new_line_items = []
         for item in entry.pop("lineItems"):
             account_name = item.pop("accountName")
             account_key = f"{entry['fundId']}+{account_name}"
             account = accounts_dict.get(account_key)
-            
+
             if account is None:
                 raise Exception(f"Unable to locate account by name: {account_name}")
             new_line_items.append({**item, "accountId": account["uuid"]})
         new_list.append({**entry, "lineItems": new_line_items})
-    
+
     return new_list
+
+
+def __validate_bulk_line_items(journal_entries_list):
+    """Line item amounts will come in as floats, but we need ints"""
+    modified_journal_entries = []
+    for entry in journal_entries_list:
+        modified_line_items = []
+        for item in entry["lineItems"]:
+            try:
+                type_safe_line_item = BulkLineItemPost(
+                    **item, decimals=entry["decimals"]
+                ).__dict__
+
+                type_safe_line_item.pop("decimals")
+                modified_line_items.append(type_safe_line_item)
+            except Exception as e:
+                raise Exception(dataclass_error_to_str(e))
+        entry["lineItems"] = modified_line_items
+        modified_journal_entries.append(entry)
+
+    return modified_journal_entries

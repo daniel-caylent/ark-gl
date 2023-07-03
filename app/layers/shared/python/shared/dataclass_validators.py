@@ -80,7 +80,6 @@ def validate_int(
     int_, name: str, min_: int=None, max_: int=None, allowed: list=None
 ) -> int:
     """Validate an integer exists for this value"""
-
     if int_ is None:
         raise Exception(
             f"Required argument is missing: {name}."
@@ -95,7 +94,7 @@ def validate_int(
         int_ = int(str(int_))
     except Exception as e:
         raise Exception(
-            f"{name} is invalid."
+            f"{name} is invalid: {int_}"
         ) from e
 
     if min_ is not None:

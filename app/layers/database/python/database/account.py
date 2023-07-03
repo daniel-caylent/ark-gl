@@ -1351,7 +1351,9 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 if parent_id is None:
                     error_count += 1
                     if error_count > len(input_list):
-                        raise AssertionError(f"Circular reference detected in bulk insert.")
+                        raise AssertionError(
+                            f"Parent account name does not exist: {parent_name}. This may be caused by a circular reference"
+                        )
 
                     # move the account to the back of the line
                     input_list.append(input_)
@@ -1369,7 +1371,9 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 if fs_mapping_id is None:
                     error_count += 1
                     if error_count > len(input_list):
-                        raise AssertionError(f"Circular reference detected in bulk insert.")
+                        raise AssertionError(
+                            f"FS mapping account name does not exist: {fs_mapping_name}. This may be caused by a circular reference"
+                        )
 
                     # move the account to the back of the line
                     input_list.append(input_)
