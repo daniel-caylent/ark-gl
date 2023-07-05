@@ -10,7 +10,8 @@ from database.account import (
     delete,
     update,
     commit,
-    bulk_insert as __bulk_insert
+    bulk_insert as __bulk_insert,
+    bulk_update as __bulk_update
 )
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
@@ -85,4 +86,9 @@ def commit_by_id(account_uuid) -> None:
 def bulk_insert(accounts_list):
     """Insert multiple accounts from a list"""
     result = __bulk_insert(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+    return result
+
+def bulk_update(accounts_list):
+    """Insert multiple accounts from a list"""
+    result = __bulk_update(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result

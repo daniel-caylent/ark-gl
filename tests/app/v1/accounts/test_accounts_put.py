@@ -1,12 +1,15 @@
+from pathlib import PurePath
 import pytest
 
 from tests.app.data import (
     LambdaContext
 )
+from tests.utils import APP_DIR
 
-from .accounts_test_base import AccountsTestBase
+from .accounts_test_base import getAccountsBase
+put_dir = str(PurePath(APP_DIR, 'accounts', 'put'))
 
-class TestAccountsPut(AccountsTestBase):
+class TestAccountsPut(getAccountsBase([put_dir])):
 
     def test_good_put(self):
         from app.v1.accounts.put.put import handler

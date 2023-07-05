@@ -134,3 +134,6 @@ def commit_by_id(*args):
 
 def bulk_insert(accounts_list):
     return ["id", "id2"]
+
+def bulk_update(accounts_list):
+    return None
