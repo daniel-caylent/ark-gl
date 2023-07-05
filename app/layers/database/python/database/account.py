@@ -1429,6 +1429,64 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
 
     return uuids_list
 
+def bulk_update(db: str, input_list: list, region_name: str, secret_name: str) -> None:
+    """
+    This function executes the bulk update query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    input_list: list
+    This parameter contains a list with all the parameters inside
+    a dictionary that will be used for the query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of strings specifying the recently added accounts' uuids
+    """
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        for input_ in input_list:
+            id_ = input_.pop("accountId")
+            params = __get_update_query(db, id_, input_, region_name, secret_name)
+            query = params[0]
+            q_params = params[1]
+            fs_mapping_id = input_.get("fsMappingId")
+            fs_name = input_.get("fsName")
+            fs_dict = {"fs_mapping_id": fs_mapping_id, "fs_name": fs_name}
+
+            if fs_mapping_id:
+                insert_fs = check_fs_with_cursor(db, fs_mapping_id, cursor)
+
+            # Executing update of account first
+            cursor.execute(query, q_params)
+
+            # Then, inserting/updating FS
+            if fs_mapping_id:
+                if insert_fs:
+                    fs_params = fs.get_insert_query(db, fs_dict)
+                else:
+                    fs_params = fs.get_update_query(db, fs_mapping_id, {"fs_name": fs_name})
+
+                cursor.execute(fs_params[0], fs_params[1])
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
+    return None
+
 
 def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     """
