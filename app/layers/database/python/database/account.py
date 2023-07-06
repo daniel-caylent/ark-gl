@@ -625,6 +625,55 @@ def delete(db: str, id_: str, region_name: str, secret_name: str) -> None:
     finally:
         cursor.close()
 
+def bulk_delete(db: str, ids: list, region_name: str, secret_name: str) -> None:
+    """
+    This function executes the delete query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ids: list
+    A list of IDs which should all be deleted
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        for id_ in ids:
+            params = __get_delete_query(db, id_)
+            query = params[0]
+            q_params = params[1]
+
+            # Getting the fund_entity_id to check if we have to delete it
+            account_ = select_by_uuid(db, id_, region_name, secret_name)
+            fund_entity_uuid = account_.get("fund_entity_id")
+            fund_entity_id = fund_entity.get_id(db, fund_entity_uuid, region_name, secret_name)
+
+            # Executing delete of account first
+            cursor.execute(query, q_params)
+
+            # Then, checking if the fund was orphaned
+            fund_count = fund_entity.get_accounts_ledgers_count(db, fund_entity_id, cursor)
+
+            if fund_count == 0:
+                fund_params = fund_entity.get_delete_query_by_id(db, fund_entity_id)
+
+                cursor.execute(fund_params[0], fund_params[1])
+
+            conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
 
 def update(db: str, id_: str, input_: dict, region_name: str, secret_name: str) -> None:
     """
