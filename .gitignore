@@ -135,8 +135,11 @@ package-lock.json
 yarn.lock
 .cdk.staging
 cdk.out
+output/*
+
 # editor
 .vscode
+.idea
 
 # App
 infrastructure/shared/layers/pymysql/python/
@@ -144,7 +147,3 @@ infrastructure/shared/layers/pyqldb/python/
 
 # Mac
 .DS_Store
-
-.idea
-
-output/*
