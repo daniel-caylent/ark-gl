@@ -27,7 +27,7 @@ class AccountsUpdateStack(BaseStack):
             handler="update.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="accounts post from a json object",
-            exclude=["put*"],
+            exclude=["put*", "state*"],
         )
 
         cdk.CfnOutput(

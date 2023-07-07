@@ -26,6 +26,7 @@ class AccountsDeleteStack(BaseStack):
             handler="delete.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="delete account by id",
+            exclude=["bulk*"],
         )
 
         cdk.CfnOutput(

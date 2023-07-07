@@ -26,7 +26,7 @@ class AccountsPutStack(BaseStack):
             handler="put.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="accounts put",
-            exclude=["state.py"],
+            exclude=["state*", "update*"],
         )
 
         cdk.CfnOutput(

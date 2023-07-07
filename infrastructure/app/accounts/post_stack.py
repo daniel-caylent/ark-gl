@@ -26,7 +26,7 @@ class AccountsPostStack(BaseStack):
             handler="post.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="accounts post",
-            exclude=["csv*", "copy*", "sort*", "upload*"],
+            exclude=["upload*"],
         )
 
         cdk.CfnOutput(

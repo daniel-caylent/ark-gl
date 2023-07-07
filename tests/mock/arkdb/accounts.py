@@ -137,3 +137,9 @@ def bulk_insert(accounts_list):
 
 def bulk_update(accounts_list):
     return None
+
+def delete_by_id(id_):
+    return None
+
+def bulk_delete(id_list):
+    return None

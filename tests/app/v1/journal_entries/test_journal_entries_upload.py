@@ -42,8 +42,6 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
-
-        print(result)
         assert 201 == result['statusCode']
   
     def test_bad_date(self):

@@ -27,6 +27,7 @@ class AccountsUploadStack(BaseStack):
             handler="upload.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="accounts post from a json object",
+            exclude=["post*"]
         )
 
         cdk.CfnOutput(

@@ -95,6 +95,6 @@ def bulk_update(accounts_list):
     return result
 
 def bulk_delete(accounts_list):
-    """Insert multiple accounts from a list"""
+    """Delete multiple accounts from a list"""
     result = __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result

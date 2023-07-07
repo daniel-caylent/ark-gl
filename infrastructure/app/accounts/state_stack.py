@@ -34,7 +34,7 @@ class AccountsStateStack(BaseStack):
             handler="state.handler",
             layers=[shared_layer, pymysql_layer, db_layer, qldb_layer, qldb_reqs],
             description="accounts state",
-            exclude=["put.py"],
+            exclude=["put*", "update*"],
             cdk_env=kwargs["env"],
         )
 
