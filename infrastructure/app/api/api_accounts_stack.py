@@ -31,6 +31,7 @@ class AccountsStack(BaseStack):
         account_id_resource = account_resource.add_resource("{accountId}")
         account_upload_resource = account_resource.add_resource("upload")
         account_update_resource = account_resource.add_resource("update")
+        account_delete_resource = account_resource.add_resource("delete")
 
         self.__register_account_get_method(account_resource)
         self.__register_account_post_method(account_resource)
@@ -41,6 +42,7 @@ class AccountsStack(BaseStack):
         self.__register_account_state_method(account_id_resource)
         self.__register_account_upload_method(account_upload_resource)
         self.__register_account_update_method(account_update_resource)
+        self.__register_account_bulk_delete_method(account_delete_resource)
 
     def __register_account_get_method(self, resource):
         ark_account_get_function_arn = get_imported_value(
@@ -104,6 +106,23 @@ class AccountsStack(BaseStack):
 
         lambda_integration = build_lambda_integration(
             self, lambda_function, self.STACK_PREFIX + "accounts-delete"
+        )
+
+        method = resource.add_method("DELETE", lambda_integration)
+
+        self.methods.append(method)
+
+    def __register_account_bulk_delete_method(self, resource):
+        ark_account_get_function_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-account-bulk-delete-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self, "ark-account-bulk-delete-function-arn", ark_account_get_function_arn
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "accounts-bulk-delete"
         )
 
         method = resource.add_method("DELETE", lambda_integration)

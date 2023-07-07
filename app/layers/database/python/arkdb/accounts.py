@@ -11,7 +11,8 @@ from database.account import (
     update,
     commit,
     bulk_insert as __bulk_insert,
-    bulk_update as __bulk_update
+    bulk_update as __bulk_update,
+    bulk_delete as __bulk_delete
 )
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
@@ -91,4 +92,9 @@ def bulk_insert(accounts_list):
 def bulk_update(accounts_list):
     """Insert multiple accounts from a list"""
     result = __bulk_update(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+    return result
+
+def bulk_delete(accounts_list):
+    """Insert multiple accounts from a list"""
+    result = __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result

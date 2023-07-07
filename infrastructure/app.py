@@ -15,7 +15,8 @@ from app.accounts import (
     AccountsStateStack,
     AccountsUploadStack,
     AccountsDeleteStack,
-    AccountsUpdateStack
+    AccountsUpdateStack,
+    AccountsBulkDeleteStack
 )
 
 from app.ledgers import (
@@ -103,6 +104,11 @@ accounts_delete_stack = AccountsDeleteStack(
     app, "ark-gl-accounts-delete-stack", env=cdk_env
 )
 accounts_delete_stack.add_dependency(vpc_stack)
+
+accounts_bulk_delete_stack = AccountsBulkDeleteStack(
+    app, "ark-gl-accounts-bulk-delete-stack", env=cdk_env
+)
+accounts_bulk_delete_stack.add_dependency(vpc_stack)
 
 accounts_put_stack = AccountsPutStack(app, "ark-gl-accounts-put-stack", env=cdk_env)
 accounts_put_stack.add_dependency(vpc_stack)
