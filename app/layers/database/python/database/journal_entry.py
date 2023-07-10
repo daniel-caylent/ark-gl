@@ -5,6 +5,7 @@ from . import db_main
 from . import connection
 from . import ledger
 from . import line_item
+from . import account
 from . import attachment
 from pymysql.cursors import Cursor, DictCursor
 from typing import Union
@@ -666,6 +667,56 @@ def delete(db: str, uuid: str, region_name: str, secret_name: str) -> None:
 
         # Finally delete the journal entry
         cursor.execute(query, q_params)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
+
+def bulk_delete(db: str, uuids: list, region_name: str, secret_name: str) -> None:
+    """
+    This function executes the delete query with its parameters.
+    It will also delete all its related line_items and attachments.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuids: list
+    This parameter contains a list of uuids for journal entries that will be deleted
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor()
+
+    try:
+        for uuid in uuids:
+            params = __get_delete_query(db, uuid)
+            query = params[0]
+            q_params = params[1]
+
+            # Getting the id before deleting
+            id_ = select_by_uuid(db, uuid, region_name, secret_name).get("id")
+
+
+            # First, delete the line items by journal_entry_id
+            entry_params = line_item.get_delete_by_journal_query(db, id_)
+            cursor.execute(entry_params[0], entry_params[1])
+
+            # Then, delete the attachments by journal_entry_id
+            att_params = attachment.get_delete_by_journal_query(db, id_)
+            cursor.execute(att_params[0], att_params[1])
+
+            # Finally delete the journal entry
+            cursor.execute(query, q_params)
 
         conn.commit()
     except Exception as e:
@@ -1501,3 +1552,180 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
         raise e
     finally:
         cursor.close()
+
+def __get_query_select_by_filter_paginated(db: str, filter: dict, page_size: int, limit: int, offset: int) -> tuple:
+    """
+    This function creates the select by client query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    client_id: string
+    This parameter specifies the client_id that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+
+    query = (
+        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
+    je.date, je.reference, je.memo, je.adjusting_journal_entry,
+    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    fe.uuid as fund_entity_id
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        """
+    )
+
+    params = ()
+    if filter:
+        query += "WHERE 1=1"
+        for name, value in filter.items():
+            if name == "startDate":
+                query += " AND je.date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+            elif name == "endDate":
+                query += " AND je.date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+            elif name == "state":
+                query += " AND je.state = %s "
+            elif name == "fund":
+                query += " AND fe.uuid = %s "
+            elif name == "clientId":
+                query += " AND fe.clientId = %s "
+            elif name == "ledgerIds":
+                query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "entityId":
+                query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "accounts":
+                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            else:
+                continue
+
+            params += value
+    
+    if limit and offset:
+        query += " LIMIT %s OFFSET %s;"
+        params += (limit, offset, )
+
+    return (query, params)
+
+def __get_total_by_filter_query(db: str, filter: dict):
+    query = (
+        """SELECT COUNT(1) FROM"""
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
+    INNER JOIN """
+        + db
+        + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+        """
+    )
+
+    params = ()
+    if filter:
+        query += "WHERE 1=1"
+        for name, value in filter.items():
+            if name == "startDate":
+                query += " AND je.date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+            elif name == "endDate":
+                query += " AND je.date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+            elif name == "state":
+                query += " AND je.state = %s "
+            elif name == "fund":
+                query += " AND fe.uuid = %s "
+            elif name == "clientId":
+                query += " AND fe.clientId = %s "
+            elif name == "ledgerIds":
+                query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "entityId":
+                query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "accounts":
+                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            else:
+                continue
+
+            params += value
+
+    return (query, params)
+
+def select_with_filter_paginated(
+    db: str,
+    filter: dict,
+    region_name: str,
+    secret_name: str,
+    page: int,
+    page_size: int
+) -> list:
+    """
+    This function returns the record from the result of the "select by client id" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    filter: string
+    A dict that contains all the possible filters
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    offset = None
+    if page and page_size:
+        offset = (page - 1) * page_size
+
+    account_uuids = filter.pop("accounts", None)
+    if account_uuids:
+        account_ids = []
+        for uuid in account_uuids:
+            account_ids.append(account.get_id_by_uuid(db, uuid, region_name, secret_name))
+        
+        filter["accounts"] = account_ids
+
+    params = __get_query_select_by_filter_paginated(db, filter, page_size, offset)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    total_params = __get_total_by_filter_query(db, filter)
+
+    record = db_main.execute_single_record_select(conn, total_params)
+
+    total_records = list(record.values())[0]
+
+    total_pages = math.ceil(total_records / page_size)
+
+    return (records, total_pages)
