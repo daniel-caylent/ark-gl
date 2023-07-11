@@ -8,6 +8,7 @@ class FilterInput:
     endDate: str = None
     clientId: str = None
     fundId: str = None
+    journalEntryState: str = None
     accountIds: list = None
     ledgerIds: list = None
     entityIds: list = None
@@ -28,6 +29,10 @@ class FilterInput:
         self.fundId = (
             None if self.fundId is None else
             check_uuid(self.fundId, "fundId")
+        )
+        self.journalEntryState = (
+            None if self.journalEntryState is None else
+            validate_str(self.journalEntryState, "journalEntryState", allowed=["DRAFT"])
         )
         self.accountIds = (
             None if self.accountIds is None else
@@ -50,3 +55,7 @@ class FilterInput:
         if self.ledgerIds is not None:
             for id_ in self.ledgerIds:
                 check_uuid(id_, f"ledgerId: {id_}")
+
+
+        if not (self.accountIds or self.ledgerIds or self.entityIds or self.clientId or self.fundId):
+            raise Exception("Search criteria is too broad. Include on of: accountIds, ledgerIds, entityIds, clientId, or fundId")

@@ -17,7 +17,10 @@ from database.account import (
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
 
-from database.line_item import select_by_account_id as get_line_items_by_id
+from database.line_item import (
+    select_by_account_id as get_line_items_by_id,
+    select_count_by_account_id
+)
 
 from .utils import (
     DB_NAME,
@@ -79,6 +82,9 @@ def get_line_items(account_id):
 
     return get_line_items_by_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)
 
+def get_line_items_count(account_id):
+    """Retrieve the number of line items associated with an account"""
+    return select_count_by_account_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)
 
 def commit_by_id(account_uuid) -> None:
     """Commit an existing account"""

@@ -1629,11 +1629,12 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
         params += (limit, offset, )
 
     query += ";"
+
     return (query, params)
 
 def __get_total_by_filter_query(db: str, filter: dict):
     query = (
-        """SELECT COUNT(1) FROM """
+        """SELECT COUNT(*) FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
@@ -1703,8 +1704,8 @@ def select_with_filter_paginated(
     A dict that contains all the possible filters:
         startDate: str
         endDate: str
-        state: str
-        fund: str
+        journalEntryState: str
+        fundId: str
         clientId: str
         ledgerIds: list
         entityIds: list
@@ -1724,13 +1725,13 @@ def select_with_filter_paginated(
     if page and page_size:
         offset = (page - 1) * page_size
 
-    account_uuids = filter.pop("accounts", None)
+    account_uuids = filter.pop("accountIds", None)
     if account_uuids:
         account_ids = []
         for uuid in account_uuids:
             account_ids.append(account.get_id_by_uuid(db, uuid, region_name, secret_name))
         
-        filter["accounts"] = account_ids
+        filter["accountIds"] = account_ids
 
     params = __get_query_select_by_filter_paginated(db, filter, page_size, offset)
 
@@ -1748,4 +1749,4 @@ def select_with_filter_paginated(
     if page_size is not None:
         total_pages = math.ceil(total_records / page_size)
 
-    return (records, total_pages)
+    return (records, total_pages, total_records)

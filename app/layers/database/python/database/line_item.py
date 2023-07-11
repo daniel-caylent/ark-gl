@@ -500,7 +500,7 @@ def __get_count_by_account_id_query(db: str, account_id: str) -> tuple:
     one to avoid SQL Injections
     """
     query = (
-        """SELECT count(*)
+        """SELECT COUNT(*)
         FROM """
         + db
         + """.line_item li
@@ -572,9 +572,11 @@ def select_count_by_account_id(
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
-    records = db_main.execute_single_record_select(conn, params)
+    record = db_main.execute_single_record_select(conn, params)
 
-    return records
+    value = list(record.values())[0]
+
+    return value
 
 def select_by_account_id_with_offset(
     db: str, account_id: str, limit: str, offset:str, region_name: str, secret_name: str

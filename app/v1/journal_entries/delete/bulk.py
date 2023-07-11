@@ -21,50 +21,60 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
-    filtered_journal_entries = journal_entries.select_with_filter_paginated(valid_input)
+    results = journal_entries.select_with_filter_paginated(valid_input)
+    filtered_journal_entries = results["data"]
 
     delete_ids = []
+    ledgers_dict = {}
+
+    if not filtered_journal_entries:
+        return 400, {"detail": "No journal entries match the search criteria."}
+
     for journal_entry in filtered_journal_entries:
         if journal_entry['state'] == 'POSTED':
-            return 400, {'detail': "POSTED journal entry cannot be deleted."}
+            return 400, {'detail': f"POSTED journal entry cannot be deleted: {journal_entry['journalEntryId']}"}
 
         delete_ids.append(journal_entry["journalEntryId"])
+        ledgers_dict[journal_entry["ledgerId"]] = None
     
     try:
         journal_entries.bulk_delete(delete_ids)
     except Exception as e:
         return 400, {"detail": f"Unable to delete: {str(e)}"}
 
-    # ledger = ledgers.select_by_id(journal_entry["ledger_id"])
-    # accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
+    # update state for unused ledgers and accounts
+    fund_ids = []
+    for ledger_id in ledgers_dict:
+        ledger = ledgers.select_by_id(ledger_id)
+        ledgers_dict[ledger_id] = ledger
+        fund_ids.append(ledger["fundId"])
 
-    # __update_unused_accounts(accts, line_items)
-    # __update_unused_ledger(ledger)
+    accounts_list = []
+    for fund_id in set(fund_ids):
+        accounts_list += accounts.select_by_fund_id(fund_id, translate=False)
+
+    __update_unused_accounts(accounts_list)
+    __update_unused_ledgers(ledgers_dict.values())
 
     return 200, {}
 
 
-def __update_unused_accounts(accounts_, line_items):
+def __update_unused_accounts(accounts_: list):
     """Check to see if line items still exist for old accounts"""
-    account_lookup = {}
     for acct in accounts_:
-        account_lookup[acct["uuid"]] = acct
+        line_items_count = accounts.get_line_items_count(acct["id"])
+        if line_items_count == 0 and acct["state"] != "POSTED":
+            print(f"Update unused account to UNUSED: {acct['uuid']}")
+            accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
 
-    for item in line_items:
-        acct = account_lookup.get(item["accountId"])
-        if acct is not None:
-            line_items = accounts.get_line_items(acct["id"])
-            if len(line_items) == 0 and acct["state"] != "POSTED":
-                accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
-
-def __update_unused_ledger(ledger):
+def __update_unused_ledgers(ledgers_list: list):
     """Replace ledger state with UNUSED if no journal entries exist for it"""
-    journal_entries_ = journal_entries.select_by_ledger_id(ledger["ledgerId"])
-    if len(journal_entries_) == 0:
-        if ledger["state"] != "POSTED":
-            ledgers.update_by_id(
-                ledger["ledgerId"],
-                {"state": "UNUSED"}
-            )
-    
+    for ledger in ledgers_list:
+        journal_entries_ = journal_entries.select_by_ledger_id(ledger["ledgerId"])
+        if len(journal_entries_) == 0:
+            if ledger["state"] != "POSTED":
+                ledgers.update_by_id(
+                    ledger["ledgerId"],
+                    {"state": "UNUSED"}
+                )
             
