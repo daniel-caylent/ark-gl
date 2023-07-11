@@ -1,42 +1,45 @@
-"""Lambda that will perform the DELETE for JournalEntries"""
+"""Lambda that will perform the bulk DELETE for JournalEntries"""
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, journal_entries, ledgers
-from shared import endpoint, validate_uuid
+from shared import endpoint, validate_uuid, dataclass_error_to_str
+
+from models import FilterInput
 # pylint: disable=import-error
 
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
-    """Handler for the delete for journal entries"""
-    if not event.get("pathParameters"):
-        return 400, {"detail": "Missing path parameters."}
+    """Handler for the bulk delete for journal entries"""
+    if not event.get("queryStringParameters"):
+        return 400, {"detail": "Missing query string parameters."}
 
-    journal_entry_id = event["pathParameters"].get("journalEntryId", None)
-    if journal_entry_id is None:
-        return 400, {"detail": "No journal entry specified."}
+    filter = event.get("queryStringParameters")
 
-    if not validate_uuid(journal_entry_id):
-        return 400, {"detail": "Invalid UUID provided."}
-
-    journal_entry = journal_entries.select_by_id(journal_entry_id, translate=False)
-    if journal_entry is None:
-        return 404, {"detail": "No journal entry found."}
-
-    if journal_entry['state'] == 'POSTED':
-        return 400, {'detail': "POSTED journal entry cannot be deleted."}
-
-    line_items = journal_entries.get_line_items(journal_entry["id"])
     try:
-        journal_entries.delete_by_id(journal_entry_id)
+        valid_input = FilterInput(**filter).__dict__
+    except Exception as e:
+        return 400, {"detail": dataclass_error_to_str(e)}
+
+    filtered_journal_entries = journal_entries.select_with_filter_paginated(valid_input)
+
+    delete_ids = []
+    for journal_entry in filtered_journal_entries:
+        if journal_entry['state'] == 'POSTED':
+            return 400, {'detail': "POSTED journal entry cannot be deleted."}
+
+        delete_ids.append(journal_entry["journalEntryId"])
+    
+    try:
+        journal_entries.bulk_delete(delete_ids)
     except Exception as e:
         return 400, {"detail": f"Unable to delete: {str(e)}"}
 
-    ledger = ledgers.select_by_id(journal_entry["ledger_id"])
-    accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
+    # ledger = ledgers.select_by_id(journal_entry["ledger_id"])
+    # accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
 
-    __update_unused_accounts(accts, line_items)
-    __update_unused_ledger(ledger)
+    # __update_unused_accounts(accts, line_items)
+    # __update_unused_ledger(ledger)
 
     return 200, {}
 

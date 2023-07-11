@@ -36,6 +36,7 @@ from app.journal_entries import (
     JournalEntriesDeleteStack,
     JournalEntriesStateStack,
     JournalEntriesUploadStack,
+    JournalEntriesBulkDeleteStack
 )
 
 from app.reports import (
@@ -174,6 +175,12 @@ journal_entries_delete_stack = JournalEntriesDeleteStack(
 )
 journal_entries_delete_stack.add_dependency(vpc_stack)
 
+
+journal_entries_bulk_delete_stack = JournalEntriesBulkDeleteStack(
+    app, "ark-gl-journal-entries-bulk-delete-stack", env=cdk_env
+)
+journal_entries_bulk_delete_stack.add_dependency(vpc_stack)
+
 journal_entries_state_stack = JournalEntriesStateStack(
     app, "ark-gl-journal-entries-state-stack", env=cdk_env
 )
@@ -213,6 +220,7 @@ dependency_group.add(journal_entries_put_stack)
 dependency_group.add(journal_entries_state_stack)
 dependency_group.add(journal_entries_upload_stack)
 dependency_group.add(journal_entries_delete_stack)
+dependency_group.add(journal_entries_bulk_delete_stack)
 dependency_group.add(reports_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)

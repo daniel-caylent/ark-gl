@@ -13,6 +13,8 @@ from database.journal_entry import (
     select_by_fund_id_paginated as __get_select_by_fund_id_query_paginated,
     select_by_client_id_paginated as __select_by_client_id_paginated,
     bulk_insert as __bulk_insert,
+    bulk_delete as __bulk_delete,
+    select_with_filter_paginated as __select_with_filter_paginated,
     insert,
     update,
     delete,
@@ -202,3 +204,16 @@ def select_attachment_by_uuid_journal(attachment_uuid: str, journal_id: str) -> 
 def commit_by_id(journal_uuid) -> None:
     """Commit an existing journal"""
     commit(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)
+
+def select_with_filter_paginated(filter, page=None, page_size=None):
+    results = __select_with_filter_paginated(DB_NAME, filter, REGION_NAME, SECRET_NAME, page, page_size)
+
+    results = {
+        "data": translate_results(results[0], journal_app_to_db),
+        "total_pages": results[1]
+    }
+
+    return results
+
+def bulk_delete(ids):
+    __bulk_delete(DB_NAME, ids, REGION_NAME, SECRET_NAME)

@@ -1553,7 +1553,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     finally:
         cursor.close()
 
-def __get_query_select_by_filter_paginated(db: str, filter: dict, page_size: int, limit: int, offset: int) -> tuple:
+def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, offset: int) -> tuple:
     """
     This function creates the select by client query with its parameters.
 
@@ -1590,15 +1590,18 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, page_size: int
 
     params = ()
     if filter:
-        query += "WHERE 1=1"
+        query += " WHERE 1=1 "
         for name, value in filter.items():
+            if value is None:
+                continue
+
             if name == "startDate":
                 query += " AND je.date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
             elif name == "endDate":
                 query += " AND je.date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
-            elif name == "state":
+            elif name == "journalEntryState":
                 query += " AND je.state = %s "
-            elif name == "fund":
+            elif name == "fundId":
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
                 query += " AND fe.clientId = %s "
@@ -1606,28 +1609,31 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, page_size: int
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "entityId":
+            elif name == "entityIds":
                 query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "accounts":
+            elif name == "accountIds":
                 query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             else:
                 continue
 
-            params += value
+            params += (value,)
     
+    query += "GROUP BY je.id"
+
     if limit and offset:
-        query += " LIMIT %s OFFSET %s;"
+        query += " LIMIT %s OFFSET %s"
         params += (limit, offset, )
 
+    query += ";"
     return (query, params)
 
 def __get_total_by_filter_query(db: str, filter: dict):
     query = (
-        """SELECT COUNT(1) FROM"""
+        """SELECT COUNT(1) FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
@@ -1644,15 +1650,18 @@ def __get_total_by_filter_query(db: str, filter: dict):
 
     params = ()
     if filter:
-        query += "WHERE 1=1"
+        query += " WHERE 1=1 "
         for name, value in filter.items():
+            if value is None:
+                continue
+
             if name == "startDate":
                 query += " AND je.date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
             elif name == "endDate":
                 query += " AND je.date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
-            elif name == "state":
+            elif name == "journalEntryState":
                 query += " AND je.state = %s "
-            elif name == "fund":
+            elif name == "fundId":
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
                 query += " AND fe.clientId = %s "
@@ -1660,19 +1669,20 @@ def __get_total_by_filter_query(db: str, filter: dict):
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "entityId":
+            elif name == "entityIds":
                 query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "accounts":
+            elif name == "accountIds":
                 query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             else:
                 continue
 
-            params += value
+            params += (value, )
 
+    query += ";"
     return (query, params)
 
 def select_with_filter_paginated(
@@ -1690,7 +1700,15 @@ def select_with_filter_paginated(
     This parameter specifies the db name where the query will be executed
 
     filter: string
-    A dict that contains all the possible filters
+    A dict that contains all the possible filters:
+        startDate: str
+        endDate: str
+        state: str
+        fund: str
+        clientId: str
+        ledgerIds: list
+        entityIds: list
+        accountIds: list
 
     region_name: string
     This parameter specifies the region where the query will be executed
@@ -1726,6 +1744,8 @@ def select_with_filter_paginated(
 
     total_records = list(record.values())[0]
 
-    total_pages = math.ceil(total_records / page_size)
+    total_pages = 1
+    if page_size is not None:
+        total_pages = math.ceil(total_records / page_size)
 
     return (records, total_pages)

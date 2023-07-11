@@ -15,7 +15,7 @@ import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "delete"))
 
-class JournalEntriesDeleteStack(BaseStack):
+class JournalEntriesBulkDeleteStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -26,15 +26,15 @@ class JournalEntriesDeleteStack(BaseStack):
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="delete.handler",
+            handler="bulk.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="journal entries delete",
-            exclude=["bulk*"],
+            description="journal entries bulk delete",
+            exclude=["delete*"],
         )
 
         cdk.CfnOutput(
             self,
-            "ark-journal-entries-delete-function-arn",
+            "ark-journal-entries-bulk-delete-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX + "ark-journal-entries-delete-function-arn",
+            export_name=self.STACK_PREFIX + "ark-journal-entries-bulk-delete-function-arn",
         )

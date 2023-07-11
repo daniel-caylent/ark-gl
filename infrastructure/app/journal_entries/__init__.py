@@ -4,4 +4,5 @@ from .post_stack import JournalEntriesPostStack
 from .put_stack import JournalEntriesPutStack
 from .state_stack import JournalEntriesStateStack
 from .delete_stack import JournalEntriesDeleteStack
+from .bulk_delete_stack import JournalEntriesBulkDeleteStack
 from .upload_stack import JournalEntriesUploadStack
