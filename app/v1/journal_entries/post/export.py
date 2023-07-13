@@ -26,10 +26,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     has_ledger_ids = body.get("ledgerIds", None) is not None
 
     if has_ledger_ids:
-        try:
-            ledger_ids = json.loads(body.get("ledgerIds"))
-        except BaseException:
-            return 400, {"detail": "Unable to parse ledger IDs."}
+        ledger_ids = body.get("ledgerIds")
 
     has_fund_ids = False
 
@@ -37,10 +34,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         has_fund_ids = body.get("fundIds", None) is not None
 
         if has_fund_ids:
-            try:
-                fund_ids = json.loads(body.get("fundIds"))
-            except BaseException:
-                return 400, {"detail": "Unable to parse fund IDs."}
+            fund_ids = body.get("fundIds")
         else:
             return 400, {"detail": "Ledger IDs or Fund IDs should be provided."}
 

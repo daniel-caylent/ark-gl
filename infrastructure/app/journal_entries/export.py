@@ -20,7 +20,7 @@ class JournalEntriesExportStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        export_bucket_name = get_stack_prefix() + ENV["EXPORT_BUCKET_NAME"]
+        export_bucket_name = get_stack_prefix().lower() + ENV["EXPORT_BUCKET_NAME"]
 
         self.source_bucket = cdk.aws_s3.Bucket(
             self,

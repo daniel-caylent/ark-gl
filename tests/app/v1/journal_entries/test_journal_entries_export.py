@@ -24,7 +24,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.export import handler
         request = {
-            "body": "{ \"ledgerIds\": \"[\\\"a92bde1e-7825-429d-aaae-909f2d7a8df1\\\"]\" }"
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"] }"
         }
 
         monkeypatch.setattr(boto3, "client", lambda service: Boto3Mocked())
@@ -37,7 +37,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.delete.delete import handler
         request = {
-            "body": "{ \"ledgerIds\": \"[\\\"a92bde1e-7825-429d-aaae-909f2d7a8df\\\"]\" }"
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
         }
 
         result = handler(request, LambdaContext())
@@ -49,7 +49,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.export import handler
         request = {
-            "body": "{ \"fundIds\": \"[\\\"a92bde1e-7825-429d-aaae-909f2d7a8df1\\\"]\" }"
+            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"] }"
         }
 
         monkeypatch.setattr(boto3, "client", lambda service: Boto3Mocked())
@@ -62,7 +62,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.delete.delete import handler
         request = {
-            "body": "{ \"fundIds\": \"[\\\"a92bde1e-7825-429d-aaae-909f2d7a8df\\\"]\" }"
+            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
         }
 
         result = handler(request, LambdaContext())
