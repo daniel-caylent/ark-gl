@@ -10,13 +10,12 @@ from shared import endpoint, validate_uuid
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for accounts bulk deletes endpoint"""
-    ids_list = []
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters"}
 
     try:
         account_ids = json.loads(event["queryStringParameters"].get("accountIds"))
-    except:
+    except BaseException:
         return 400, {"detail": "Unable to parse account IDs."}
 
     if not account_ids:

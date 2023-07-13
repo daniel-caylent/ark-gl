@@ -22,7 +22,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     fund_id = event["queryStringParameters"].get("fundId", None)
     ledger_id = event["queryStringParameters"].get("ledgerId", None)
     page = int(event["queryStringParameters"].get("page", 1))
-    page_size = int(event["queryStringParameters"].get("pageSize", 10))
+    page_size = int(event["queryStringParameters"].get("pageSize", 1000))
 
     results = []
     if ledger_id:

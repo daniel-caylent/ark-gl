@@ -1617,6 +1617,10 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
+            elif name == "fundIds":
+                query += f' AND fe.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
             else:
                 continue
 

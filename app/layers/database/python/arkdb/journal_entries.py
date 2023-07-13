@@ -205,6 +205,7 @@ def commit_by_id(journal_uuid) -> None:
     """Commit an existing journal"""
     commit(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)
 
+
 def select_with_filter_paginated(filter, page=None, page_size=None):
     results = __select_with_filter_paginated(DB_NAME, filter, REGION_NAME, SECRET_NAME, page, page_size)
 
@@ -214,6 +215,7 @@ def select_with_filter_paginated(filter, page=None, page_size=None):
     }
 
     return results
+
 
 def bulk_delete(ids):
     __bulk_delete(DB_NAME, ids, REGION_NAME, SECRET_NAME)

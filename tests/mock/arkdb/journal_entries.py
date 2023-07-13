@@ -244,3 +244,28 @@ def bulk_insert(journal_entries):
 
 def commit_by_id(*args):
     return None
+
+def select_with_filter_paginated(filter, page=None, page_size=None):
+    return {
+        "data": [
+            {
+                "ledger_id": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+                "fund_id": 1,
+                "uuid": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
+                "journal_entry_num": 2,
+                "reference": "Reference",
+                "memo": "memo",
+                "adjusting_journal_entry": False,
+                "state": "POSTED",
+                "date": datetime.date.today(),
+                "post_date": None,
+                "is_hidden": False,
+                "attachments": [],
+                "line_items": [],
+                "id": 2,
+                "currency": "USD",
+                "decimals": 2
+            }
+        ],
+        "totalPages": 10
+    }
