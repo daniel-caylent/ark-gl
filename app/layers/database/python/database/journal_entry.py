@@ -490,7 +490,7 @@ def select_by_ledger_uuid_paginated(
 
     total_pages = math.ceil(total_records / page_size)
 
-    return (records, total_pages)
+    return (records, page, total_pages, total_records)
 
 
 def select_by_ledger_uuid_with_order(
@@ -1104,7 +1104,7 @@ def select_by_fund_id_paginated(
 
     total_pages = math.ceil(total_records / page_size)
 
-    return (records, total_pages)
+    return (records, page, total_pages, total_records)
 
 
 def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
@@ -1292,7 +1292,7 @@ def select_by_client_id_paginated(
 
     total_pages = math.ceil(total_records / page_size)
 
-    return (records, total_pages)
+    return (records, page, total_pages, total_records)
 
 
 def select_max_number_by_ledger_with_cursor(
@@ -1625,7 +1625,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 continue
 
             params += (value,)
-    
+
     query += "GROUP BY je.id"
 
     if limit and offset:
@@ -1734,7 +1734,7 @@ def select_with_filter_paginated(
         account_ids = []
         for uuid in account_uuids:
             account_ids.append(account.get_id_by_uuid(db, uuid, region_name, secret_name))
-        
+
         filter["accountIds"] = account_ids
 
     params = __get_query_select_by_filter_paginated(db, filter, page_size, offset)
@@ -1753,4 +1753,4 @@ def select_with_filter_paginated(
     if page_size is not None:
         total_pages = math.ceil(total_records / page_size)
 
-    return (records, total_pages, total_records)
+    return (records, page, total_pages, total_records)

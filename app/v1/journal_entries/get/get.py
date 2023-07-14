@@ -74,7 +74,12 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
 
     journal_entries_ = [JournalEntry(**result) for result in data_results]
 
-    return 200, {"data": journal_entries_, "totalPages": results["total_pages"]}
+    return 200, {
+        "data": journal_entries_,
+        "totalPages": results["total_pages"],
+        "totalItems": results["total_items"],
+        "currentPage": results["current_page"],
+    }
 
 
 def __calculate_attachments(att_list, journal_entry_id):

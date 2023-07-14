@@ -70,7 +70,9 @@ def select_by_ledger_id_paginated(uuid: str, page: int, page_size: int) -> dict:
 
     results = {
         "data": translate_results(results[0], journal_app_to_db),
-        "total_pages": results[1]
+        "current_page": results[1],
+        "total_pages": results[2],
+        "total_items": results[3]
     }
 
     return results
@@ -91,7 +93,9 @@ def select_by_fund_id_paginated(uuid: str, page: int, page_size: int) -> dict:
 
     results = {
         "data": translate_results(results[0], journal_app_to_db),
-        "total_pages": results[1]
+        "current_page": results[1],
+        "total_pages": results[2],
+        "total_items": results[3]
     }
 
     return results
@@ -111,7 +115,9 @@ def select_by_client_id_paginated(uuid: str, page: int, page_size: int) -> dict:
 
     results = {
         "data": translate_results(results[0], journal_app_to_db),
-        "total_pages": results[1]
+        "current_page": results[1],
+        "total_pages": results[2],
+        "total_items": results[3]
     }
 
     return results
@@ -211,7 +217,9 @@ def select_with_filter_paginated(filter, page=None, page_size=None):
 
     results = {
         "data": translate_results(results[0], journal_app_to_db),
-        "total_pages": results[1]
+        "current_page": results[1],
+        "total_pages": results[2],
+        "total_items": results[3]
     }
 
     return results
