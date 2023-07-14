@@ -1605,19 +1605,19 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
                 query += " AND fe.clientId = %s "
-            elif name == "ledgerIds":
+            elif name == "ledgerIds" and value:
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "entityIds":
+            elif name == "entityIds" and value:
                 query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "accountIds":
+            elif name == "accountIds" and value:
                 query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "fundIds":
+            elif name == "fundIds" and value:
                 query += f' AND fe.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue

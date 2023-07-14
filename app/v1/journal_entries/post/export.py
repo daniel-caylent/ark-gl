@@ -24,35 +24,30 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         return 400, {"detail": "Body does not contain valid json."}
 
     has_ledger_ids = body.get("ledgerIds", None) is not None
+    has_fund_ids = body.get("fundIds", None) is not None
+
+    if has_ledger_ids and has_fund_ids:
+        return 400, {"detail": "The API accepts Ledger IDs OR Fund IDs, but not both in the same request."}
 
     if has_ledger_ids:
-        ledger_ids = body.get("ledgerIds")
-
-    has_fund_ids = False
-
-    if not has_ledger_ids:
-        has_fund_ids = body.get("fundIds", None) is not None
-
-        if has_fund_ids:
-            fund_ids = body.get("fundIds")
-        else:
-            return 400, {"detail": "Ledger IDs or Fund IDs should be provided."}
+        _ids = body.get("ledgerIds")
+    elif has_fund_ids:
+        _ids = body.get("fundIds")
+    else:
+        return 400, {"detail": "Ledger IDs or Fund IDs should be provided."}
 
     if has_ledger_ids:
         query_filter = {
-            "ledgerIds": ledger_ids
+            "ledgerIds": _ids
         }
-        for id_ in ledger_ids:
-            if not validate_uuid(id_):
-                return 400, {"detail": "Invalid ledger UUID provided."}
-
-    if has_fund_ids:
+    elif has_fund_ids:
         query_filter = {
-            "fundIds": fund_ids
+            "fundIds": _ids
         }
-        for id_ in fund_ids:
-            if not validate_uuid(id_):
-                return 400, {"detail": "Invalid fund UUID provided."}
+
+    for id_ in _ids:
+        if not validate_uuid(id_):
+            return 400, {"detail": "Invalid UUID provided."}
 
     results = journal_entries.select_with_filter_paginated(query_filter)
 

@@ -35,7 +35,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
 
     def test_bad_api_request_with_ledger_ids(self):
         import boto3
-        from app.v1.journal_entries.delete.delete import handler
+        from app.v1.journal_entries.post.export import handler
         request = {
             "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
         }
@@ -60,7 +60,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
 
     def test_bad_api_request_with_fund_ids(self):
         import boto3
-        from app.v1.journal_entries.delete.delete import handler
+        from app.v1.journal_entries.post.export import handler
         request = {
             "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
         }
@@ -71,10 +71,22 @@ class TestJournalEntriesExport(TestBase(PATHS)):
 
 
     def test_missing_id(self):
-        from app.v1.journal_entries.delete.delete import handler
+        from app.v1.journal_entries.post.export import handler
         request = {
             "body": {
             }
+        }
+
+        result = handler(request, LambdaContext())
+
+        assert 400 == result['statusCode']
+
+
+    def test_bad_api_request_with_both_ledger_and_fund_ids(self):
+        import boto3
+        from app.v1.journal_entries.post.export import handler
+        request = {
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"]}"
         }
 
         result = handler(request, LambdaContext())

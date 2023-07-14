@@ -17,7 +17,6 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters"}
 
-
     client_id = event["queryStringParameters"].get("clientId", None)
     fund_id = event["queryStringParameters"].get("fundId", None)
     ledger_id = event["queryStringParameters"].get("ledgerId", None)
