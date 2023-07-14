@@ -15,6 +15,7 @@ from database.journal_entry import (
     bulk_insert as __bulk_insert,
     bulk_delete as __bulk_delete,
     select_with_filter_paginated as __select_with_filter_paginated,
+    select_numbers_by_ledger_uuid,
     insert,
     update,
     delete,
@@ -227,3 +228,7 @@ def select_with_filter_paginated(filter, page=None, page_size=None):
 
 def bulk_delete(ids):
     __bulk_delete(DB_NAME, ids, REGION_NAME, SECRET_NAME)
+
+def select_numbers_in_ledger(uuid):
+    numbers = select_numbers_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
+    return numbers

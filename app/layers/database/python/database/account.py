@@ -79,8 +79,7 @@ def __get_insert_query(
     )
 
     # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
+    uuid = db_main.get_new_uuid()
 
     # Evaluating if "parent_id" is null, to insert the uuid by default
     # if not, get the id from the parent's uuid

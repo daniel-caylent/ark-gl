@@ -5,8 +5,8 @@ import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries, ledgers, accounts
-from models import BulkJournalEntryPost, BulkLineItemPost
-from validate_new_journal_entry import validate_new_journal_entry
+from models import BulkJournalEntryPost, BulkLineItemPost, LineItemPost, AttachmentPost, JournalEntryPost
+from validate_new_journal_entry import sum_line_items
 from shared import endpoint, dataclass_error_to_str
 from shared.bulk import download_from_s3
 # pylint: enable=import-error
@@ -65,13 +65,13 @@ def handler(
 
     # extract and replace ledger name with ID
     try:
-        journal_entries_list = __add_ledger_ids_to_journals(journal_entries_list)
+        journal_entries_list, ledger_lookup = __add_ledger_ids_to_journals(journal_entries_list)
     except Exception as e:
         return 400, {"detail": str(e)}
 
     # extract and transform account name to ID
     try:
-        journal_entries_list = __add_account_ids_to_line_items(journal_entries_list)
+        journal_entries_list, accounts_lookup = __add_account_ids_to_line_items(journal_entries_list)
     except Exception as e:
         return 400, {"detail": str(e)}
 
@@ -86,25 +86,90 @@ def handler(
         return 400, {"detail": str(e)}
 
     post_entries = []
+    ledger_journal_entry_num_lookup = {}
     for journal_entry in journal_entries_list:
         journal_entry.pop("fundId")
         journal_entry.pop("decimals")
 
-        code, detail, post = validate_new_journal_entry(journal_entry)
+        # validate the POST contents
+        try:
+            post = JournalEntryPost(**journal_entry)
+        except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+            return 400, {"detail": dataclass_error_to_str(e)}
 
-        if code != 201:
-            return code, {"detail": detail}
+        if len(post.lineItems) == 0:
+            return 400, {"detail": "Journal entry is missing line items."}
 
-        post_entries.append(post)
+        ledger = ledger_lookup.get(post.ledgerId)
+        if post.journalEntryNum is not None:
+            existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
+            if existing_nums is None:
+                ledger_journal_entry_num_lookup[ledger["uuid"]] = journal_entries.select_numbers_in_ledger(ledger["fund_entity_id"])
+                existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
+
+            if post.journalEntryNum in existing_nums:
+                return 400, {"detail": f"Journal entry number is not unique: {post.journalEntryNum}"}
+
+        type_safe_line_items = []
+        line_item_no = 0
+        for item in post.lineItems:
+            line_item_no += 1
+            try:
+                line_item_post = LineItemPost(**item)
+                type_safe_line_items.append(
+                    {"lineItemNo": line_item_no, **line_item_post.__dict__}
+                )
+            except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+                return 400, {"detail": dataclass_error_to_str(e)}
+
+        post.lineItems = type_safe_line_items
+
+        type_safe_attachments = []
+        for attachment in post.attachments:
+            try:
+                attachment = AttachmentPost(**attachment)
+                type_safe_attachments.append(attachment.__dict__)
+            except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+                return 400, {"detail": dataclass_error_to_str(e)}
+
+        post.attachments = type_safe_attachments
+
+        if sum_line_items(type_safe_line_items) != 0:
+            return 400, {"detail": f"Line items do not sum to 0 for journal entry number: {post.journalEntryNum}"}
+
+        post_entries.append({"state": "DRAFT", **post.__dict__})
 
     # insert the new account
     result = journal_entries.bulk_insert(post_entries)
-    return code, {"journalEntryIds": result}
 
+    __update_draft_accounts(accounts_lookup.values())
+    __update_draft_ledgers(ledger_lookup.values())
+    return 201, {"journalEntryIds": result}
+
+
+
+def __update_draft_accounts(accounts_: list):
+    """Check to see if line items still exist for old accounts"""
+    for acct in accounts_:
+        line_items_count = accounts.get_line_items_count(acct["id"])
+        if line_items_count > 0 and acct["state"] not in ["POSTED", "DRAFT"]:
+            accounts.update_by_id(acct["uuid"], {"state": "DRAFT"})
+
+
+def __update_draft_ledgers(ledgers_: list):
+    """Replace ledger state with UNUSED if no journal entries exist for it"""
+    for ledger in ledgers_:
+        journal_entries_ = journal_entries.select_by_ledger_id(ledger["id"])
+        if len(journal_entries_) > 0 and ledger["state"] not in ["POSTED", "DRAFT"]:
+            ledgers.update_by_id(
+                ledger["uuid"],
+                {"state": "DRAFT"}
+            )
 
 def __add_ledger_ids_to_journals(journal_entry_list):
     """Retrieve ledgerIds from db for journal entries"""
     ledgers_dict = {}
+    return_ledgers_dict = {}
     new_list = []
     for entry in journal_entry_list:
         fund = entry.get("fundId")
@@ -114,22 +179,23 @@ def __add_ledger_ids_to_journals(journal_entry_list):
         ledger_key = f"{fund}+{ledgerName}"
         ledger = ledgers_dict.get(ledger_key)
         if not ledger:
-            ledger = ledgers.select_by_fund_and_name(fund, ledgerName)
+            ledger = ledgers.select_by_fund_and_name(fund, ledgerName, translate=False)
 
             if ledger is None:
                 raise Exception(
                     f"Cannot find ledger name ({ledgerName}) in fund: {fund}"
                 )
             ledgers_dict[ledger_key] = ledger
+            return_ledgers_dict[ledger["uuid"]] = ledger
 
         new_list.append(
             {
                 **entry,
-                "ledgerId": ledger["ledgerId"],
-                "decimals": ledger["currencyDecimal"],
+                "ledgerId": ledger["uuid"],
+                "decimals": ledger["decimals"],
             }
         )
-    return new_list
+    return new_list, return_ledgers_dict
 
 
 def __validate_journal_entry_numbers(journal_entry_list):
@@ -155,6 +221,7 @@ def __add_account_ids_to_line_items(journal_entry_list):
     """Add account ids to line items using fundId and account name"""
     funds = []
     accounts_dict = {}
+    return_accounts_dict = {}
 
     new_list = []
     for entry in journal_entry_list:
@@ -174,9 +241,12 @@ def __add_account_ids_to_line_items(journal_entry_list):
             if account is None:
                 raise Exception(f"Unable to locate account by name: {account_name}")
             new_line_items.append({**item, "accountId": account["uuid"]})
+            
+            if not return_accounts_dict.get(account["uuid"]):
+                return_accounts_dict[account["uuid"]] = account
         new_list.append({**entry, "lineItems": new_line_items})
 
-    return new_list
+    return new_list, return_accounts_dict
 
 
 def __validate_bulk_line_items(journal_entries_list):

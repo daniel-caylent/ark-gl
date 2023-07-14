@@ -29,7 +29,7 @@ class TestLineItem(LineItemTestBase):
         def get_id_by_uuid(db, account_uuid, region_name, secret_name):
             return 10
 
-        def get_new_uuid(ro_conn):
+        def get_new_uuid():
             return 'd559fa87-e51a-11ed-aede-0247c1ed2eeb'
 
         monkeypatch.setattr(account, 'get_id_by_uuid', get_id_by_uuid)

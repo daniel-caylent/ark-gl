@@ -25,6 +25,7 @@ def get_insert_query(
     posting_type: str,
     region_name: str,
     secret_name: str,
+    account_lookup = {},
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -54,20 +55,19 @@ def get_insert_query(
         + """.line_item
             (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount, entity_id)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s, %s);"""
+            (UUID(), %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, parameters)
 
     account_uuid = translated_input.get("account_id")
-    account_id = account.get_id_by_uuid(db, account_uuid, region_name, secret_name)
 
-    # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
+    account_id = account_lookup.get(account_uuid)
+    if account_id is None:
+        account_id = account.get_id_by_uuid(db, account_uuid, region_name, secret_name)
+        account_lookup[account_uuid] = account_id
 
     params = (
-        uuid,
         account_id,
         journal_entry_id,
         line_number,

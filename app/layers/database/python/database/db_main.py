@@ -1,4 +1,5 @@
 """This module provides the Aurora MySQL serverless capabilities for the common methods for all entities"""
+import uuid
 
 from pymysql import Connection, cursors
 from typing import Union
@@ -157,7 +158,7 @@ def execute_multiple_record_select(
     return record_list
 
 
-def get_new_uuid(connection: Connection) -> str:
+def get_new_uuid() -> str:
     """
     This function generates and returns a new UUID in the db.
 
@@ -168,8 +169,8 @@ def get_new_uuid(connection: Connection) -> str:
     return
     A string with the generated UUID
     """
-    params = ("SELECT UUID() as id;", None)
+    #params = ("SELECT UUID() as id;", None)
 
-    record = execute_single_record_select(connection, params)
+    #record = execute_single_record_select(connection, params)
 
-    return record.get("id")
+    return str(uuid.uuid4())

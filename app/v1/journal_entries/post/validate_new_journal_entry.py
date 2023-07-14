@@ -71,7 +71,7 @@ def validate_new_journal_entry(journal_entry):
 
     post.attachments = type_safe_attachments
 
-    if __sum_line_items(type_safe_line_items) != 0:
+    if sum_line_items(type_safe_line_items) != 0:
         return 400, "Line items do not sum to 0.", None
 
     __update_draft_accounts(accts, [item["accountId"] for item in type_safe_line_items])
@@ -82,7 +82,7 @@ def validate_new_journal_entry(journal_entry):
     return 201, "", {"state": "DRAFT", **post.__dict__}
 
 
-def __sum_line_items(line_items):
+def sum_line_items(line_items):
     """Sum all lines considering credit/debit"""
     total = 0
     for item in line_items:

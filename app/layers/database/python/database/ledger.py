@@ -60,8 +60,7 @@ def __get_insert_query(
     translated_input = db_main.translate_to_db(app_to_db, input_)
 
     # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db_, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
+    uuid = db_main.get_new_uuid()
 
     params = (
         uuid,

@@ -72,8 +72,7 @@ def __get_insert_query(
     ledger_id = ledger.get_id(db, ledger_uuid, region_name, secret_name)
 
     # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
+    uuid = db_main.get_new_uuid()
 
     # Getting max journal_entry_num +1 by ledger_id
     journal_entry_num = select_max_number_by_ledger(
@@ -248,6 +247,36 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
+    where le.uuid = %s;"""
+    )
+
+    params = (ledger_uuid,)
+
+    return (query, params)
+
+
+def __get_numbers_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
+    """
+    This function creates the select by ledger query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
+
+    return
+    A tuple containing the query on the first element, and the params on the second
+    one to avoid SQL Injections
+    """
+    query = (
+        """SELECT je.journal_entry_num
+    FROM """
+        + db
+        + """.journal_entry je
+    INNER JOIN """
+        + db
+        + """.ledger le ON (je.ledger_id = le.id)
     where le.uuid = %s;"""
     )
 
@@ -1329,6 +1358,7 @@ def __get_insert_query_with_cursor(
     region_name: str,
     secret_name: str,
     cursor: Union[Cursor, DictCursor],
+    ledger_lookup={},
 ) -> tuple:
     """
     This function creates the insert query with its parameters.
@@ -1368,11 +1398,12 @@ def __get_insert_query_with_cursor(
     translated_input = db_main.translate_to_db(app_to_db, input_)
 
     ledger_uuid = translated_input.get("ledger_id")
-    ledger_id = ledger.get_id(db, ledger_uuid, region_name, secret_name)
+    ledger_id = ledger_lookup.get(ledger_uuid)
+    if ledger_id is None:
+        ledger_id = ledger.get_id(db, ledger_uuid, region_name, secret_name)
+        ledger_lookup[ledger_uuid] = ledger_id
 
-    # Getting new uuid from the db to return it in insertion
-    ro_conn = connection.get_connection(db, region_name, secret_name, "ro")
-    uuid = db_main.get_new_uuid(ro_conn)
+    uuid = db_main.get_new_uuid()
 
     # Try to get the journal_entry_num from the input first
     journal_entry_num = translated_input.get("journal_entry_num")
@@ -1425,9 +1456,13 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
     cursor = conn.cursor(DictCursor)
 
     try:
+        # account_id_lookup with hold references to account UUIDs to incremental IDs
+        # so we don't have to repeatedly query the database
+        account_id_lookup = {}
+        ledger_lookup = {}
         for input_ in input_list:
             params = __get_insert_query_with_cursor(
-                db, input_, region_name, secret_name, cursor
+                db, input_, region_name, secret_name, cursor, ledger_lookup
             )
 
             query = params[0]
@@ -1453,6 +1488,7 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
                         type_,
                         region_name,
                         secret_name,
+                        account_id_lookup
                     )
                     cursor.execute(entry_params[0], entry_params[1])
 
@@ -1754,3 +1790,34 @@ def select_with_filter_paginated(
         total_pages = math.ceil(total_records / page_size)
 
     return (records, page, total_pages, total_records)
+
+
+def select_numbers_by_ledger_uuid(
+    db: str, ledger_uuid: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_numbers_by_ledger_uuid_query(db, ledger_uuid)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return [record["journal_entry_num"] for record in records]

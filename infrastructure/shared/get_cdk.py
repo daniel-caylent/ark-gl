@@ -18,6 +18,7 @@ def build_lambda_function(
     timeout=60,
     exclude=[],
     is_replication=False,
+    memory_size=512,
     **kwargs,
 ):
     """
@@ -88,7 +89,7 @@ def build_lambda_function(
         vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=subnets),
         runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
         security_groups=[security_group],
-        memory_size=512,
+        memory_size=memory_size,
         timeout=cdk.Duration.seconds(timeout),
         tracing=cdk.aws_lambda.Tracing.ACTIVE,  # Enabling X-Ray Tracing,
         environment={**ENV["deploy"], **env},
