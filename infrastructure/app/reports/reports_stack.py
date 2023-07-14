@@ -29,9 +29,25 @@ class ReportsStack(BaseStack):
             description="trial balance report",
         )
 
+        trial_balance_detail = build_lambda_function(
+            self,
+            CODE_DIR,
+            handler="trial_balance_detail.handler",
+            name="trial-balance-detail",
+            layers=[shared_layer, pymysql_layer, db_layer],
+            description="trial balance detail report",
+        )
+
         cdk.CfnOutput(
             self,
             "ark-reports-trial-balance-function-arn",
             value=trial_balance.function_arn,
             export_name=self.STACK_PREFIX + "ark-reports-trial-balance-function-arn",
+        )
+
+        cdk.CfnOutput(
+            self,
+            "ark-reports-trial-balance-detail-function-arn",
+            value=trial_balance.function_arn,
+            export_name=self.STACK_PREFIX + "ark-reports-trial-balance-detail-function-arn",
         )

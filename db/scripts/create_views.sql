@@ -107,19 +107,24 @@ group by 1,2,3,4,5,6,7,8,9;
 
 CREATE OR REPLACE VIEW DETAILED_TRIAL_BALANCE_VW AS
 SELECT
-fe.uuid fe_uuid,
-acc.uuid acc_uuid,
+fe.uuid fund_uuid,
+acc.uuid account_uuid,
 je.journal_entry_num,
-acc.name name,
+acc.name account_name,
 acc.account_no,
-concat(acc.name, ' ', acc.account_no) acc_app_name,
-li.line_number ,
-li.memo, 
-le.uuid le_uuid,
-je.post_date je_post_date,
+concat(acc.name, ' ', acc.account_no) account_app_name,
+acc_att.uuid attribute_uuid,
+li.line_number,
+li.memo,
+li.entity_id,
+le.uuid ledger_uuid,
+le.currency,
+le.decimals,
+le.name ledger_name,
+je.post_date journal_entry_post_date,
 je.adjusting_journal_entry,
-je.state je_state,
-je.date je_date,
+je.state journal_entry_state,
+je.date journal_entry_date,
 case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "Amount"
 from 
 line_item li 

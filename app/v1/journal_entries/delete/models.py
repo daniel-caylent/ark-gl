@@ -57,5 +57,5 @@ class FilterInput:
                 check_uuid(id_, f"ledgerId: {id_}")
 
 
-        if not (self.accountIds or self.ledgerIds or self.entityIds or self.clientId or self.fundId):
-            raise Exception("Search criteria is too broad. Include on of: accountIds, ledgerIds, entityIds, clientId, or fundId")
+        if not (self.accountIds or self.ledgerIds or self.clientId or self.fundId):
+            raise Exception("Search criteria is too broad. Include one of: accountIds, ledgerIds, clientId, or fundId")

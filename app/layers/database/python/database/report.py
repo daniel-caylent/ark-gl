@@ -5,6 +5,27 @@ from . import db_main
 from . import connection
 from . import account
 
+app_to_db = {
+    "fundId": "fund_uuid",
+    "accountId": "account_uuid",
+    "journalEntryNum": "journal_entry_num",
+    "accountName": "account_name",
+    "accountNo": "account_no",
+    "displayName": "account_app_name",
+    "attributeId": "attribute_uuid",
+    "lineNumber": "line_number",
+    "memo": "memo",
+    "ledgerId": "ledger_id",
+    "currency": "currency",
+    "decimals": "decimals",
+    "journalEntryPostDated": "journal_entry_post_date",
+    "adjustingJournalEntry": "adjusting_journal_entry",
+    "journalEntryState": "journal_entry_state",
+    "journalEntryDate": "journal_entry_date",
+    "amount": "amount",
+    "entityId": "entity_id",
+    "ledgerName": "ledger_name",
+}
 
 def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
     """
@@ -33,35 +54,37 @@ def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
     where_clause = ""
     params = ()
 
-    je_state = input_.get("journalEntryState")
-    if je_state:
-        where_clause += " AND je_state = %s "
-        params += (je_state,)
+    for name, value in input_.items():
+        if value is None:
+            continue
 
-    start_day = input_.get("startDay")
-    if start_day:
-        where_clause += " AND je_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
-        params += (start_day,)
+        if name == "journalEntryState":
+            where_clause += " AND journal_entry_state = %s "
+        if name == "startDay":
+            where_clause += " AND journal_entry_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+        if name == "endDate":
+            where_clause += " AND journal_entry_date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
 
-    where_clause += " AND je_date < STR_TO_DATE(%s, '%%Y-%%m-%%d') "
+        if name == "ledgerIds":
+            format_strings = ",".join(["%s"] * len(value))
+            where_clause += f" AND ledger_uuid IN ({format_strings}) "
 
-    end_day_input = input_.get("endDay")
-    if end_day_input:
-        end_day_dt = datetime.strptime(end_day_input, "%Y-%m-%d") + timedelta(days=1)
-    else:
-        end_day_dt = datetime.now() + timedelta(days=1)
+            params += tuple(value)
+            continue
+        if name == "accountIds":
+            format_strings = ",".join(["%s"] * len(value))
+            where_clause += f" AND account_uuid IN ({format_strings}) "
 
-    end_day = end_day_dt.strftime("%Y-%m-%d")
+            params += tuple(value)
+            continue
+        if name == "attributeIds":
+            format_strings = ",".join(["%s"] * len(value))
+            where_clause += f" AND attribute_uuid IN ({format_strings}) "
 
-    params += (end_day,)
+            params += tuple(value)
+            continue
 
-    ledgers_list = input_.get("ledgerId")
-
-    format_strings = ",".join(["%s"] * len(ledgers_list))
-    where_clause += f" AND le_uuid IN ({format_strings}) "
-
-    params += tuple(ledgers_list)
-
+        params += (value,)
     query = select_query + where_clause
     return (
         query,
@@ -270,7 +293,8 @@ def select_balance_sheet_detail(
     )
 
     params = __get_query_with_common_params(select_query, input_)
-    params = __get_account_tree_params(params, input_, db, region_name, secret_name)
+    params = __get_account_tree_params(
+        params, input_, db, region_name, secret_name)
     query = params[0]
     q_params = params[1]
 
