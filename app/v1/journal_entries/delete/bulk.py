@@ -61,11 +61,16 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
 def __update_unused_accounts(accounts_: list):
     """Check to see if line items still exist for old accounts"""
+    update_accounts = []
     for acct in accounts_:
         line_items_count = accounts.get_line_items_count(acct["id"])
         if line_items_count == 0 and acct["state"] != "POSTED":
-            print(f"Update unused account to UNUSED: {acct['uuid']}")
-            accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
+            update_accounts.append({
+                "accountId": acct["uuid"],
+                "state": "DRAFT"
+            })
+    
+    accounts.bulk_update(update_accounts)
 
 def __update_unused_ledgers(ledgers_list: list):
     """Replace ledger state with UNUSED if no journal entries exist for it"""

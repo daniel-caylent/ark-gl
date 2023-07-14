@@ -445,6 +445,52 @@ def select_by_uuid(db: str, uuid: str, region_name: str, secret_name: str) -> di
     return record
 
 
+def __get_select_ids_by_uuid_list_query(db, uuid_list):
+
+    query = (
+        "SELECT id, uuid FROM "
+        + db
+        + f".journal_entry WHERE uuid in ({','.join(['%s'] * len(uuid_list))});"
+    )
+
+    params = tuple(uuid_list)
+
+    return (query, params)
+
+
+def select_ids_by_uuid_list(
+    db: str, uuid_list: str, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_uuid: string
+    This parameter specifies the ledger_uuid that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing the journal entries that match with the upcoming ledger_id
+    """
+    params = __get_select_ids_by_uuid_list_query(db, uuid_list)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    lookup = {r['uuid']: r['id'] for r in records}
+    return lookup
+
+
+
 def select_by_ledger_uuid(
     db: str, ledger_uuid: str, region_name: str, secret_name: str
 ) -> list:
@@ -727,26 +773,38 @@ def bulk_delete(db: str, uuids: list, region_name: str, secret_name: str) -> Non
     cursor = conn.cursor()
 
     try:
+        journal_query = None
+        journal_params = []
+        line_items_query = None
+        line_items_params = []
+        attachments_query = None
+        attachments_params = []
+
+        je_id_lookup = select_ids_by_uuid_list(db, uuids, region_name, secret_name)
         for uuid in uuids:
             params = __get_delete_query(db, uuid)
-            query = params[0]
-            q_params = params[1]
+            if journal_query is None:
+                journal_query = params[0]
+            journal_params.append(params[1])
 
             # Getting the id before deleting
-            id_ = select_by_uuid(db, uuid, region_name, secret_name).get("id")
-
+            id_ = je_id_lookup[uuid]
 
             # First, delete the line items by journal_entry_id
-            entry_params = line_item.get_delete_by_journal_query(db, id_)
-            cursor.execute(entry_params[0], entry_params[1])
+            li_params = line_item.get_delete_by_journal_query(db, id_)
+            if line_items_query is None:
+                line_items_query = li_params[0]
+            line_items_params.append(li_params[1])
 
             # Then, delete the attachments by journal_entry_id
             att_params = attachment.get_delete_by_journal_query(db, id_)
-            cursor.execute(att_params[0], att_params[1])
+            if attachments_query is None:
+                attachments_query = att_params[0]
+            attachments_params.append(att_params[1])
 
-            # Finally delete the journal entry
-            cursor.execute(query, q_params)
-
+        cursor.executemany(line_items_query, line_items_params)
+        cursor.executemany(attachments_query, attachments_params)
+        cursor.executemany(journal_query, journal_params)
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -1460,6 +1518,11 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
         # so we don't have to repeatedly query the database
         account_id_lookup = {}
         ledger_lookup = {}
+
+        line_items_params = []
+        line_items_query = None
+        attachments_params = []
+        attachments_query = None
         for input_ in input_list:
             params = __get_insert_query_with_cursor(
                 db, input_, region_name, secret_name, cursor, ledger_lookup
@@ -1490,16 +1553,26 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
                         secret_name,
                         account_id_lookup
                     )
-                    cursor.execute(entry_params[0], entry_params[1])
+
+                    if line_items_query is None:
+                        line_items_query = entry_params[0]
+                    
+                    line_items_params.append(entry_params[1])
 
             # Also, insert attachments
             if "attachments" in input_:
                 for att in input_["attachments"]:
                     att_params = attachment.get_insert_query(db, att, journal_entry_id)
-                    cursor.execute(att_params[0], att_params[1])
+
+                    if attachments_query is None:
+                        attachments_query = att_params[0]
+                    
+                    attachments_params.append(att_params[1])
 
             uuids_list.append(uuid)
 
+        cursor.executemany(line_items_query, line_items_params)
+        cursor.executemany(attachments_query, attachments_params)
         conn.commit()
     except Exception as e:
         conn.rollback()
