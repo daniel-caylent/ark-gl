@@ -31,7 +31,6 @@ class JournalEntriesUploadStack(BaseStack):
             layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries upload",
             exclude=["post*"],
-            memory_size=1024,
         )
 
         cdk.CfnOutput(

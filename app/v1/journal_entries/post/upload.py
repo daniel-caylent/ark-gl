@@ -104,7 +104,7 @@ def handler(
         if post.journalEntryNum is not None:
             existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
             if existing_nums is None:
-                ledger_journal_entry_num_lookup[ledger["uuid"]] = journal_entries.select_numbers_in_ledger(ledger["fund_entity_id"])
+                ledger_journal_entry_num_lookup[ledger["uuid"]] = journal_entries.select_numbers_in_ledger(ledger["uuid"])
                 existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
 
             if post.journalEntryNum in existing_nums:

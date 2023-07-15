@@ -123,3 +123,7 @@ For gathering code coverage metrics, the following command should be executed:
 ```
 pytest --cov=app tests/
 ```
+
+### Profiling
+
+Every endpoint is capable of switching into a "profiling mode." To enable profiling, set an environemnt variable PROFILE=1 for any endpoint. When profiling is enabled, the endpoint will process your request as normal, but will not respond with usable data. Profile for the endpoint will be written to the CloudWatch logs. **This is only meant to be used in a development environment.**
