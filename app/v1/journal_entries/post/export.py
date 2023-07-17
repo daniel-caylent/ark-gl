@@ -80,7 +80,7 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         Params={'Bucket': s3_bucket, 'Key': s3_key},
     )
 
-    return 201, {"s3_signed_url": s3_signed_url}
+    return 201, {"s3SignedUrl": s3_signed_url}
 
 
 def __calculate_attachments(att_list, journal_entry_id):
