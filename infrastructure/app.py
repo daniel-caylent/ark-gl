@@ -37,7 +37,7 @@ from app.journal_entries import (
     JournalEntriesStateStack,
     JournalEntriesUploadStack,
     JournalEntriesBulkDeleteStack,
-    JournalEntriesExportStack
+    JournalEntriesBulkExportStack
 )
 
 from app.reports import (
@@ -77,7 +77,8 @@ from constructs import DependencyGroup
 
 
 cdk_env = cdk.Environment(
-    account=os.getenv("AWS_ACCOUNT"), region=os.getenv("AWS_REGION")
+    account=os.getenv("AWS_ACCOUNT"),
+    region=os.getenv("AWS_REGION")
 )
 
 app = cdk.App()
@@ -182,10 +183,10 @@ journal_entries_bulk_delete_stack = JournalEntriesBulkDeleteStack(
 )
 journal_entries_bulk_delete_stack.add_dependency(vpc_stack)
 
-journal_entries_export_stack = JournalEntriesExportStack(
+journal_entries_bulk_export_stack = JournalEntriesBulkExportStack(
     app, "ark-gl-journal-entries-export-stack", env=cdk_env
 )
-journal_entries_export_stack.add_dependency(vpc_stack)
+journal_entries_bulk_export_stack.add_dependency(vpc_stack)
 
 journal_entries_state_stack = JournalEntriesStateStack(
     app, "ark-gl-journal-entries-state-stack", env=cdk_env
@@ -227,7 +228,7 @@ dependency_group.add(journal_entries_state_stack)
 dependency_group.add(journal_entries_upload_stack)
 dependency_group.add(journal_entries_delete_stack)
 dependency_group.add(journal_entries_bulk_delete_stack)
-dependency_group.add(journal_entries_export_stack)
+dependency_group.add(journal_entries_bulk_export_stack)
 dependency_group.add(reports_stack)
 
 rest_api = ApiStack(app, "ark-gl-api-stack", env=cdk_env)

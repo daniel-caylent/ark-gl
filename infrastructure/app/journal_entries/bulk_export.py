@@ -16,7 +16,7 @@ import aws_cdk as cdk
 
 CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "post"))
 
-class JournalEntriesExportStack(BaseStack):
+class JournalEntriesBulkExportStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -56,7 +56,7 @@ class JournalEntriesExportStack(BaseStack):
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="export.handler",
+            handler="bulk_export.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
             description="journal entries export",
             exclude=["get*"],

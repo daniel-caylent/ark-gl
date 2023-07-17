@@ -14,6 +14,9 @@ from shared import (
 # pylint: enable=import-error
 
 
+EXTRA_FILTERS_ALLOWED = ['']
+
+
 @endpoint
 def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Get journal entries by ledgerId"""
