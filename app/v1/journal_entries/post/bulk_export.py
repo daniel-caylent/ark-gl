@@ -8,8 +8,6 @@ import boto3
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries
 from shared import endpoint, dataclass_error_to_str, filtering
-
-from models import FilterInput
 # pylint: enable=import-error
 
 

@@ -23,6 +23,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
     def test_good_api_request_with_ledger_ids(self, monkeypatch):
         import boto3
         from app.v1.journal_entries.post.bulk_export import handler
+
         request = {
             "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"] }"
         }
