@@ -63,5 +63,4 @@ def __update_unused_ledger(ledger):
                 ledger["ledgerId"],
                 {"state": "UNUSED"}
             )
-    
-            
+

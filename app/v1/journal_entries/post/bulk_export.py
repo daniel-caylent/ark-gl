@@ -7,14 +7,13 @@ import boto3
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries
-from shared import (
-    endpoint,
-    validate_uuid,
-)
+from shared import endpoint, dataclass_error_to_str, filtering
+
+from models import FilterInput
 # pylint: enable=import-error
 
 
-EXTRA_FILTERS_ALLOWED = ['']
+EXTRA_FILTERS_ALLOWED = ['startDate', 'endDate', 'journalEntryState']
 
 
 @endpoint
@@ -26,33 +25,21 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
-    has_ledger_ids = body.get("ledgerIds", None) is not None
-    has_fund_ids = body.get("fundIds", None) is not None
+    keys = body.keys()
 
-    if has_ledger_ids and has_fund_ids:
-        return 400, {"detail": "The API accepts Ledger IDs OR Fund IDs, but not both in the same request."}
+    entity_filters = list(set(keys) - set(EXTRA_FILTERS_ALLOWED))
 
-    if has_ledger_ids:
-        _ids = body.get("ledgerIds")
-    elif has_fund_ids:
-        _ids = body.get("fundIds")
-    else:
-        return 400, {"detail": "Ledger IDs or Fund IDs should be provided."}
+    if len(entity_filters) > 1:
+        return \
+            400, \
+            {"detail": f"Only a single entity filter should be passed. Found: {', '.join(entity_filters)}"}
 
-    if has_ledger_ids:
-        query_filter = {
-            "ledgerIds": _ids
-        }
-    elif has_fund_ids:
-        query_filter = {
-            "fundIds": _ids
-        }
+    try:
+        valid_input = filtering.FilterInput(**body).__dict__
+    except Exception as e:
+        return 400, {"detail": dataclass_error_to_str(e)}
 
-    for id_ in _ids:
-        if not validate_uuid(id_):
-            return 400, {"detail": "Invalid UUID provided."}
-
-    results = journal_entries.select_with_filter_paginated(query_filter)
+    results = journal_entries.select_with_filter_paginated(valid_input)
 
     data_results = results["data"]
 

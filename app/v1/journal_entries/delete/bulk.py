@@ -2,9 +2,7 @@
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, journal_entries, ledgers
-from shared import endpoint, validate_uuid, dataclass_error_to_str
-
-from models import FilterInput
+from shared import endpoint, dataclass_error_to_str, filtering
 # pylint: disable=import-error
 
 
@@ -17,7 +15,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     filter = event.get("queryStringParameters")
 
     try:
-        valid_input = FilterInput(**filter).__dict__
+        valid_input = filtering.FilterInput(**filter).__dict__
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
@@ -36,7 +34,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
         delete_ids.append(journal_entry["journalEntryId"])
         ledgers_dict[journal_entry["ledgerId"]] = None
-    
+
     try:
         journal_entries.bulk_delete(delete_ids)
     except Exception as e:
@@ -69,7 +67,7 @@ def __update_unused_accounts(accounts_: list):
                 "accountId": acct["uuid"],
                 "state": "DRAFT"
             })
-    
+
     accounts.bulk_update(update_accounts)
 
 def __update_unused_ledgers(ledgers_list: list):
@@ -82,4 +80,3 @@ def __update_unused_ledgers(ledgers_list: list):
                     ledger["ledgerId"],
                     {"state": "UNUSED"}
                 )
-            

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from shared.dataclass_validators import validate_date, validate_list, validate_str, check_uuid
+from .dataclass_validators import validate_date, validate_list, validate_str, check_uuid
 
 @dataclass
 class FilterInput:
@@ -15,7 +15,7 @@ class FilterInput:
 
     def __post_init__(self):
         self.startDate = (
-            None if self.startDate is None else 
+            None if self.startDate is None else
             validate_date(self.startDate, "startDate")
         )
         self.endDate = (
@@ -39,7 +39,7 @@ class FilterInput:
             validate_list(self.accountIds, "accountIds", min_len=1, parse=True)
         )
         self.ledgerIds = (
-            None if self.ledgerIds is None else 
+            None if self.ledgerIds is None else
             validate_list(self.ledgerIds, "ledgerIds", min_len=1, parse=True)
         )
         self.entityIds = (
@@ -55,7 +55,6 @@ class FilterInput:
         if self.ledgerIds is not None:
             for id_ in self.ledgerIds:
                 check_uuid(id_, f"ledgerId: {id_}")
-
 
         if not (self.accountIds or self.ledgerIds or self.clientId or self.fundId):
             raise Exception("Search criteria is too broad. Include one of: accountIds, ledgerIds, clientId, or fundId")
