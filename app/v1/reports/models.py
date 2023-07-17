@@ -12,9 +12,9 @@ class ReportInputs:
     endDate: str = None
 
     def __post_init__(self):
-        self.ledgerIds = validate_list(self.ledgerIds, "ledgerId", parse=True)
-        self.attributeIds = validate_list(self.attributeIds, "attributeIds", parse=True)
-        self.accountIds = validate_list(self.accountIds, "accountIds", parse=True)
+        self.ledgerIds = None if self.ledgerIds is None else validate_list(self.ledgerIds, "ledgerId", parse=True)
+        self.attributeIds = None if self.attributeIds is None else validate_list(self.attributeIds, "attributeIds", parse=True)
+        self.accountIds = None if self.accountIds is None else validate_list(self.accountIds, "accountIds", parse=True)
         self.journalEntryState = (
             None if self.journalEntryState is None
             else validate_str(self.journalEntryState, "journalEntryState",
@@ -30,9 +30,6 @@ class ReportInputs:
             validate_date(self.endDate, "endDate")
         )
 
-        if not (self.ledgerIds or self.accountIds):
-            raise Exception("Search criteria is too broad. Include one of: accountIds or ledgerIds")
-
         if self.ledgerIds:
             for id_ in self.ledgerIds:
                 check_uuid(id_, f"ledgerId: {id_}")
@@ -42,3 +39,6 @@ class ReportInputs:
         if self.attributeIds:
             for id_ in self.attributeIds:
                 check_uuid(id_, f"attributeId: {id_}")
+
+        if not (self.ledgerIds or self.accountIds):
+            raise Exception("Search criteria is too broad. Include one of: accountIds or ledgerIds")

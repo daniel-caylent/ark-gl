@@ -15,7 +15,7 @@ app_to_db = {
     "attributeId": "attribute_uuid",
     "lineNumber": "line_number",
     "memo": "memo",
-    "ledgerId": "ledger_id",
+    "ledgerId": "ledger_uuid",
     "currency": "currency",
     "decimals": "decimals",
     "journalEntryPostDated": "journal_entry_post_date",
@@ -60,7 +60,7 @@ def __get_query_with_common_params(select_query: str, input_: dict) -> tuple:
 
         if name == "journalEntryState":
             where_clause += " AND journal_entry_state = %s "
-        if name == "startDay":
+        if name == "startDate":
             where_clause += " AND journal_entry_date >= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
         if name == "endDate":
             where_clause += " AND journal_entry_date <= STR_TO_DATE(%s, '%%Y-%%m-%%d') "
@@ -170,6 +170,32 @@ def select_trial_balance(
 
     return records
 
+def get_start_balance_query(db, account_uuid, start_date):
+    query = f"""
+        SELECT SUM(CASE
+			WHEN li.posting_type = 'CREDIT' then li.amount
+			ELSE li.amount*(-1) END) as sum
+        FROM {db}.line_item li
+        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id
+        INNER JOIN {db}.account a on li.account_id = a.id
+        WHERE a.uuid = %s and je.date < STR_TO_DATE(%s, '%%Y-%%m-%%d');
+    """
+    
+    params = (account_uuid, start_date)
+
+    return (query, params)
+
+def select_start_balance(db: str, account_uuid: str, start_date: str, region_name: str, secret_name:str) -> int:
+    if start_date is None:
+        return 0
+
+    query = get_start_balance_query(db, account_uuid, start_date)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    result = db_main.execute_single_record_select(conn, query)
+
+    return list(result.values())[0]
 
 def select_trial_balance_detail(
     db: str, input_: dict, region_name: str, secret_name: str
@@ -206,11 +232,6 @@ def select_trial_balance_detail(
     params = __get_query_with_common_params(select_query, input_)
     query = params[0]
     q_params = params[1]
-
-    account_id = input_.get("accountId")
-    if account_id:
-        query += " AND acc_uuid = %s "
-        q_params += (account_id,)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 

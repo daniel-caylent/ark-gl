@@ -45,7 +45,7 @@ def handler(event, context) -> tuple[int, dict]:
                 return 400, {"detail": f"Invalid attributeId: {id_}"}
 
 
-    lines = reports.get_trial_balance(valid_input.__dict__)
+    lines = reports.get_trial_balance_detail(valid_input.__dict__)
 
     report = {
         "decimals": None,
@@ -62,11 +62,14 @@ def handler(event, context) -> tuple[int, dict]:
         for line in lines:
             if not accounts_.get(line["accountId"]):
                 accounts_[line["accountId"]] = {
-                    "total": line["amount"]
+                    "accountId": line["accountId"],
+                    "total": line["amount"],
+                    "startBalance": reports.get_start_balance(line["accountId"], valid_input.startDate),
+                    "endBalance": 0,
                 }
             else:
-                accounts_[line["accountId"]] += line["amount"]
-            
+                accounts_[line["accountId"]]["total"] += line["amount"]
+
             line_items.append({
                 "ledgerName": line["ledgerName"],
                 "ledgerId": line["ledgerId"],
@@ -81,5 +84,8 @@ def handler(event, context) -> tuple[int, dict]:
             })
 
         report["lineItems"] = line_items
-        report["accounts"] = accounts_
+        report["accounts"] = list(accounts_.values())
+
+        for account in report["accounts"]:
+            account["endBalance"] = account["startBalance"] + account["total"]
     return 200, {"data": report}

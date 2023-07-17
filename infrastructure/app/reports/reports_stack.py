@@ -48,6 +48,6 @@ class ReportsStack(BaseStack):
         cdk.CfnOutput(
             self,
             "ark-reports-trial-balance-detail-function-arn",
-            value=trial_balance.function_arn,
+            value=trial_balance_detail.function_arn,
             export_name=self.STACK_PREFIX + "ark-reports-trial-balance-detail-function-arn",
         )

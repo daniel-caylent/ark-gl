@@ -30,3 +30,7 @@ def get_trial_balance_detail(input_dict):
 
     results = translate_results(results, report.app_to_db)
     return results
+
+def get_start_balance(account_id, start_date):
+    result = report.select_start_balance(DB_NAME, account_id, start_date, REGION_NAME, SECRET_NAME)
+    return result

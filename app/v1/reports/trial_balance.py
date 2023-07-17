@@ -21,15 +21,8 @@ def handler(event, context) -> tuple[int, dict]:
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query parameters"}
 
-    inputs = {
-        "startDate": event["queryStringParameters"].get("startDate"),
-        "endDate": event["queryStringParameters"].get("endDate"),
-        "journalEntryState": event["queryStringParameters"].get("journalEntryState"),
-        "ledgerId": event["queryStringParameters"].get("ledgerId")
-    }
-
     try:
-        valid_input = ReportInputs(**inputs)
+        valid_input = ReportInputs(**event.get("queryStringParameters"))
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 

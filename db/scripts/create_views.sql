@@ -125,7 +125,7 @@ je.post_date journal_entry_post_date,
 je.adjusting_journal_entry,
 je.state journal_entry_state,
 je.date journal_entry_date,
-case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "Amount"
+case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "amount"
 from 
 line_item li 
 inner join journal_entry je on li.journal_entry_id  = je.id
