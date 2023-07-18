@@ -12,10 +12,11 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters."}
 
-    filter = event.get("queryStringParameters")
+    query_string_parameters = event.get("queryStringParameters")
 
     try:
-        valid_input = filtering.FilterInput(**filter).__dict__
+        query_string_parameters['parse'] = True
+        valid_input = filtering.FilterInput(**query_string_parameters).get_dict()
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 

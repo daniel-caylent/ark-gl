@@ -33,7 +33,8 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
             {"detail": f"Only a single entity filter should be passed. Found: {', '.join(entity_filters)}"}
 
     try:
-        valid_input = filtering.FilterInput(**body).__dict__
+        body['parse'] = False
+        valid_input = filtering.FilterInput(**body).get_dict()
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
