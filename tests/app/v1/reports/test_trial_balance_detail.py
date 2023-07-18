@@ -8,8 +8,8 @@ from .reports_test_base import ReportsTestBase
 
 class TestLedgersDelete(ReportsTestBase):
 
-    def test_accounts_heirarchy(self):
-        from app.v1.reports.trial_balance_detail import build_parent_heirarchy
+    def test_accounts_hierarchy(self):
+        from app.v1.reports.trial_balance_detail import build_parent_hierarchy
         accounts = [
           {"accountId": 1, "parentAccountId": None},
           {"accountId": 2, "parentAccountId": None},
@@ -19,7 +19,7 @@ class TestLedgersDelete(ReportsTestBase):
           {"accountId": 6, "parentAccountId": 2},
         ]
 
-        result = build_parent_heirarchy(accounts, "parentAccountId", "accountId")
+        result = build_parent_hierarchy(accounts, "parentAccountId", "accountId")
 
         assert len(result) == 2
         assert len(result[0]["childAccounts"]) == 2
@@ -38,7 +38,6 @@ class TestLedgersDelete(ReportsTestBase):
 
         result = get_all_parent_accounts(accounts, "parentAccountId", "accountId")
 
-        print(result)
 
         assert len(result.keys()) == 4
 
@@ -47,10 +46,68 @@ class TestLedgersDelete(ReportsTestBase):
         
         event = {
             "queryStringParameters": {
-              "ledgerIds": ["test-ledger-id"]
+              "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]"
             }
         }
 
         result = handler(event, LambdaContext)
+
+        assert 200 == result["statusCode"]
+
+    def test_good_many_params(self):
+        from app.v1.reports.trial_balance_detail import handler
         
+        event = {
+            "queryStringParameters": {
+                "attributeIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]",
+                "accountIds": "[\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"]",
+                "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]",
+                "startDate": "1990-10-10",
+                "endDate": "1991-10-10",
+            }
+        }
+
+        result = handler(event, LambdaContext)
+
+        assert 200 == result["statusCode"]
+
+    def test_bad_ledger_id(self):
+        from app.v1.reports.trial_balance_detail import handler
+        
+        event = {
+            "queryStringParameters": {
+              "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad18\"]"
+            }
+        }
+
+        result = handler(event, LambdaContext)
+
+        assert 400 == result["statusCode"]
+
+    def test_no_query_string_params(self):
+        from app.v1.reports.trial_balance_detail import handler
+        
+        event = {
+            "queryStringParameters": {
+            }
+        }
+
+        result = handler(event, LambdaContext)
+
+        assert 400 == result["statusCode"]
+
+    def test_no_attribute_id_only(self):
+        from app.v1.reports.trial_balance_detail import handler
+        
+        event = {
+            "queryStringParameters": {
+                "attributeIds": "[\"attributeId\"]",
+                "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]"
+            }
+        }
+
+        result = handler(event, LambdaContext)
+
+        assert 400 == result["statusCode"]
+
 

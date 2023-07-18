@@ -92,12 +92,12 @@ def handler(event, context) -> tuple[int, dict]:
             account["startBalance"] = reports.get_start_balance(account["accountId"], valid_input.startDate)
             account["endBalance"] = account["startBalance"] + account["totalAmount"]
 
-        report["accounts"] = build_parent_heirarchy(all_accounts, "parentAccountId", "accountId")
+        report["accounts"] = build_parent_hierarchy(all_accounts, "parentAccountId", "accountId")
         
 
     return 200, {"data": report}
 
-def build_parent_heirarchy(accounts_list, parent_field, child_field):
+def build_parent_hierarchy(accounts_list, parent_field, child_field):
     """Build a list of accounts with their children in childAccounts attribute"""
     parent_lookup = {}
     for account in accounts_list:
@@ -106,15 +106,15 @@ def build_parent_heirarchy(accounts_list, parent_field, child_field):
         else:
             parent_lookup[account[parent_field]].append(account)
 
-    def build_heirarchy(id_):
+    def build_hierarchy(id_):
         child_list = parent_lookup.get(id_, [])
 
         for child in child_list:
-            child["childAccounts"] = build_heirarchy(child[child_field])
+            child["childAccounts"] = build_hierarchy(child[child_field])
 
         return child_list
 
-    return build_heirarchy(None)
+    return build_hierarchy(None)
 
 
 def get_all_parent_accounts(base_accounts_lookup: dict, parent_field: str, child_field: str):
@@ -125,6 +125,8 @@ def get_all_parent_accounts(base_accounts_lookup: dict, parent_field: str, child
         for account in account_lookup.values():
             if account[parent_field] and account[parent_field] not in account_lookup:
                 parent_account = accounts.select_by_id(account[parent_field])
+                if parent_account is None:
+                    raise Exception(f"Parent account not found: {account[parent_field]}")
 
                 new_parents[account[parent_field]] = {
                     "accountId": parent_account["accountId"],
