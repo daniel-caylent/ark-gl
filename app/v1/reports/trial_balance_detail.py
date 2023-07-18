@@ -58,34 +58,91 @@ def handler(event, context) -> tuple[int, dict]:
         report["decimals"] = lines[0]["decimals"]
         report["currency"] = lines[0]["currency"]
         accounts_ = {}
-        line_items = []
         for line in lines:
             if not accounts_.get(line["accountId"]):
                 accounts_[line["accountId"]] = {
                     "accountId": line["accountId"],
-                    "total": line["amount"],
-                    "startBalance": reports.get_start_balance(line["accountId"], valid_input.startDate),
-                    "endBalance": 0,
+                    "totalAmount": 0,
+                    "accountName": line["accountName"],
+                    "accountNo": line["accountNo"],
+                    "parentAccountId": line["parentAccountId"],
+                    "fundId": line["fundId"],
+                    "lineItems": [],
                 }
-            else:
-                accounts_[line["accountId"]]["total"] += line["amount"]
 
-            line_items.append({
-                "ledgerName": line["ledgerName"],
-                "ledgerId": line["ledgerId"],
-                "accountId": line["accountId"],
-                "entityId": line["entityId"],
-                "journalEntryNum": line["journalEntryNum"],
-                "date": line["journalEntryDate"],
-                "adjustingJournalEntry": line["adjustingJournalEntry"],
-                "memo": line["memo"],
-                "state": line["journalEntryState"],
-                "amount": line["amount"],
-            })
+            accounts_[line["accountId"]]["totalAmount"] += line["amount"]
+            accounts_[line["accountId"]]["lineItems"].append(
+                {
+                    "ledgerName": line["ledgerName"],
+                    "ledgerId": line["ledgerId"],
+                    "accountId": line["accountId"],
+                    "entityId": line["entityId"],
+                    "journalEntryNum": line["journalEntryNum"],
+                    "date": line["journalEntryDate"],
+                    "adjustingJournalEntry": line["adjustingJournalEntry"],
+                    "memo": line["memo"],
+                    "state": line["journalEntryState"],
+                    "amount": line["amount"],
+                }
+            )
 
-        report["lineItems"] = line_items
-        report["accounts"] = list(accounts_.values())
+        all_accounts = list(get_all_parent_accounts(accounts_, "parentAccountId", "accountId").values())
 
-        for account in report["accounts"]:
-            account["endBalance"] = account["startBalance"] + account["total"]
+        for account in all_accounts:
+            account["startBalance"] = reports.get_start_balance(account["accountId"], valid_input.startDate)
+            account["endBalance"] = account["startBalance"] + account["totalAmount"]
+
+        report["accounts"] = build_parent_heirarchy(all_accounts, "parentAccountId", "accountId")
+        
+
     return 200, {"data": report}
+
+def build_parent_heirarchy(accounts_list, parent_field, child_field):
+    """Build a list of accounts with their children in childAccounts attribute"""
+    parent_lookup = {}
+    for account in accounts_list:
+        if not parent_lookup.get(account[parent_field]):
+            parent_lookup[account[parent_field]] = [account]
+        else:
+            parent_lookup[account[parent_field]].append(account)
+
+    def build_heirarchy(id_):
+        child_list = parent_lookup.get(id_, [])
+
+        for child in child_list:
+            child["childAccounts"] = build_heirarchy(child[child_field])
+
+        return child_list
+
+    return build_heirarchy(None)
+
+
+def get_all_parent_accounts(base_accounts_lookup: dict, parent_field: str, child_field: str):
+    """Take a lookup dict of accounts, return a lookup dict including all parents"""
+    def get_parent_lookup(account_lookup, parent_field, child_field):
+
+        new_parents = {}
+        for account in account_lookup.values():
+            if account[parent_field] and account[parent_field] not in account_lookup:
+                parent_account = accounts.select_by_id(account[parent_field])
+
+                new_parents[account[parent_field]] = {
+                    "accountId": parent_account["accountId"],
+                    "totalAmount": 0,
+                    "accountName": parent_account["accountName"],
+                    "accountNo": parent_account["accountNo"],
+                    "parentAccountId": parent_account["parentAccountId"],
+                }
+
+        if new_parents:
+            account_lookup.update(new_parents)
+            account_lookup = get_parent_lookup(account_lookup, parent_field, child_field)
+
+        return account_lookup
+    return get_parent_lookup(base_accounts_lookup, parent_field, child_field)
+
+
+
+
+
+    

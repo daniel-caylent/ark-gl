@@ -8,6 +8,7 @@ from . import account
 app_to_db = {
     "fundId": "fund_uuid",
     "accountId": "account_uuid",
+    "parentAccountId": "parent_uuid",
     "journalEntryNum": "journal_entry_num",
     "accountName": "account_name",
     "accountNo": "account_no",
@@ -191,11 +192,13 @@ def select_start_balance(db: str, account_uuid: str, start_date: str, region_nam
 
     query = get_start_balance_query(db, account_uuid, start_date)
 
+    print("START BALANCE QUERY: ", query)
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     result = db_main.execute_single_record_select(conn, query)
-
-    return list(result.values())[0]
+    
+    balance = list(result.values())[0]
+    return balance or 0
 
 def select_trial_balance_detail(
     db: str, input_: dict, region_name: str, secret_name: str

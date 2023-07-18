@@ -125,6 +125,7 @@ je.post_date journal_entry_post_date,
 je.adjusting_journal_entry,
 je.state journal_entry_state,
 je.date journal_entry_date,
+parent_acc.uuid parent_uuid,
 case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "amount"
 from 
 line_item li 
@@ -133,6 +134,7 @@ inner join journal_entry je on li.journal_entry_id  = je.id
  inner join fund_entity fe on le.fund_entity_id = fe.id
  inner join account acc on acc.id = li.account_id 
  inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
+ left join account parent_acc on parent_acc.id = acc.parent_id 
 -- and fe.client_id = ?
 -- and le.uuid = ?
 -- and fe.fund_id = ?
