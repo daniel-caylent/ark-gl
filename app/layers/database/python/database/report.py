@@ -192,7 +192,6 @@ def select_start_balance(db: str, account_uuid: str, start_date: str, region_nam
 
     query = get_start_balance_query(db, account_uuid, start_date)
 
-    print("START BALANCE QUERY: ", query)
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     result = db_main.execute_single_record_select(conn, query)

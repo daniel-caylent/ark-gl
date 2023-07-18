@@ -1,4 +1,4 @@
-import datetime
+import json
 
 from arkdb import reports, ledgers, accounts, account_attributes
 from shared import endpoint, dataclass_error_to_str
@@ -18,11 +18,13 @@ def handler(event, context) -> tuple[int, dict]:
     Context about the instance of the lambda function
 
     """
-    if not event.get("queryStringParameters"):
-        return 400, {"detail": "Missing query parameters"}
+    try:
+        body = json.loads(event["body"])
+    except Exception:
+        return 400, {"detail": "Body does not contain valid json."}
 
     try:
-        valid_input = ReportInputs(**event.get("queryStringParameters"))
+        valid_input = ReportInputs(**body)
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 

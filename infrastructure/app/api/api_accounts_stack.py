@@ -125,7 +125,7 @@ class AccountsStack(BaseStack):
             self, lambda_function, self.STACK_PREFIX + "accounts-bulk-delete"
         )
 
-        method = resource.add_method("DELETE", lambda_integration)
+        method = resource.add_method("POST", lambda_integration)
 
         self.methods.append(method)
 

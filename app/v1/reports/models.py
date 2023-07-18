@@ -12,9 +12,9 @@ class ReportInputs:
     endDate: str = None
 
     def __post_init__(self):
-        self.ledgerIds = None if self.ledgerIds is None else validate_list(self.ledgerIds, "ledgerId", parse=True)
-        self.attributeIds = None if self.attributeIds is None else validate_list(self.attributeIds, "attributeIds", parse=True)
-        self.accountIds = None if self.accountIds is None else validate_list(self.accountIds, "accountIds", parse=True)
+        self.ledgerIds = None if self.ledgerIds is None else validate_list(self.ledgerIds, "ledgerId")
+        self.attributeIds = None if self.attributeIds is None else validate_list(self.attributeIds, "attributeIds")
+        self.accountIds = None if self.accountIds is None else validate_list(self.accountIds, "accountIds")
         self.journalEntryState = (
             None if self.journalEntryState is None
             else validate_str(self.journalEntryState, "journalEntryState",

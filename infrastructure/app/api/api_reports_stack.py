@@ -69,6 +69,6 @@ class ApiReportsStack(BaseStack):
             self, lambda_function, self.STACK_PREFIX + "reports-trial-balance-detail"
         )
 
-        method = resource.add_method("GET", lambda_integration)
+        method = resource.add_method("POST", lambda_integration)
 
         self.methods.append(method)

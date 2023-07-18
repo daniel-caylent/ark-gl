@@ -1,4 +1,5 @@
 """Lambda that will perform the bulk DELETE for JournalEntries"""
+import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts, journal_entries, ledgers
@@ -9,14 +10,13 @@ from shared import endpoint, dataclass_error_to_str, filtering
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the bulk delete for journal entries"""
-    if not event.get("queryStringParameters"):
-        return 400, {"detail": "Missing query string parameters."}
-
-    query_string_parameters = event.get("queryStringParameters")
+    try:
+        body = json.loads(event["body"])
+    except Exception:
+        return 400, {"detail": "Body does not contain valid json."}
 
     try:
-        query_string_parameters['parse'] = True
-        valid_input = filtering.FilterInput(**query_string_parameters).get_dict()
+        valid_input = filtering.FilterInput(**body).get_dict()
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
