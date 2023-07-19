@@ -1556,7 +1556,7 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
 
                     if line_items_query is None:
                         line_items_query = entry_params[0]
-                    
+
                     line_items_params.append(entry_params[1])
 
             # Also, insert attachments
@@ -1566,7 +1566,7 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
 
                     if attachments_query is None:
                         attachments_query = att_params[0]
-                    
+
                     attachments_params.append(att_params[1])
 
             uuids_list.append(uuid)
@@ -1713,7 +1713,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
             elif name == "fundId":
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
-                query += " AND fe.clientId = %s "
+                query += " AND fe.client_id = %s "
             elif name == "ledgerIds" and value:
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
@@ -1778,7 +1778,7 @@ def __get_total_by_filter_query(db: str, filter: dict):
             elif name == "fundId":
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
-                query += " AND fe.clientId = %s "
+                query += " AND fe.client_id = %s "
             elif name == "ledgerIds":
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
@@ -1796,7 +1796,8 @@ def __get_total_by_filter_query(db: str, filter: dict):
 
             params += (value, )
 
-    query += ";"
+    query += "GROUP BY je.id;"
+
     return (query, params)
 
 def select_with_filter_paginated(
