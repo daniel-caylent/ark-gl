@@ -42,6 +42,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         mp.setattr("urllib.request.urlopen", mock_urlopen)
 
         result = handler(request, LambdaContext())
+        print(result)
         assert 201 == result['statusCode']
   
     def test_bad_date(self):
@@ -119,6 +120,21 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         result = func(55, 2)
 
         assert result == 5500
+
+    def test_amount_conversion_zero_decimals(self):
+        from app.v1.journal_entries.post.models import BulkLineItemPost
+        func = BulkLineItemPost.convert_amount
+
+        result = func(55, 0)
+
+        assert result == 55
+
+    def test_amount_conversion_zero_decimals_bad(self):
+        from app.v1.journal_entries.post.models import BulkLineItemPost
+        func = BulkLineItemPost.convert_amount
+
+        with pytest.raises(Exception):
+            func(55.5, 0)
 
     def test_amount_conversion_float(self):
         from app.v1.journal_entries.post.models import BulkLineItemPost

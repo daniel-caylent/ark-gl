@@ -42,6 +42,14 @@ def select_by_ledger_id(id):
     ]
 
 
+def select_by_ledger_id_paginated(*args, **kwargs):
+    return {
+        "total_items": 2,
+        "total_pages": 1,
+        "current_page": 1,
+        "data": select_by_ledger_id(None)
+    }
+
 def select_by_fund_id(id):
     """Mock select by ledger id for journal entries"""
     return [

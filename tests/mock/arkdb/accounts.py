@@ -143,3 +143,6 @@ def delete_by_id(id_):
 
 def bulk_delete(id_list):
     return None
+
+def get_line_items_count(uuid):
+    return 0

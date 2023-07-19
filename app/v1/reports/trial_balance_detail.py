@@ -81,7 +81,7 @@ def handler(event, context) -> tuple[int, dict]:
                     "entityId": line["entityId"],
                     "journalEntryNum": line["journalEntryNum"],
                     "date": line["journalEntryDate"],
-                    "adjustingJournalEntry": line["adjustingJournalEntry"],
+                    "adjustingJournalEntry": bool(line["adjustingJournalEntry"]),
                     "memo": line["memo"],
                     "state": line["journalEntryState"],
                     "amount": line["amount"],

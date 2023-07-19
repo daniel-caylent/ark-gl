@@ -1,3 +1,4 @@
+import json
 import pytest
 
 from tests.app.data import (
@@ -6,7 +7,7 @@ from tests.app.data import (
 
 from .reports_test_base import ReportsTestBase
 
-class TestLedgersDelete(ReportsTestBase):
+class TestTrialBalance(ReportsTestBase):
 
     def test_accounts_hierarchy(self):
         from app.v1.reports.trial_balance_detail import build_parent_hierarchy
@@ -45,9 +46,9 @@ class TestLedgersDelete(ReportsTestBase):
         from app.v1.reports.trial_balance_detail import handler
         
         event = {
-            "queryStringParameters": {
-              "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]"
-            }
+            "body": json.dumps({
+              "ledgerIds": ["4e4f2675-146e-4092-aabc-75bbbeaad184"]
+            })
         }
 
         result = handler(event, LambdaContext)
@@ -58,13 +59,13 @@ class TestLedgersDelete(ReportsTestBase):
         from app.v1.reports.trial_balance_detail import handler
         
         event = {
-            "queryStringParameters": {
-                "attributeIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]",
-                "accountIds": "[\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"]",
-                "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]",
+            "body": json.dumps({
+                "attributeIds": ["4e4f2675-146e-4092-aabc-75bbbeaad184"],
+                "accountIds": ["a92bde1e-7825-429d-aaae-909f2d7a8df1"],
+                "ledgerIds": ["4e4f2675-146e-4092-aabc-75bbbeaad184"],
                 "startDate": "1990-10-10",
                 "endDate": "1991-10-10",
-            }
+            })
         }
 
         result = handler(event, LambdaContext)
@@ -75,9 +76,9 @@ class TestLedgersDelete(ReportsTestBase):
         from app.v1.reports.trial_balance_detail import handler
         
         event = {
-            "queryStringParameters": {
-              "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad18\"]"
-            }
+            "body": json.dumps({
+              "ledgerIds": ["4e4f2675-146e-4092-aabc-75bbbeaad18"]
+            })
         }
 
         result = handler(event, LambdaContext)
@@ -88,8 +89,8 @@ class TestLedgersDelete(ReportsTestBase):
         from app.v1.reports.trial_balance_detail import handler
         
         event = {
-            "queryStringParameters": {
-            }
+            "body": json.dumps({
+            })
         }
 
         result = handler(event, LambdaContext)
@@ -100,10 +101,10 @@ class TestLedgersDelete(ReportsTestBase):
         from app.v1.reports.trial_balance_detail import handler
         
         event = {
-            "queryStringParameters": {
-                "attributeIds": "[\"attributeId\"]",
-                "ledgerIds": "[\"4e4f2675-146e-4092-aabc-75bbbeaad184\"]"
-            }
+            "body": json.dumps({
+                "attributeIds": ["attributeId"],
+                "ledgerIds": ["4e4f2675-146e-4092-aabc-75bbbeaad184"]
+            })
         }
 
         result = handler(event, LambdaContext)

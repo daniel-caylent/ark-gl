@@ -132,12 +132,16 @@ class BulkLineItemPost:
     def convert_amount(amount: float, decimals: int):
         """Convert floating point amounts to integers"""
         try:
-            amount = float(amount)
+            if decimals > 0:
+                amount = float(amount)
         except:
             raise Exception(f"Invalid amount for line item: {amount}")
 
         amount_str = str(amount)
         split_amount = amount_str.split(".")
+
+        if len(split_amount) == 1:
+            split_amount.append('')
 
         dollars = split_amount[0]
         cents = split_amount[1]
