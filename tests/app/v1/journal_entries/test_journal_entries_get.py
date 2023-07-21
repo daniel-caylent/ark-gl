@@ -22,7 +22,6 @@ class TestJournalEntriesGet(TestBase(PATHS)):
         }
 
         result = handler(request, LambdaContext())
-        print(result)
         assert 200 == result['statusCode']
 
     def test_bad_ledger_id(self):

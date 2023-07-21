@@ -44,14 +44,17 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
+    ledgers_list = []
     if put.ledgerId:
-        ledger = ledgers.select_by_id(put.ledgerId)
+        ledger = ledgers.select_by_id(put.ledgerId, translate=False)
+        ledgers_list.append(ledgers.select_by_id(journal_entry["ledger_id"], translate=False))
     else:
         # verify ledger exists
-        ledger = ledgers.select_by_id(journal_entry["ledger_id"])
-
+        ledger = ledgers.select_by_id(journal_entry["ledger_id"], translate=False)
+    
+    ledgers_list.append(ledger)
     if not ledger:
-        return 400, {"detail", "Supplied ledger ID does not match an existing ledger."}
+        return 400, {"detail": "Supplied ledger ID does not match an existing ledger."}
 
     if journal_entry['state'] == 'POSTED':
         for key in body.keys():
@@ -59,7 +62,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
                 return 400, {'detail': f"POSTED ledger property cannot be modified: {key}."}
 
     # Validate that line items reference real accounts within the fund
-    accts = accounts.select_by_fund_id(ledger["fundId"], translate=False)
+    accts = accounts.select_by_fund_id(ledger["fund_entity_id"], translate=False)
     type_safe_line_items = []
     if put.lineItems:
         line_item_no = 0
@@ -106,9 +109,12 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     old_line_items = journal_entries.get_line_items(journal_entry["id"])
     journal_entries.update_by_id(journal_entry_id, type_safe_body)
 
+    if put.ledgerId:
+        __update_ledgers_state(ledgers_list)
     if line_items:
         __update_draft_accounts(accts, [item["accountId"] for item in line_items])
         __update_unused_accounts(accts, old_line_items)
+
     return 200, {}
 
 
@@ -126,6 +132,22 @@ def check_missing_fields(dict_, required):
                 return field
 
     return None
+
+def __update_ledgers_state(ledgers_: list):
+    """Replace ledger state with UNUSED or DRAFT depending on circumstances"""
+    for ledger in ledgers_:
+        journal_entries_ = journal_entries.select_by_ledger_id(ledger["uuid"])
+
+        if len(journal_entries_) > 0 and ledger["state"] not in ["POSTED", "DRAFT"]:
+            ledgers.update_by_id(
+                ledger["uuid"],
+                {"state": "DRAFT"}
+            )
+        elif len(journal_entries_) == 0 and ledger["state"] not in ["POSTED", "UNUSED"]:
+            ledgers.update_by_id(
+                ledger["uuid"],
+                {"state": "UNUSED"}
+            )
 
 def __sum_line_items(line_items):
     """Sum all lines considering credit/debit"""
@@ -154,7 +176,6 @@ def __validate_line_items_vs_accounts(line_items, accts):
                 return False, f"Line items for account require entityId: {line_item['accountId']}"
     return True, None
 
-
 def __update_draft_accounts(accounts_, account_ids):
     """Ensure accounts with line items are in DRAFT or POSTED state"""
     for account in accounts_:
@@ -175,4 +196,3 @@ def __update_unused_accounts(accounts_, line_items):
 
             if len(line_items) == 0 and acct["state"] != "POSTED":
                 accounts.update_by_id(acct["uuid"], {"state": "UNUSED"})
-            

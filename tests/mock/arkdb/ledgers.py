@@ -41,7 +41,19 @@ def select_by_client_id(client_id):
 def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return None
-
+    if not translate:
+        return {
+          "fund_entity_id": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
+          "name": "ledger nam",
+          "description": "ledger description",
+          "uuid": "b7e84f41-eaa5-11ed-9a6e-0a3efd619f29",
+          "state": "DRAFT",
+          "currency": "USD",
+          "decimals": 3,
+          "hidden": False,
+          "post_date": None
+        }
+        
     return {
       "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
       "glName": "ledger nam",

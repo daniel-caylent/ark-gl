@@ -19,7 +19,6 @@ class TestLedgersDelete(LedgersTestBase):
 
       response = handler(request, LambdaContext())
 
-      print(response)
       assert 200 == response['statusCode']
 
     def test_bad_uuid(self):

@@ -1855,7 +1855,10 @@ def select_with_filter_paginated(
 
     total_params = __get_total_by_filter_query(db, filter)
 
-    record = db_main.execute_single_record_select(conn, total_params)
+    record = (
+        db_main.execute_single_record_select(conn, total_params)
+        or {"count": 0}
+    )
 
     total_records = list(record.values())[0]
 
