@@ -1719,8 +1719,12 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 params += tuple(value)
                 continue
             elif name == "entityIds" and value:
-                query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
-                params += tuple(value)
+                if None in value:
+                    query += f' AND li.entity_id IS NULL '
+                else:
+                    query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+                    params += tuple(value)
+
                 continue
             elif name == "accountIds" and value:
                 query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
