@@ -1278,6 +1278,52 @@ def select_id_by_uuids(
 
     return records_ids
 
+def __get_recursive_childs_by_uuids_query(db: str, account_uuids: list) -> tuple:
+    """
+    SQL query to run a recursive lookup for all related child entities
+    """
+    query = f"""
+        WITH RECURSIVE Children(uuid, account_no, name, id, parent_id) AS (
+            SELECT a.uuid, a.account_no, a.name, a.id, pa.uuid
+            FROM {db}.account a
+            LEFT JOIN account pa on pa.id = a.parent_id
+            WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
+
+            UNION ALL
+
+            SELECT a1.uuid, a1.account_no, a1.name, a1.id, pa1.uuid
+            FROM {db}.account a1  
+            LEFT JOIN account pa1 on pa1.id = a1.parent_id
+            INNER JOIN Children c ON c.id = a1.parent_id 
+            )
+            SELECT * from Children;
+    """
+
+    return query, tuple(account_uuids)
+
+def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tuple:
+    """
+    SQL query to run a recursive lookup for all related child entities
+    """
+    query = f"""
+        WITH RECURSIVE Parents(uuid, account_no, name, id, parent_inc_id, parent_id) AS (
+            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid 
+            FROM {db}.account a
+            LEFT JOIN {db}.account pa on pa.id = a.parent_id
+            WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
+
+            UNION ALL
+
+            SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.parent_id, pa1.uuid
+            FROM {db}.account a1  
+            LEFT JOIN {db}.account pa1 on pa1.id = a1.parent_id
+            INNER JOIN Parents p ON p.parent_inc_id = a1.id 
+            )
+            SELECT * from Parents;
+    """
+
+    return query, tuple(account_uuids)
+
 
 def get_recursive_childs_by_uuids(
     db: str, account_uuids: list, region_name: str, secret_name: str
@@ -1302,35 +1348,80 @@ def get_recursive_childs_by_uuids(
     return
     A list of uuids of the child and subchild accounts that match with the upcoming parent account_uuids
     """
-    childs_id_list = []
 
-    # First of all, get the upcoming uuids and translate them to ids
-    parent_ids = select_id_by_uuids(db, account_uuids, region_name, secret_name)
+    params = __get_recursive_childs_by_uuids_query(db, account_uuids)
 
-    # Getting first-level childs
-    internal_child_list = select_childs_by_ids(db, parent_ids, region_name, secret_name)
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
 
-    while len(internal_child_list) > 0:
-        # Getting ids of the result (new parents) to iterate again
-        new_parent_list = [x.get("id") for x in internal_child_list]
+    records = db_main.execute_multiple_record_select(conn, params)
 
-        # Appending result to main list
-        childs_id_list += new_parent_list
+    return records
 
-        # Getting next level childs
-        internal_child_list = select_childs_by_ids(
-            db, new_parent_list, region_name, secret_name
-        )
 
-    # Getting uuids from child's and subchild's ids
-    childs_uuid_list = select_uuid_by_ids(db, childs_id_list, region_name, secret_name)
+def get_recursive_childs_by_uuids(
+    db: str, account_uuids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the childs' and subchilds' data
+    from a list of parents' uuids.
 
-    # Setting list to return (source uuids + childs and subchilds)
-    # and removing duplicates
-    result_list = account_uuids + childs_uuid_list
-    result_list = list(dict.fromkeys(result_list))
+    db: string
+    This parameter specifies the db name where the query will be executed
 
-    return result_list
+    account_uuids: list
+    This parameter specifies the account_uuids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of uuids of the child and subchild accounts that match with the upcoming parent account_uuids
+    """
+
+    params = __get_recursive_childs_by_uuids_query(db, account_uuids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
+
+
+def get_recursive_parents_by_uuids(
+    db: str, account_uuids: list, region_name: str, secret_name: str
+) -> list:
+    """
+    This function returns the parents/grandparents data
+    from a list of parents' uuids.
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    account_uuids: list
+    This parameter specifies the account_uuids that will be used for this query
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list of uuids of the child and subchild accounts that match with the upcoming parent account_uuids
+    """
+
+    params = __get_recursive_parents_by_uuids_query(db, account_uuids)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
 
 
 def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -> list:

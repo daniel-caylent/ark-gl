@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 
 from arkdb import reports, ledgers, accounts, account_attributes
 from shared import endpoint, dataclass_error_to_str
@@ -50,10 +51,7 @@ def handler(event, context) -> tuple[int, dict]:
     lines = reports.get_trial_balance_detail(valid_input.__dict__)
 
     report = {
-        "decimals": None,
-        "currencyName": None,
         "accounts": [],
-        "lineItems": []
     }
 
     if lines:
@@ -88,16 +86,42 @@ def handler(event, context) -> tuple[int, dict]:
                 }
             )
 
-        all_accounts = list(get_all_parent_accounts(accounts_, "parentAccountId", "accountId").values())
+        #all_accounts = list(get_all_parent_accounts(accounts_, "parentAccountId", "accountId").values())
+        all_accounts = get_all_associated_accounts(list(accounts_.values()))
 
         for account in all_accounts:
             account["startBalance"] = reports.get_start_balance(account["accountId"], valid_input.startDate)
-            account["endBalance"] = account["startBalance"] + account["totalAmount"]
+
+            end_date = valid_input.endDate or (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            account["endBalance"] = reports.get_start_balance(account["accountId"], end_date)
 
         report["accounts"] = build_parent_hierarchy(all_accounts, "parentAccountId", "accountId")
-        
+
 
     return 200, {"data": report}
+
+def get_all_associated_accounts(accounts_list):
+    """Retrieve all parent and child accounts associate with a list"""
+    input_ids = [acct["accountId"] for acct in accounts_list]
+    parent_accounts = accounts.get_parent_accounts_from_list(input_ids)
+
+    parent_ids = [acct["accountId"] for acct in parent_accounts]
+    child_accounts = accounts.get_child_accounts_from_list(parent_ids)
+
+    for account in parent_accounts + child_accounts:
+        if account["accountId"] not in input_ids:
+            accounts_list.append(
+                {
+                    **account,
+                    "totalAmount": 0,
+                    "lineItems": []
+                }
+            )
+
+            input_ids.append(account["accountId"])
+    
+    return accounts_list
+
 
 def build_parent_hierarchy(accounts_list, parent_field, child_field):
     """Build a list of accounts with their children in childAccounts attribute"""
@@ -144,9 +168,3 @@ def get_all_parent_accounts(base_accounts_lookup: dict, parent_field: str, child
 
         return account_lookup
     return get_parent_lookup(base_accounts_lookup, parent_field, child_field)
-
-
-
-
-
-    

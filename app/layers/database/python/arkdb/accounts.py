@@ -10,6 +10,8 @@ from database.account import (
     delete,
     update,
     commit,
+    get_recursive_childs_by_uuids,
+    get_recursive_parents_by_uuids,
     bulk_insert as __bulk_insert,
     bulk_update as __bulk_update,
     bulk_delete as __bulk_delete
@@ -104,3 +106,17 @@ def bulk_delete(accounts_list):
     """Delete multiple accounts from a list"""
     result = __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result
+
+def get_child_accounts_from_list(uuids, translate=True):
+    results = get_recursive_childs_by_uuids(DB_NAME, uuids, REGION_NAME, SECRET_NAME)
+
+    if translate:
+        results = translate_results(results, app_to_db)
+    return results
+
+def get_parent_accounts_from_list(uuids, translate=True):
+    results = get_recursive_parents_by_uuids(DB_NAME, uuids, REGION_NAME, SECRET_NAME)
+
+    if translate:
+        results = translate_results(results, app_to_db)
+    return results

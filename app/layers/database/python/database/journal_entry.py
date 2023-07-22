@@ -137,7 +137,7 @@ def __get_update_query(db: str, id_: str, input_: dict, region_name, secret_name
     params = ()
 
     if "ledger_id" in translated_input:
-        translated_input["ledger_id"] = ledger.get_id(db, translated_input.get(key), region_name, secret_name)
+        translated_input["ledger_id"] = ledger.get_id(db, translated_input["ledger_id"], region_name, secret_name)
         translated_input["journal_entry_num"] = select_max_number_by_ledger(
             db, translated_input["ledger_id"], region_name, secret_name
         )
