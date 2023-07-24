@@ -34,3 +34,7 @@ def get_trial_balance_detail(input_dict):
 def get_start_balance(account_id, start_date):
     result = report.select_start_balance(DB_NAME, account_id, start_date, REGION_NAME, SECRET_NAME)
     return result
+
+def get_end_balance(account_id, date):
+    result = report.select_end_balance(DB_NAME, account_id, date, REGION_NAME, SECRET_NAME)
+    return result

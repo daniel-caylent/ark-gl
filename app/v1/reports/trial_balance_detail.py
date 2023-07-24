@@ -86,28 +86,25 @@ def handler(event, context) -> tuple[int, dict]:
                 }
             )
 
-        #all_accounts = list(get_all_parent_accounts(accounts_, "parentAccountId", "accountId").values())
         all_accounts = get_all_associated_accounts(list(accounts_.values()))
 
         for account in all_accounts:
             account["startBalance"] = reports.get_start_balance(account["accountId"], valid_input.startDate)
-
-            end_date = valid_input.endDate or (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-            account["endBalance"] = reports.get_start_balance(account["accountId"], end_date)
+            account["endBalance"] = reports.get_end_balance(account["accountId"], valid_input.endDate)
 
         report["accounts"] = build_parent_hierarchy(all_accounts, "parentAccountId", "accountId")
-
 
     return 200, {"data": report}
 
 def get_all_associated_accounts(accounts_list):
-    """Retrieve all parent and child accounts associate with a list"""
+    """Retrieve all parent and child accounts associated with a list"""
     input_ids = [acct["accountId"] for acct in accounts_list]
     parent_accounts = accounts.get_parent_accounts_from_list(input_ids)
 
     parent_ids = [acct["accountId"] for acct in parent_accounts]
     child_accounts = accounts.get_child_accounts_from_list(parent_ids)
 
+    # add new accounts without duplicates
     for account in parent_accounts + child_accounts:
         if account["accountId"] not in input_ids:
             accounts_list.append(
@@ -141,30 +138,3 @@ def build_parent_hierarchy(accounts_list, parent_field, child_field):
         return child_list
 
     return build_hierarchy(None)
-
-
-def get_all_parent_accounts(base_accounts_lookup: dict, parent_field: str, child_field: str):
-    """Take a lookup dict of accounts, return a lookup dict including all parents"""
-    def get_parent_lookup(account_lookup, parent_field, child_field):
-
-        new_parents = {}
-        for account in account_lookup.values():
-            if account[parent_field] and account[parent_field] not in account_lookup:
-                parent_account = accounts.select_by_id(account[parent_field])
-                if parent_account is None:
-                    raise Exception(f"Parent account not found: {account[parent_field]}")
-
-                new_parents[account[parent_field]] = {
-                    "accountId": parent_account["accountId"],
-                    "totalAmount": 0,
-                    "accountName": parent_account["accountName"],
-                    "accountNo": parent_account["accountNo"],
-                    "parentAccountId": parent_account["parentAccountId"],
-                }
-
-        if new_parents:
-            account_lookup.update(new_parents)
-            account_lookup = get_parent_lookup(account_lookup, parent_field, child_field)
-
-        return account_lookup
-    return get_parent_lookup(base_accounts_lookup, parent_field, child_field)
