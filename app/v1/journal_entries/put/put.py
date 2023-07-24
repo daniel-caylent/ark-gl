@@ -138,12 +138,12 @@ def __update_ledgers_state(ledgers_: list):
     for ledger in ledgers_:
         journal_entries_ = journal_entries.select_by_ledger_id(ledger["uuid"])
 
-        if len(journal_entries_) > 0 and ledger["state"] not in ["POSTED", "DRAFT"]:
+        if journal_entries_ and ledger["state"] not in ["POSTED", "DRAFT"]:
             ledgers.update_by_id(
                 ledger["uuid"],
                 {"state": "DRAFT"}
             )
-        elif len(journal_entries_) == 0 and ledger["state"] not in ["POSTED", "UNUSED"]:
+        elif not journal_entries_ and ledger["state"] not in ["POSTED", "UNUSED"]:
             ledgers.update_by_id(
                 ledger["uuid"],
                 {"state": "UNUSED"}
