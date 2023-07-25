@@ -20,6 +20,7 @@ def select_by_fund_id(fund_id, translate=True):
                 'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsMappingStatus': "MAPPED",
                 'fundId': 'a-unique-fund-id',
                 'postDate': None
             },
@@ -38,6 +39,7 @@ def select_by_fund_id(fund_id, translate=True):
                 'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsMappingStatus': "MAPPED",
                 'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'postDate': None
             }
@@ -57,6 +59,7 @@ def select_by_fund_id(fund_id, translate=True):
             'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'fsName': 'fsName',
             'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+            'fsMappingStatus': "MAPPED",
             'fundId': 'a-unique-fund-id',
             'postDate': None
         },
@@ -73,6 +76,7 @@ def select_by_fund_id(fund_id, translate=True):
             'attributeId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'fsName': 'fsName',
             'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+            'fsMappingStatus': "MAPPED",
             'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
             'postDate': None
         }
@@ -99,6 +103,7 @@ def select_by_id(id, translate=True):
                 'attributeId': 1,
                 'fsName': 'fsName',
                 'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsMappingStatus': "MAPPED",
                 'fundId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                 'postDate': None
             }
@@ -116,7 +121,8 @@ def select_by_id(id, translate=True):
                 'parentAccountId': None,
                 'attributeId': 1,
                 'fsName': 'fsName',
-                'fsMappingId': "a92bde1e-7825-429d-aaae-909f2d7a8df1",
+                'fsMappingId': None,
+                'fsMappingStatus': "SELF-MAPPED",
                 'fundId': 'a-unique-fund-id',
                 'postDate': None
             }
@@ -146,3 +152,9 @@ def bulk_delete(id_list):
 
 def get_line_items_count(uuid):
     return 0
+
+def get_parent_accounts_from_list(uuid_list):
+    return []
+
+def get_child_accounts_from_list(uuid_list):
+    return []

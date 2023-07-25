@@ -15,7 +15,7 @@ from shared_validators import (
 
 # pylint: enable=import-error
 
-COMMITED_CHANGEABLE = ["fsName", "fsMappingId"]
+COMMITED_CHANGEABLE = ["fsName", "fsMappingId", "fsMappingStatus"]
 
 
 @endpoint

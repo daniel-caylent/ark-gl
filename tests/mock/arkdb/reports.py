@@ -25,3 +25,6 @@ def get_trial_balance_detail(filter):
 
 def get_start_balance(uuid, date):
     return 0
+
+def get_end_balance(uuid, date):
+    return 0
