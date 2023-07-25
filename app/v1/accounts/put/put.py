@@ -44,6 +44,11 @@ def handler(
     # validate the PUT contents
     try:
         put = AccountPut(**body)
+
+        if "fsMappingId" in body:
+            body["fsMappingStatus"] = None
+            put.update_fs()
+
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 

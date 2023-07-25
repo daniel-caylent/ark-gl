@@ -20,6 +20,7 @@ class Account:
     accountId: str
     fundId: str
     postDate: str
+    fsMappingStatus: str
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -27,3 +28,6 @@ class Account:
         self.isHidden = bool(self.isHidden)
         self.isTaxable = bool(self.isTaxable)
         self.postDate = None if self.postDate is None else self.postDate.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        if self.fsMappingStatus == "SELF-MAPPED":
+            self.fsMappingId = self.accountId

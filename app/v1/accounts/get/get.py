@@ -25,6 +25,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         return 400, {"detail": "Specified fund does not exist."}
 
     results = accounts.select_by_fund_id(fund_id)
-    accts = [Account(**account) for account in results]
+    accts = [Account(**account).__dict__ for account in results]
+    [acct.pop("fsMappingStatus") for acct in accts]
 
     return 200, {"data": accts}

@@ -23,6 +23,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if result is None:
         return 404, {"detail": "No account found."}
 
-    account = Account(**result)
+    account = Account(**result).__dict__
+    account.pop("fsMappingStatus")
 
     return 200, {"data": account}

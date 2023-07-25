@@ -4,9 +4,9 @@ from .dataclass_validators import validate_date, validate_list, validate_str, ch
 
 @dataclass
 class FilterInput:
+    clientId: str
     startDate: str = None
     endDate: str = None
-    clientId: str = None
     fundId: str = None
     journalEntryState: str = None
     accountIds: list = None
@@ -19,6 +19,7 @@ class FilterInput:
     parse: bool = False
 
     def __post_init__(self):
+        self.clientId = check_uuid(self.clientId, "clientId")
         self.startDate = (
             None if self.startDate is None else
             validate_date(self.startDate, "startDate")
@@ -26,10 +27,6 @@ class FilterInput:
         self.endDate = (
             None if self.endDate is None else
             validate_date(self.endDate, "endDate")
-        )
-        self.clientId = (
-            None if self.clientId is None else
-            check_uuid(self.clientId, "clientId")
         )
         self.fundId = (
             None if self.fundId is None else
@@ -47,7 +44,6 @@ class FilterInput:
             None if self.ledgerIds is None else
             validate_list(self.ledgerIds, "ledgerIds", min_len=1, parse=self.parse)
         )
-
         self.fundIds = (
             None if self.fundIds is None else
             validate_list(self.fundIds, "fundIds", min_len=1, parse=self.parse)

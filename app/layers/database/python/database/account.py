@@ -29,6 +29,7 @@ app_to_db = {
     "fsName": "fs_name",
     "isDryRun": "is_dry_run",
     "postDate": "post_date",
+    "fsMappingStatus": "fs_mapping_status",
 }
 
 
@@ -65,10 +66,10 @@ def __get_insert_query(
         + db
         + """.account
             (uuid, account_no, fund_entity_id, account_attribute_id, parent_id, name, description,
-            state, is_hidden, is_taxable, is_entity_required, fs_mapping_id)
+            state, is_hidden, is_taxable, is_entity_required, fs_mapping_status, fs_mapping_id)
         VALUES
             (%s, %s, %s, %s, %s, %s, %s,
-            %s, %s, %s, %s, %s);"""
+            %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
@@ -102,6 +103,7 @@ def __get_insert_query(
         translated_input.get("is_hidden"),
         translated_input.get("is_taxable"),
         translated_input.get("is_entity_required"),
+        translated_input.get("fs_mapping_status"),
         fs_mapping_id,
     )
 
@@ -230,7 +232,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     """
     query = (
         """
-        SELECT acc.id, acc.account_no, acc.uuid,
+        SELECT acc.id, acc.account_no, acc.uuid, acc.fs_mapping_status,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, acc.post_date, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at
@@ -273,7 +275,7 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     """
     query = (
         """
-        SELECT acc.id, acc.account_no, acc.uuid,
+        SELECT acc.id, acc.account_no, acc.uuid, acc.fs_mapping_status,
         fe.uuid as fund_entity_id, attr.uuid as account_attribute_id, acc2.uuid as parent_id,
         acc.name, acc.description, fs.fs_mapping_id, fs.fs_name, acc.state, acc.is_hidden,
         acc.is_taxable, acc.is_entity_required, acc.created_at, acc.post_date

@@ -70,3 +70,12 @@ class AccountPut:
             None if self. fsName is None
             else validate_str(self.fsName, "fsName")
         )
+
+    def update_fs(self):
+        if self.fsMappingId == "00000000-0000-0000-0000-000000000000":
+            self.fsMappingStatus = "SELF-MAPPED"
+            self.fsMappingId = None
+        elif self.fsMappingId is None:
+            self.fsMappingStatus = "UNMAPPED"
+        else:
+            self.fsMappingStatus = "MAPPED"

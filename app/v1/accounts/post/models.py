@@ -30,6 +30,7 @@ class AccountPost:
     isDryRun: bool = False
     parentAccountId: str = None
     isHidden: bool = False
+    fsMappingStatus: str = False
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -58,6 +59,14 @@ class AccountPost:
             if self.fsMappingId is None
             else check_uuid(self.fsMappingId, "fsMappingId")
         )
+
+        if self.fsMappingId == "00000000-0000-0000-0000-000000000000":
+            self.fsMappingId = None
+            self.fsMappingStatus = "SELF-MAPPED"
+        elif self.fsMappingId is None:
+            self.fsMappingStatus = "UNMAPPED"
+        else:
+            self.fsMappingStatus = "MAPPED"
 
 
 @dataclass
