@@ -29,6 +29,24 @@ def post(table_name: str, contents: dict):
     else:
         raise Exception("Invalid table name.")
 
+
+def post_many(table_name: str, contents: []):
+    """Submitting a contents dict to QLDB based on table name"""
+
+    if not ledger_name:
+        raise Exception("LEDGER_NAME environment variable is missing.")
+
+    driver = Driver(ledger_name, region_name=aws_region)
+
+    for idx, content in enumerate(contents):
+        contents[idx] = process_contents(content)
+
+    if table_name == "account":
+        driver.insert_many_accounts(contents)
+    else:
+        raise Exception("Invalid table name.")
+
+
 def process_contents(contents):
     """Remove keys that should not be POSTED and apply hashes"""
     processed_contents = {}

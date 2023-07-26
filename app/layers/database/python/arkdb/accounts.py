@@ -14,7 +14,8 @@ from database.account import (
     get_recursive_parents_by_uuids,
     bulk_insert as __bulk_insert,
     bulk_update as __bulk_update,
-    bulk_delete as __bulk_delete
+    bulk_delete as __bulk_delete,
+    bulk_state as __bulk_state
 )
 
 from .utils import DB_NAME, REGION_NAME, SECRET_NAME
@@ -105,6 +106,11 @@ def bulk_update(accounts_list):
 def bulk_delete(accounts_list):
     """Delete multiple accounts from a list"""
     result = __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+    return result
+
+def bulk_state(accounts_list):
+    """Update the state of multiple accounts from a list"""
+    result = __bulk_state(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result
 
 def get_child_accounts_from_list(uuids, translate=True):

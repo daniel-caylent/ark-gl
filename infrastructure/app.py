@@ -16,7 +16,8 @@ from app.accounts import (
     AccountsUploadStack,
     AccountsDeleteStack,
     AccountsUpdateStack,
-    AccountsBulkDeleteStack
+    AccountsBulkDeleteStack,
+    AccountsBulkStateStack
 )
 
 from app.ledgers import (
@@ -131,6 +132,11 @@ accounts_update_stack = AccountsUpdateStack(
 )
 accounts_update_stack.add_dependency(vpc_stack)
 
+accounts_bulk_state_stack = AccountsBulkStateStack(
+    app, "ark-gl-accounts-bulk-state-stack", env=cdk_env
+)
+accounts_bulk_state_stack.add_dependency(vpc_stack)
+
 ledgers_get_stack = LedgersGetStack(app, "ark-gl-ledgers-get-stack", env=cdk_env)
 ledgers_get_stack.add_dependency(vpc_stack)
 
@@ -214,6 +220,7 @@ dependency_group.add(accounts_put_stack)
 dependency_group.add(accounts_state_stack)
 dependency_group.add(accounts_upload_stack)
 dependency_group.add(accounts_update_stack)
+dependency_group.add(accounts_bulk_state_stack)
 dependency_group.add(ledgers_get_stack)
 dependency_group.add(ledgers_get_by_id_stack)
 dependency_group.add(ledgers_post_stack)
@@ -297,7 +304,6 @@ api_ledgers_stack = LedgersStack(
 api_ledgers_stack.node.add_dependency(
     ledgers_dependency_group
 )
-
 
 journal_entries_dependency_group = DependencyGroup()
 journal_entries_dependency_group.add(journal_entries_get_by_id_stack)

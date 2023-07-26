@@ -31,7 +31,8 @@ class Driver:
             boto3_session=boto3_session if boto3_session else None,
         )
 
-    def __execute_query(self, query: str, *args) -> BufferedCursor:
+
+    def __execute_single_query(self, query: str, *args) -> BufferedCursor:
         """Private method for executing query"""
         cursor = self.qldb_driver.execute_lambda(
             lambda x: x.execute_statement(query, *args)
@@ -39,11 +40,22 @@ class Driver:
 
         return cursor
 
+
+    def __execute_transactional_query(self, query: str, documents: []) -> BufferedCursor:
+        """Private method for executing query in a transactional manner"""
+        def insert_documents(transaction_executor):
+            for document in documents:
+                transaction_executor.execute_statement(query, document)
+
+        self.qldb_driver.execute_lambda(insert_documents)
+
+
     def create_table(self, table_name: str) -> None:
         """Create table method in qldb"""
         logger.info("Creating the table %s", table_name)
         query = "CREATE TABLE " + table_name
-        self.__execute_query(query)
+        self.__execute_single_query(query)
+
 
     def create_index(self, table_name: str, fields: list) -> None:
         """Create index method on qldb table"""
@@ -53,13 +65,24 @@ class Driver:
 
         query = "CREATE INDEX ON " + table_name + "(" + fields_str + ")"
 
-        self.__execute_query(query)
+        self.__execute_single_query(query)
+
 
     def insert_document(self, table_name: str, document: dict) -> None:
         """Insert document method"""
         logger.info("Inserting a document into table %s", table_name)
         query = "INSERT INTO " + table_name + " ?"
-        self.__execute_query(query, document)
+
+        self.__execute_single_query(query, document)
+
+
+    def insert_documents(self, table_name: str, documents: []) -> None:
+        """Insert document method"""
+        logger.info("Inserting a document into table %s", table_name)
+        query = "INSERT INTO " + table_name + " ?"
+
+        self.__execute_transactional_query(query, documents)
+
 
     def read_documents(
         self, table_name: str, where_clause: str = None
@@ -72,9 +95,10 @@ class Driver:
 
         logger.info("Querying the table %s", table_name)
 
-        cursor = self.__execute_query(sql_query)
+        cursor = self.__execute_single_query(sql_query)
 
         return cursor
+
 
     def read_document_fields(
         self, table_name: str, fields: list, where_clause: str = None
@@ -99,24 +123,33 @@ class Driver:
 
         logger.info("Querying the table %s", table_name)
 
-        cursor = self.__execute_query(sql_query)
+        cursor = self.__execute_single_query(sql_query)
 
         return cursor
+
 
     def execute_custom_query(self, sql_query: str, *args) -> BufferedCursor:
         """Execute a custom query on QLDB table"""
         logger.info("Executing custom query: %s", sql_query)
-        cursor = self.__execute_query(sql_query, *args)
+        cursor = self.__execute_single_query(sql_query, *args)
 
         return cursor
+
 
     def insert_account(self, document: dict) -> None:
         """Wrapper around account table for inserting document"""
         self.insert_document("account", document)
 
+
+    def insert_many_accounts(self, documents: []) -> None:
+        """Wrapper around account table for inserting document"""
+        self.insert_documents("account", documents)
+
+
     def insert_ledger(self, document: dict) -> None:
         """Wrapper around ledge table for inserting document"""
         self.insert_document("ledger", document)
+
 
     def insert_journal_entry(self, document: dict) -> None:
         """Wrapper around journal entry table for inserting document"""
