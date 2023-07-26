@@ -28,6 +28,7 @@ class JournalEntriesStack(BaseStack):
         )
 
         journal_entry_resource = rest_api.root.add_resource("journal-entries")
+        journal_search_resource = journal_entry_resource.add_resource("search")
         journal_upload_resource = journal_entry_resource.add_resource("upload")
         journal_delete_resource = journal_entry_resource.add_resource("delete")
         journal_export_resource = journal_entry_resource.add_resource("export")
@@ -36,7 +37,7 @@ class JournalEntriesStack(BaseStack):
         )
         journal_entry_state_resource = journal_entry_id_resource.add_resource("state")
 
-        self.__register_journal_entry_get_method(journal_entry_resource)
+        self.__register_journal_entry_get_method(journal_search_resource)
         self.__register_journal_entry_post_method(journal_entry_resource)
         self.__register_journal_entry_put_method(journal_entry_id_resource)
         self.__register_journal_entry_get_by_id_method(journal_entry_id_resource)
@@ -80,7 +81,7 @@ class JournalEntriesStack(BaseStack):
             self, lambda_function, self.STACK_PREFIX + "journal-entries-get"
         )
 
-        method = resource.add_method("GET", lambda_integration)
+        method = resource.add_method("POST", lambda_integration)
 
         self.methods.append(method)
 

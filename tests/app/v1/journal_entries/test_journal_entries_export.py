@@ -25,12 +25,13 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         from app.v1.journal_entries.post.bulk_export import handler
 
         request = {
-            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"] }"
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"], \"clientId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         monkeypatch.setattr(boto3, "client", lambda service: Boto3Mocked())
 
         result = handler(request, LambdaContext())
+        print(result)
         assert 201 == result['statusCode']
 
 
@@ -38,7 +39,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.bulk_export import handler
         request = {
-            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"clientId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\" }"
         }
 
         result = handler(request, LambdaContext())
@@ -50,7 +51,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.bulk_export import handler
         request = {
-            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"] }"
+            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df1\"], \"clientId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\" }"
         }
 
         monkeypatch.setattr(boto3, "client", lambda service: Boto3Mocked())
@@ -63,7 +64,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.bulk_export import handler
         request = {
-            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"] }"
+            "body": "{ \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"clientId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\" }"
         }
 
         result = handler(request, LambdaContext())
@@ -87,7 +88,7 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         import boto3
         from app.v1.journal_entries.post.bulk_export import handler
         request = {
-            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"]}"
+            "body": "{ \"ledgerIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"fundIds\": [\"a92bde1e-7825-429d-aaae-909f2d7a8df\"], \"clientId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         result = handler(request, LambdaContext())
