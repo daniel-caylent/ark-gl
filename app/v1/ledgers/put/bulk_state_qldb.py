@@ -1,4 +1,4 @@
-"""Lambda that will perform inserts for Accounts into QLDB"""
+"""Lambda that will perform inserts for Ledgers into QLDB"""
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
@@ -17,19 +17,19 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         raise RuntimeError("The event does not contain valid json.") from e
 
-    encoded_accounts = []
-    for account in body['accounts']:
-        encoded_accounts.append(dataclass_encoder.encode(account))
+    encoded_ledgers = []
+    for account in body['ledgers']:
+        encoded_ledgers.append(dataclass_encoder.encode(account))
 
-    ark_qldb.post_many("account", encoded_accounts)
+    ark_qldb.post_many("ledger", encoded_ledgers)
 
     message_id = event['Records'][0]['messageId']
 
     logging.write_log(
         context,
         "Informational",
-        "Accounts - QLDB Bulk State",
-        f'Inserted {len(body["accounts"])} accounts in QLDB from message id {message_id}',
+        "Ledgers - QLDB Bulk State",
+        f'Inserted {len(body["ledgers"])} ledgers in QLDB from message id {message_id}',
     )
 
     return 200, {}

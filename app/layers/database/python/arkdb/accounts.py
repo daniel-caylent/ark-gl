@@ -85,33 +85,37 @@ def get_line_items(account_id):
 
     return get_line_items_by_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)
 
+
 def get_line_items_count(account_id):
     """Retrieve the number of line items associated with an account"""
     return select_count_by_account_id(DB_NAME, account_id, REGION_NAME, SECRET_NAME)
 
+
 def commit_by_id(account_uuid) -> None:
     """Commit an existing account"""
     commit(DB_NAME, account_uuid, REGION_NAME, SECRET_NAME)
+
 
 def bulk_insert(accounts_list):
     """Insert multiple accounts from a list"""
     result = __bulk_insert(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
     return result
 
+
 def bulk_update(accounts_list):
     """Insert multiple accounts from a list"""
-    result = __bulk_update(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
-    return result
+    __bulk_update(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+
 
 def bulk_delete(accounts_list):
     """Delete multiple accounts from a list"""
-    result = __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
-    return result
+    __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+
 
 def bulk_state(accounts_list):
     """Update the state of multiple accounts from a list"""
-    result = __bulk_state(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
-    return result
+    __bulk_state(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+
 
 def get_child_accounts_from_list(uuids, translate=True):
     results = get_recursive_childs_by_uuids(DB_NAME, uuids, REGION_NAME, SECRET_NAME)
