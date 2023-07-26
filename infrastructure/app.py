@@ -26,7 +26,8 @@ from app.ledgers import (
     LedgersPostStack,
     LedgersPutStack,
     LedgersDeleteStack,
-    LedgersStateStack
+    LedgersStateStack,
+    LedgersBulkStateStack
 )
 
 from app.journal_entries import (
@@ -158,6 +159,13 @@ ledgers_delete_stack.add_dependency(vpc_stack)
 
 ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
 ledgers_state_stack.add_dependency(vpc_stack)
+
+ledgers_bulk_state_stack = LedgersBulkStateStack(
+    app, "ark-gl-ledgers-bulk-state-stack", env=cdk_env
+)
+ledgers_bulk_state_stack.add_dependency(vpc_stack)
+
+
 journal_entries_get_by_id_stack = JournalEntriesGetByIdStack(
     app, "ark-gl-journal-entries-get-by-id-stack", env=cdk_env
 )
@@ -227,6 +235,7 @@ dependency_group.add(ledgers_post_stack)
 dependency_group.add(ledgers_put_stack)
 dependency_group.add(ledgers_delete_stack)
 dependency_group.add(ledgers_state_stack)
+dependency_group.add(ledgers_bulk_state_stack)
 dependency_group.add(journal_entries_get_by_id_stack)
 dependency_group.add(journal_entries_get_stack)
 dependency_group.add(journal_entries_post_stack)
@@ -263,7 +272,6 @@ api_account_attributes_stack.node.add_dependency(
 accounts_dependency_group = DependencyGroup()
 accounts_dependency_group.add(rest_api)
 accounts_dependency_group.add(account_attributes_get_stack)
-accounts_dependency_group.add(account_attributes_get_stack)
 accounts_dependency_group.add(accounts_get_stack)
 accounts_dependency_group.add(accounts_get_by_id_stack)
 accounts_dependency_group.add(accounts_post_stack)
@@ -271,6 +279,7 @@ accounts_dependency_group.add(accounts_delete_stack)
 accounts_dependency_group.add(accounts_put_stack)
 accounts_dependency_group.add(accounts_state_stack)
 accounts_dependency_group.add(accounts_upload_stack)
+accounts_dependency_group.add(accounts_bulk_state_stack)
 
 api_accounts_stack = AccountsStack(
     app,
@@ -292,6 +301,7 @@ ledgers_dependency_group.add(ledgers_post_stack)
 ledgers_dependency_group.add(ledgers_put_stack)
 ledgers_dependency_group.add(ledgers_delete_stack)
 ledgers_dependency_group.add(ledgers_state_stack)
+ledgers_dependency_group.add(ledgers_bulk_state_stack)
 
 api_ledgers_stack = LedgersStack(
     app,
