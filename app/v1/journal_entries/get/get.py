@@ -8,7 +8,7 @@ from shared import (
     filtering,
     dataclass_error_to_str
 )
-from models import JournalEntry
+from models import JournalEntry, SortItem
 # pylint: enable=import-error
 
 
@@ -34,6 +34,11 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     ]
 
     sort = body.pop("sort", None) or default_sort
+    for item in sort:
+        try:
+            SortItem(**item)
+        except Exception as e:
+            return 400, {"detail": dataclass_error_to_str(e)}
 
     try:
         valid_input = filtering.FilterInput(**body).get_dict()

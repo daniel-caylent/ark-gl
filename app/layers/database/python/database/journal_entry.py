@@ -1685,7 +1685,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
     je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id,
     SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as credits,
-    SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as debits
+    SUM(IF(li.posting_type="DEBIT", li.amount, 0)) as debits
 
     FROM """
         + db
@@ -1735,7 +1735,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
 
                 continue
             elif name == "accountIds" and value:
-                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+                query += f' AND acc.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             elif name == "fundIds" and value:
@@ -1791,17 +1791,22 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
 
         query += ",".join(sort_list)
 
-    if limit and offset:
-        query += " LIMIT %s OFFSET %s "
-        params += (limit, offset, )
+    if limit:
+        query += " LIMIT %s "
+        params += (limit, )
+
+    if offset:
+        query += " OFFSET %s "
+        params += (offset, )
 
     query += ";"
-
     return (query, params)
 
+
 def __get_total_by_filter_query(db: str, filter: dict):
+
     query = (
-        """SELECT COUNT(*) FROM """
+        """SELECT COUNT(DISTINCT je.id) FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
@@ -1810,6 +1815,9 @@ def __get_total_by_filter_query(db: str, filter: dict):
     INNER JOIN """
         + db
         + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
@@ -1833,26 +1841,35 @@ def __get_total_by_filter_query(db: str, filter: dict):
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
                 query += " AND fe.client_id = %s "
-            elif name == "ledgerIds":
+            elif name == "ledgerIds" and value:
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "entityIds":
-                query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+            elif name == "entityIds" and value:
+                if None in value:
+                    query += f' AND li.entity_id IS NULL '
+                else:
+                    query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+                    params += tuple(value)
+                continue
+            elif name == "accountIds" and value:
+                query += f' AND acc.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "accountIds":
-                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+            elif name == "fundIds" and value:
+                query += f' AND fe.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "journalEntryIds" and value:
+                query += f' AND je.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             else:
                 continue
 
-            params += (value, )
-
-    query += "GROUP BY je.id;"
-
+            params += (value,)
     return (query, params)
+
 
 def select_with_filter_paginated(
     db: str,
@@ -1894,14 +1911,6 @@ def select_with_filter_paginated(
     if page and page_size:
         offset = (page - 1) * page_size
 
-    account_uuids = filter.pop("accountIds", None)
-    if account_uuids:
-        account_ids = []
-        for uuid in account_uuids:
-            account_ids.append(account.get_id_by_uuid(db, uuid, region_name, secret_name))
-
-        filter["accountIds"] = account_ids
-
     params = __get_query_select_by_filter_paginated(db, filter, page_size, offset, sort)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
@@ -1912,7 +1921,7 @@ def select_with_filter_paginated(
 
     record = (
         db_main.execute_single_record_select(conn, total_params)
-        or {"count": 0}
+        or {"COUNT": 0}
     )
 
     total_records = list(record.values())[0]
