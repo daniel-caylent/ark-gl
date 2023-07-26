@@ -35,7 +35,7 @@ class FilterInput:
         )
         self.journalEntryState = (
             None if self.journalEntryState is None else
-            validate_str(self.journalEntryState, "journalEntryState", allowed=["DRAFT"])
+            validate_str(self.journalEntryState, "journalEntryState", allowed=["DRAFT", "POSTED"])
         )
         self.accountIds = (
             None if self.accountIds is None else

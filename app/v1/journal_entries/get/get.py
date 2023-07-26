@@ -2,10 +2,9 @@
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
-from arkdb import journal_entries, ledgers, funds
+from arkdb import journal_entries
 from shared import (
     endpoint,
-    validate_uuid,
     filtering,
     dataclass_error_to_str
 )
@@ -26,12 +25,22 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     page = int(body.pop("page", 1))
     page_size = int(body.pop("pageSize", 1000))
 
+    default_sort = [
+        {"name": "state", "descending": False},
+        {"name": "date", "descending": False},
+        {"name": "ledgerName", "descending": False},
+        {"name": "fundId", "descending": False},
+        {"name": "journalEntryNum", "descending": False},
+    ]
+
+    sort = body.pop("sort", None) or default_sort
+
     try:
         valid_input = filtering.FilterInput(**body).get_dict()
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
-    results = journal_entries.select_with_filter_paginated(valid_input, page, page_size)
+    results = journal_entries.select_with_filter_paginated(valid_input, page, page_size, sort)
 
     data_results = results["data"]
     if data_results:

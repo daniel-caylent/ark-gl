@@ -1,3 +1,5 @@
+import datetime
+
 def get_trial_balance_detail(filter):
     return [
         {
@@ -16,7 +18,7 @@ def get_trial_balance_detail(filter):
           "journalEntryPostDated": "journal_entry_post_date",
           "adjustingJournalEntry": "adjusting_journal_entry",
           "journalEntryState": "journal_entry_state",
-          "journalEntryDate": "journal_entry_date",
+          "journalEntryDate": datetime.date.today(),
           "amount": 100,
           "entityId": "entity_id",
           "ledgerName": "ledger_name",

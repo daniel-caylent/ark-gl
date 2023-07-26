@@ -1664,7 +1664,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     finally:
         cursor.close()
 
-def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, offset: int) -> tuple:
+def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, offset: int, sort: list) -> tuple:
     """
     This function creates the select by client query with its parameters.
 
@@ -1683,7 +1683,10 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id
+    fe.uuid as fund_entity_id,
+    SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as credits,
+    SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as debits
+
     FROM """
         + db
         + """.journal_entry je
@@ -1693,6 +1696,9 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
     INNER JOIN """
         + db
         + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
@@ -1745,10 +1751,48 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
 
             params += (value,)
 
-    query += "GROUP BY je.id"
+    query += " GROUP BY je.id "
+
+    if sort:
+        query += " ORDER BY "
+
+        sort_list = []
+        for item in sort:
+            name = item["name"]
+            desc = bool(item["descending"])
+
+            if name == "fundId":
+                sort_item = " fe.id "
+            elif name == "ledgerName":
+                sort_item = " le.name "
+            elif name == "journalEntryNum":
+                sort_item = " je.journal_entry_num "
+            elif name == "date":
+                sort_item = " je.date "
+            elif name == "accountNo":
+                sort_item = " CAST(acc.account_no as UNSIGNED) "
+            elif name == "accountName":
+                sort_item = " acc.name "
+            elif name == "entityId":
+                sort_item = " li.entity_id "
+            elif name == "credits":
+                sort_item = " credits "
+            elif name == "debits":
+                sort_item = " debits "
+            elif name == "state":
+                sort_item = " state "
+            else:
+                continue
+
+            if desc:
+                sort_item += " DESC "
+
+            sort_list.append(sort_item)
+
+        query += ",".join(sort_list)
 
     if limit and offset:
-        query += " LIMIT %s OFFSET %s"
+        query += " LIMIT %s OFFSET %s "
         params += (limit, offset, )
 
     query += ";"
@@ -1816,7 +1860,8 @@ def select_with_filter_paginated(
     region_name: str,
     secret_name: str,
     page: int,
-    page_size: int
+    page_size: int,
+    sort: list = None
 ) -> list:
     """
     This function returns the record from the result of the "select by client id" query with its parameters.
@@ -1857,7 +1902,7 @@ def select_with_filter_paginated(
 
         filter["accountIds"] = account_ids
 
-    params = __get_query_select_by_filter_paginated(db, filter, page_size, offset)
+    params = __get_query_select_by_filter_paginated(db, filter, page_size, offset, sort)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
