@@ -23,15 +23,6 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     except Exception:
         return 400, {"detail": "Body does not contain valid json."}
 
-    keys = body.keys()
-
-    entity_filters = list(set(keys) - set(EXTRA_FILTERS_ALLOWED))
-
-    if len(entity_filters) > 1:
-        return \
-            400, \
-            {"detail": f"Only a single entity filter should be passed. Found: {', '.join(entity_filters)}"}
-
     try:
         body['parse'] = False
         valid_input = filtering.FilterInput(**body).get_dict()

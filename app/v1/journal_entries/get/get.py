@@ -1,10 +1,13 @@
 """Lambda that will perform the GET for JournalEntries"""
+import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries, ledgers, funds
 from shared import (
     endpoint,
     validate_uuid,
+    filtering,
+    dataclass_error_to_str
 )
 from models import JournalEntry
 # pylint: enable=import-error
@@ -14,51 +17,23 @@ from models import JournalEntry
 def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Get journal entries by ledgerId"""
 
-    if not event.get("queryStringParameters"):
-        return 400, {"detail": "Missing query string parameters"}
+    try:
+        body = json.loads(event["body"])
+    except Exception:
+        return 400, {"detail": "Body does not contain valid json."}
 
-    client_id = event["queryStringParameters"].get("clientId", None)
-    fund_id = event["queryStringParameters"].get("fundId", None)
-    ledger_id = event["queryStringParameters"].get("ledgerId", None)
-    page = int(event["queryStringParameters"].get("page", 1))
-    page_size = int(event["queryStringParameters"].get("pageSize", 1000))
 
-    results = []
-    if ledger_id:
-        if not validate_uuid(ledger_id):
-            return 400, {"detail": "Invalid ledger UUID provided."}
+    page = int(body.pop("page", 1))
+    page_size = int(body.pop("pageSize", 1000))
 
-        # validate that the fund exists and client has access to it
-        ledger = ledgers.select_by_id(ledger_id)
-        if ledger is None:
-            return 400, {"detail": "Specified ledger does not exist."}
+    try:
+        valid_input = filtering.FilterInput(**body).get_dict()
+    except Exception as e:
+        return 400, {"detail": dataclass_error_to_str(e)}
 
-        # get and format the ledgers
-        results = journal_entries.select_by_ledger_id_paginated(ledger_id, page, page_size)
-
-    elif fund_id:
-        if not validate_uuid(fund_id):
-            return 400, {"detail": "Invalid fund UUID provided."}
-
-        # validate that the fund exists and client has access to it
-        fund = funds.select_by_uuid(fund_id)
-        if fund is None:
-            return 400, {"detail": "Specified fund does not exist."}
-
-        # get and format the ledgers
-        results = journal_entries.select_by_fund_id_paginated(fund_id, page, page_size)
-
-    elif client_id:
-        if not validate_uuid(client_id):
-            return 400, {"detail": "Invalid client UUID provided."}
-
-        # get and format the ledgers
-        results = journal_entries.select_by_client_id_paginated(client_id, page, page_size)
-    else:
-        return 400, {"detail": "No searchable IDs provided."}
+    results = journal_entries.select_with_filter_paginated(valid_input, page, page_size)
 
     data_results = results["data"]
-
     if data_results:
         id_list = [str(journal["id"]) for journal in data_results]
         lines_list = journal_entries.select_lines_by_journals(id_list)

@@ -9,6 +9,7 @@ class FilterInput:
     endDate: str = None
     fundId: str = None
     journalEntryState: str = None
+    journalEntryIds: str = None
     accountIds: list = None
     ledgerIds: list = None
     entityIds: list = None
@@ -52,6 +53,10 @@ class FilterInput:
             None if self.entityIds is None else
             validate_list(self.entityIds, "entityIds", min_len=1, parse=self.parse)
         )
+        self.journalEntryIds = (
+            None if self.journalEntryIds is None else
+            validate_list(self.journalEntryIds, "journalEntryIds", min_len=1, parse=self.parse)
+        )
 
         # validate UUIDs for accounts and ledgers if supplied
         if self.accountIds is not None:
@@ -65,9 +70,6 @@ class FilterInput:
         if self.fundIds is not None:
             for id_ in self.fundIds:
                 check_uuid(id_, f"fundIds: {id_}")
-
-        if not (self.accountIds or self.ledgerIds or self.clientId or self.fundId or self.fundIds):
-            raise Exception("Search criteria is too broad. Include one of: accountIds, ledgerIds, clientId, or fundId")
 
 
     def get_dict(self):

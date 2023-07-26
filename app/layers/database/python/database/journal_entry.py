@@ -1736,6 +1736,10 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 query += f' AND fe.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
+            elif name == "journalEntryIds" and value:
+                query += f' AND je.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
             else:
                 continue
 
