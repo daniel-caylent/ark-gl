@@ -77,7 +77,7 @@ def handler(event, context) -> tuple[int, dict]:
 
             journal_date = line["journalEntryDate"]
 
-            if not start_date or journal_date > start_date:
+            if not start_date or journal_date >= start_date:
                 accounts_[line["accountId"]]["totalAmount"] += line["amount"]
                 accounts_[line["accountId"]]["lineItems"].append(
                     {
