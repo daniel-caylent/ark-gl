@@ -27,9 +27,7 @@ class AccountPost:
     fsMappingId: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
-    isDryRun: bool = False
     parentAccountId: str = None
-    isHidden: bool = False
     fsMappingStatus: str = False
     # pylint: enable=invalid-name
 
@@ -48,7 +46,6 @@ class AccountPost:
             else validate_str(self.fsName, "fsName")
         )
         self.isEntityRequired = bool(self.isEntityRequired)
-        self.isHidden = bool(self.isHidden)
         self.parentAccountId = (
             None
             if self.parentAccountId is None
@@ -85,9 +82,7 @@ class BulkAccountPost:
     fsMappingName: str = None
     isEntityRequired: bool = False
     accountDescription: str = None
-    isDryRun: bool = False
     parentAccountName: str = None
-    isHidden: bool = False
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -105,7 +100,6 @@ class BulkAccountPost:
             else validate_str(self.fsName, "fsName")
         )
         self.isEntityRequired = bool(self.isEntityRequired)
-        self.isHidden = bool(self.isHidden)
         self.parentAccountName = (
             None
             if self.parentAccountName is None

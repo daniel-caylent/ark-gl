@@ -40,8 +40,7 @@ class TestJournalEntry(JournalEntryTestBase):
                 },
                 "amount": 10012
             }
-        ],
-        "isHidden": False
+        ]
     }
 
     update_input = {

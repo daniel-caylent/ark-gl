@@ -15,8 +15,7 @@ class TestAccount(AccountsTestBase):
         "FSMappingId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
         "FSName": "FSMapping is used for reporting purposes.",
         "isTaxable": True,
-        "isEntityRequired": False,
-        "isDryRun": False
+        "isEntityRequired": False
     }
 
     update_input = {

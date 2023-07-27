@@ -21,11 +21,9 @@ class AccountPut:
     accountDescription: str = None
     fsMappingId: str = None
     fsName: str = None
-    isDryRun: bool = None
     parentAccountId: str = None
     attributeId: str = None
     isEntityRequired: bool = None
-    isHidden: bool = None
     isTaxable: bool = None
     # pylint: enable=invalid-name
 
@@ -42,9 +40,6 @@ class AccountPut:
             None
             if self.accountNo is None
             else str(validate_int(self.accountNo, "accountNo", min_=100))
-        )
-        self.isHidden = (
-            None if self.isHidden is None else validate_bool(self.isHidden, "isHidden")
         )
         self.isTaxable = (
             None

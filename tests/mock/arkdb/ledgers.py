@@ -8,7 +8,6 @@ def select_by_fund_id(fund_id):
       "state": "POSTED",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False,
       "postDate": None
     },
     {
@@ -19,7 +18,6 @@ def select_by_fund_id(fund_id):
       "state": "POSTED",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False,
       "postDate": None
     },
     {
@@ -30,7 +28,6 @@ def select_by_fund_id(fund_id):
       "state": "POSTED",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False,
       "postDate": None
     }
   ]
@@ -62,7 +59,6 @@ def select_by_id(id, translate=True):
           "state": "POSTED",
           "currencyName": "USD",
           "currencyDecimal": 3,
-          "isHidden": False,
           "postDate": None
         }
         
@@ -74,7 +70,6 @@ def select_by_id(id, translate=True):
       "state": "DRAFT",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False,
       "postDate": None
     }
 
@@ -89,7 +84,6 @@ def select_by_fund_and_name(fund, name, translate=True):
           "state": "POSTED",
           "currency": "USD",
           "decimals": 0,
-          "isHidden": False,
           "postDate": None
         }
         
@@ -102,7 +96,6 @@ def select_by_fund_and_name(fund, name, translate=True):
           "state": "POSTED",
           "currencyName": "USD",
           "currencyDecimal": 0,
-          "isHidden": False,
           "postDate": None
         }
     return {
@@ -113,7 +106,6 @@ def select_by_fund_and_name(fund, name, translate=True):
       "state": "POSTED",
       "currencyName": "USD",
       "currencyDecimal": 3,
-      "isHidden": False,
       "postDate": None
     }
 

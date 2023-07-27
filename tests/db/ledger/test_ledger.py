@@ -8,8 +8,7 @@ class TestLedger(LedgerTestBase):
         "GLName": "Primary USD based General Ledger",
         "GLDescription": "The details surrounding this specialized General Ledger are beyond the scope of this documentation exercise.",
         "currencyName": "USD",
-        "currencyDecimal": 2,
-        "isHidden": False
+        "currencyDecimal": 2
     }
 
     update_input = {

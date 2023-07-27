@@ -4,16 +4,14 @@
       "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
       "clientId": "9679cb05-eb7c-11ed-9a6e-0a3efd619f29",
       "attributeId": "4ebb2c7b-eb7e-11ed-9a6e-0a3efd619f29",
-      "accountNo": "246636743",
-      "accountName": "Test account upload",
+      "accountNo": "24664443",
+      "accountName": "Test account upload - 7",
       "isTaxable": false,
       "fsName": "test",
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": null,
-      "isHidden": false
+      "parentAccountName": null
     }
   ]
 }

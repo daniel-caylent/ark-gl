@@ -25,7 +25,6 @@ class JournalEntryPost:
     lineItems: list
     journalEntryNum: int = None
     attachments: list = field(default_factory=list)
-    isHidden: bool = False
     # pylint: enable=invalid-name;
 
     def __post_init__(self):
@@ -35,7 +34,6 @@ class JournalEntryPost:
         self.adjustingJournalEntry = validate_bool(
             self.adjustingJournalEntry, "adjustingJournalEntry"
         )
-        self.isHidden = validate_bool(self.isHidden, "isHidden")
         self.date = validate_date(self.date, "date", "%Y-%m-%d")
         self.journalEntryNum = (
             None if self.journalEntryNum is None

@@ -16,7 +16,6 @@ class LedgerPost:
     currencyName: str
     currencyDecimal: int
     glDescription: str = None
-    isHidden: bool = False
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -29,7 +28,6 @@ class LedgerPost:
         self.currencyName = validate_str(
             self.currencyName, "currencyName", min_len=3, max_len=3
         )
-        self.isHidden = bool(self.isHidden)
         self.glDescription = (
             None
             if self.glDescription is None

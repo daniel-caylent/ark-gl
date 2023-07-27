@@ -11,9 +11,7 @@
       "fsMappingName": "Second / random () account & 3",
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "THE (FIRST) PARENT & ACCOUNT8",
-      "isHidden": false
+      "parentAccountName": "THE (FIRST) PARENT & ACCOUNT8"
     },
     {
       "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
@@ -26,9 +24,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "THE (FIRST) PARENT & ACCOUNT8",
-      "isHidden": false
+      "parentAccountName": "THE (FIRST) PARENT & ACCOUNT8"
     }
   ]
 }

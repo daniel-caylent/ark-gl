@@ -11,9 +11,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": null,
-      "isHidden": false
+      "parentAccountName": null
     }
   ]
 }

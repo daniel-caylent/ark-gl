@@ -12,7 +12,6 @@ class Account:
     accountDescription: str
     fsMappingId: str
     fsName: str
-    isHidden: bool
     isTaxable: bool
     isEntityRequired: bool
     parentAccountId: str
@@ -25,7 +24,6 @@ class Account:
 
     def __post_init__(self):
         self.isEntityRequired = bool(self.isEntityRequired)
-        self.isHidden = bool(self.isHidden)
         self.isTaxable = bool(self.isTaxable)
         self.postDate = None if self.postDate is None else self.postDate.strftime("%Y-%m-%dT%H:%M:%SZ")
 

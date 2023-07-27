@@ -19,7 +19,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\", \"clientId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\", \"accountNo\": 100,\"accountName\": \"account\", \
                 \"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false, \
                 \"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}",
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}",
         }
         result = handler(request, LambdaContext())
         assert 201 == result['statusCode']
@@ -32,7 +32,7 @@ class TestAccountsPost(TestBase(PATHS)):
                 \"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false, \
                 \"parentAccountId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \
                 \"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \
-                \"fsName\": \"fsName\",\"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsName\": \"fsName\",\"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
         result = handler(request, LambdaContext())
         assert 201 == result['statusCode']
@@ -43,7 +43,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",\"clientId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",  \"accountNo\": 555,\"accountName\": \"unique\", \
                 \"accountDescription\": \"account description\",\"isTaxable\": True,\"isEntityRequired\": false, \
                 \"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         result = handler(request, LambdaContext())
@@ -55,7 +55,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",\"clientId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",  \"accountNo\": \"abcd\",\"accountName\": \"unique\", \
                 \"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false, \
                 \"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         result = handler(request, LambdaContext())
@@ -67,7 +67,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"accountNo\": 105,\"accountName\": \"unique\",\"accountDescription\": \"account description\", \
                 \"isTaxable\": true,\"isEntityRequired\": false,\"parentAccountId\": null, \
                 \"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         result = handler(request, LambdaContext())
@@ -79,7 +79,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",\"clientId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",  \"accountNo\": 555,\"accountName\": \"account name\", \
                 \"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false, \
                 \"parentAccountId\": null,\"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
         result = handler(request, LambdaContext())
         assert 409 == result['statusCode']
@@ -90,7 +90,7 @@ class TestAccountsPost(TestBase(PATHS)):
             "body": "{\"fundId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",\"clientId\": \"d4b26dc7-e51a-11ed-aede-0247c1ed2eeb\",  \"accountNo\": 5555,\"accountName\": \"unique\", \
                 \"accountDescription\": \"account description\",\"isTaxable\": true,\"isEntityRequired\": false,\"parentAccountId\": null, \
                 \"attributeId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\",\"fsName\": \"fsName\", \
-                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\", \"isDryRun\": false}"
+                \"fsMappingId\": \"a92bde1e-7825-429d-aaae-909f2d7a8df1\"}"
         }
 
         result = handler(request, LambdaContext())

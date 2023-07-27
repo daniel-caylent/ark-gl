@@ -21,7 +21,6 @@ app_to_db = {
     "memo": "memo",
     "adjustingJournalEntry": "adjusting_journal_entry",
     "state": "state",
-    "isHidden": "is_hidden",
     "postDate": "post_date",
     "date": "date",
     "attachments": "attachments",
@@ -64,9 +63,9 @@ def __get_insert_query(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num, date)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, journal_entry_num, date)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
@@ -89,7 +88,6 @@ def __get_insert_query(
         translated_input.get("memo"),
         translated_input.get("adjusting_journal_entry"),
         translated_input.get("state"),
-        translated_input.get("is_hidden"),
         journal_entry_num,
         translated_input.get("date"),
     )
@@ -205,7 +203,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -241,7 +239,7 @@ def __get_select_by_ledger_uuid_query(db: str, ledger_uuid: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -311,7 +309,7 @@ def __get_select_by_ledger_uuid_query_paginated(
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -369,7 +367,7 @@ def __get_select_by_ledger_uuid_with_order_query(db: str, ledger_uuid: str, orde
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -1028,7 +1026,7 @@ def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -1068,7 +1066,7 @@ def __get_select_by_fund_id_query_paginated(
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -1216,7 +1214,7 @@ def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -1256,7 +1254,7 @@ def __get_select_by_client_id_query_paginated(
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id
     FROM """
         + db
@@ -1453,9 +1451,9 @@ def __get_insert_query_with_cursor(
         INSERT INTO """
         + db
         + """.journal_entry
-            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, is_hidden, journal_entry_num, date)
+            (uuid, ledger_id, reference, memo, adjusting_journal_entry, state, journal_entry_num, date)
         VALUES
-            (%s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
@@ -1483,7 +1481,6 @@ def __get_insert_query_with_cursor(
         translated_input.get("memo"),
         translated_input.get("adjusting_journal_entry"),
         translated_input.get("state"),
-        translated_input.get("is_hidden"),
         journal_entry_num,
         translated_input.get("date"),
     )
@@ -1685,7 +1682,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
     query = (
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
+    je.state, je.post_date, je.created_at, le.currency, le.decimals,
     fe.uuid as fund_entity_id,
     SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as credits,
     SUM(IF(li.posting_type="DEBIT", li.amount, 0)) as debits

@@ -19,7 +19,6 @@ class JournalEntryPut:
     adjustingJournalEntry: bool = None
     lineItems: list = None
     attachments: list = None
-    isHidden: bool = None
     date: str = None
     # pylint: enable=invalid-name;
 
@@ -40,10 +39,6 @@ class JournalEntryPut:
             None
             if self.adjustingJournalEntry is None
             else validate_bool(self.adjustingJournalEntry, "adjustingJournalEntry")
-        )
-        self.isHidden = (
-            None if self.isHidden is None else
-            validate_bool(self.isHidden, "isHidden")
         )
         self.date = None if self.date is None else validate_str(self.date, "date")
 

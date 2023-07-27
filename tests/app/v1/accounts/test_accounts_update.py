@@ -29,7 +29,7 @@ class TestAccountsUpdate(getAccountsBase([put_dir])):
                     "attributeId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                     "fsName": "fsName",
                     "fsMappingId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                    "isDryRun": False}
+                }
             ]
         }
         
@@ -86,7 +86,7 @@ class TestAccountsUpdate(getAccountsBase([put_dir])):
                     "attributeId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
                     "fsName": "fsName",
                     "fsMappingId": "a92bde1e-7825-429d-aaae-909f2d7a8df1",
-                    "isDryRun": False}
+                }
             ]
         }
         

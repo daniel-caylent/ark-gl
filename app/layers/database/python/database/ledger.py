@@ -17,7 +17,6 @@ app_to_db = {
     "state": "state",
     "currencyName": "currency",
     "currencyDecimal": "decimals",
-    "isHidden": "is_hidden",
     "postDate": "post_date",
 }
 
@@ -51,10 +50,9 @@ def __get_insert_query(
         INSERT INTO """
         + db_
         + """.ledger
-            (uuid, fund_entity_id, name, description, state, is_hidden, currency,  decimals)
+            (uuid, fund_entity_id, name, description, state, currency,  decimals)
         VALUES
-            (%s, %s, %s, %s, %s, %s,
-            %s, %s);"""
+            (%s, %s, %s, %s, %s, %s, %s);"""
     )
 
     translated_input = db_main.translate_to_db(app_to_db, input_)
@@ -68,7 +66,6 @@ def __get_insert_query(
         translated_input.get("name"),
         translated_input.get("description"),
         translated_input.get("state"),
-        translated_input.get("is_hidden"),
         translated_input.get("currency"),
         translated_input.get("decimals"),
     )
@@ -175,7 +172,7 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.post_date, le.state, le.is_hidden,
+                le.name, le.description, le.post_date, le.state, 
                 le.currency, le.decimals, le.created_at
         FROM """
         + db
@@ -208,7 +205,7 @@ def __get_by_fund_query(db_: str, fund_id: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.state, 
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -243,7 +240,7 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.state, 
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -276,7 +273,7 @@ def __get_by_client_id_query(db_: str, client_id: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.state, 
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -314,7 +311,7 @@ def __get_select_committed_between_dates_query(
     query = (
         "SELECT * FROM "
         + db
-        + ".ledger where state = 'COMMITTED' and (post_date BETWEEN %s and %s);"
+        + ".ledger where state = 'POSTED' and (post_date BETWEEN %s and %s);"
     )
 
     params = (
@@ -730,7 +727,7 @@ def __get_by_multiple_uuids_query(db: str, uuids_list: list) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.state, 
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db
@@ -798,7 +795,7 @@ def __get_by_fund_and_name_query(db_: str, fund_uuid: str, ledger_name: str) -> 
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, le.is_hidden,
+                le.name, le.description, le.state, 
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_

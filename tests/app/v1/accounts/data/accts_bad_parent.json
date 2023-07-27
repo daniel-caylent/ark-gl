@@ -11,9 +11,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": null,
-      "isHidden": false
+      "parentAccountName": null
     },
     {
       "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
@@ -26,9 +24,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "THIS ACCOUNT DOES NOT EXIST",
-      "isHidden": false
+      "parentAccountName": "THIS ACCOUNT DOES NOT EXIST"
     }
   ]
 }

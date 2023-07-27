@@ -74,8 +74,6 @@ def select_count_commited_accounts() -> str:
 
 def update_by_id(id_: str, account: dict) -> None:
     """Update an account by id"""
-    if "isDryRun" in account.keys():
-        account.pop("isDryRun")
 
     update(DB_NAME, id_, account, REGION_NAME, SECRET_NAME)
 

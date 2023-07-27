@@ -15,10 +15,8 @@ class Ledger:
     state: str
     currencyName: str
     currencyDecimal: int
-    isHidden: bool
     postDate: str
     # pylint: enable=invalid-name
 
     def __post_init__(self):
-        self.isHidden = bool(self.isHidden)
         self.postDate = None if self.postDate is None else self.postDate.strftime("%Y-%m-%dT%H:%M:%SZ")

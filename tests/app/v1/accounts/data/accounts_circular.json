@@ -11,9 +11,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "TESSTTTTt PARENT",
-      "isHidden": false
+      "parentAccountName": "TESSTTTTt PARENT"
     },
     {
       "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
@@ -26,9 +24,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "TESSTTTTtT CIRCULAR",
-      "isHidden": false
+      "parentAccountName": "TESSTTTTtT CIRCULAR"
     },
     {
       "fundId": "d4b26dc7-e51a-11ed-aede-0247c1ed2eeb",
@@ -41,9 +37,7 @@
       "fsMappingName": null,
       "isEntityRequired": false,
       "accountDescription": "Acct description",
-      "isDryRun": false,
-      "parentAccountName": "super random parent 1",
-      "isHidden": false
+      "parentAccountName": "super random parent 1"
     }
   ]
 }

@@ -14,7 +14,6 @@ class LedgerPut:
     glDescription: str = None
     currencyName: str = None
     currencyDecimal: int = None
-    isHidden: bool = False
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -42,4 +41,3 @@ class LedgerPut:
                 self.glDescription, "glDescription"
             )
         )
-        self.isHidden = None if self.isHidden is None else bool(self.isHidden)
