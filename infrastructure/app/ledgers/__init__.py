@@ -5,3 +5,4 @@ from .put_stack import LedgersPutStack
 from .delete_stack import LedgersDeleteStack
 from .state_stack import LedgersStateStack
 from .bulk_state_stack import LedgersBulkStateStack
+from .bulk_delete import LedgersBulkDeleteStack

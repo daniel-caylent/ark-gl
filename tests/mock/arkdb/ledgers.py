@@ -53,6 +53,18 @@ def select_by_id(id, translate=True):
           "hidden": False,
           "post_date": None
         }
+    if id == "p7e84f41-eaa5-11ed-9a6e-0a3efd619f29":
+        return {
+          "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
+          "glName": "ledger nam",
+          "glDescription": "ledger description",
+          "ledgerId": "p7e84f41-eaa5-11ed-9a6e-0a3efd619f29",
+          "state": "POSTED",
+          "currencyName": "USD",
+          "currencyDecimal": 3,
+          "isHidden": False,
+          "postDate": None
+        }
         
     return {
       "fundId": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
@@ -115,4 +127,7 @@ def delete_by_id(*args):
     return None
 
 def commit_by_id(*args):
+    return None
+
+def bulk_delete(ids_):
     return None

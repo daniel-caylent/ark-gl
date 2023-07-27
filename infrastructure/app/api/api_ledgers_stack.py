@@ -29,6 +29,7 @@ class LedgersStack(BaseStack):
 
         ledger_resource = rest_api.root.add_resource("ledgers")
         ledger_id_resource = ledger_resource.add_resource("{ledgerId}")
+        ledger_delete_resource = ledger_resource.add_resource("delete")
         ledger_state_resource = ledger_id_resource.add_resource("state")
 
         ledger_root_state_resource = ledger_resource.add_resource("state")
@@ -40,6 +41,7 @@ class LedgersStack(BaseStack):
         self.__register_ledger_delete_method(ledger_id_resource)
         self.__register_ledger_state_method(ledger_state_resource)
         self.__register_ledger_bulk_state_method(ledger_root_state_resource)
+        self.__register_ledger_bulk_delete_method(ledger_delete_resource)
 
     def __register_ledger_get_method(self, resource):
         ark_ledger_get_function_arn = get_imported_value(
@@ -86,6 +88,23 @@ class LedgersStack(BaseStack):
 
         lambda_integration = build_lambda_integration(
             self, lambda_function, self.STACK_PREFIX + "ledger-post"
+        )
+
+        method = resource.add_method("POST", lambda_integration)
+
+        self.methods.append(method)
+
+    def __register_ledger_bulk_delete_method(self, resource):
+        method_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-ledger-bulk-delete-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self, "ark-ledger-bulk-delete-function-arn", method_arn
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "ledger-bulk-delete"
         )
 
         method = resource.add_method("POST", lambda_integration)

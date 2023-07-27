@@ -12,7 +12,7 @@ from shared.utils import LEDGERS_DIR
 CODE_DIR = str(PurePath(LEDGERS_DIR, "delete"))
 
 
-class LedgersDeleteStack(BaseStack):
+class LedgersBulkDeleteStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
@@ -23,15 +23,15 @@ class LedgersDeleteStack(BaseStack):
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
-            handler="delete.handler",
+            handler="bulk.handler",
             layers=[shared_layer, pymysql_layer, db_layer],
-            description="ledgers delete",
-            exclude=["bulk*"],
+            description="ledgers bulk delete",
+            exclude=["delete*"],
         )
 
         cdk.CfnOutput(
             self,
-            "ark-ledger-delete-function-arn",
+            "ark-ledger-bulk-delete-function-arn",
             value=lambda_function.function_arn,
-            export_name=self.STACK_PREFIX + "ark-ledger-delete-function-arn",
+            export_name=self.STACK_PREFIX + "ark-ledger-bulk-delete-function-arn",
         )

@@ -11,6 +11,7 @@ from database.ledger import (
     select_by_client_id as __select_by_client_id,
     select_count_with_post_date,
     commit,
+    bulk_delete as __bulk_delete,
     select_by_fund_and_name as __select_by_fund_and_name,
     bulk_state as __bulk_state
 )
@@ -82,12 +83,15 @@ def create_new(ledger: dict) -> str:
 
     return result
 
-
 def commit_by_id(ledger_uuid) -> None:
     """Commit an existing ledger"""
     commit(DB_NAME, ledger_uuid, REGION_NAME, SECRET_NAME)
 
-
 def bulk_state(ledgers_list):
     """Update the state of multiple accounts from a list"""
     __bulk_state(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)
+
+def bulk_delete(ledgers_list):
+    """Delete multiple ledgers from a list of UUIDs"""
+    result = __bulk_delete(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)
+    return result

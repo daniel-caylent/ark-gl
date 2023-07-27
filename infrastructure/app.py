@@ -27,7 +27,8 @@ from app.ledgers import (
     LedgersPutStack,
     LedgersDeleteStack,
     LedgersStateStack,
-    LedgersBulkStateStack
+    LedgersBulkStateStack,
+    LedgersBulkDeleteStack,
 )
 
 from app.journal_entries import (
@@ -157,6 +158,11 @@ ledgers_delete_stack = LedgersDeleteStack(
 )
 ledgers_delete_stack.add_dependency(vpc_stack)
 
+ledgers_bulk_delete_stack = LedgersBulkDeleteStack(
+    app, "ark-gl-ledgers-bulk-delete-stack", env=cdk_env
+)
+ledgers_bulk_delete_stack.add_dependency(vpc_stack)
+
 ledgers_state_stack = LedgersStateStack(app, "ark-gl-ledgers-state-stack", env=cdk_env)
 ledgers_state_stack.add_dependency(vpc_stack)
 
@@ -234,6 +240,7 @@ dependency_group.add(ledgers_get_by_id_stack)
 dependency_group.add(ledgers_post_stack)
 dependency_group.add(ledgers_put_stack)
 dependency_group.add(ledgers_delete_stack)
+dependency_group.add(ledgers_bulk_delete_stack)
 dependency_group.add(ledgers_state_stack)
 dependency_group.add(ledgers_bulk_state_stack)
 dependency_group.add(journal_entries_get_by_id_stack)
