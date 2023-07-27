@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from arkdb import reports, ledgers, accounts, account_attributes
 from shared import endpoint, dataclass_error_to_str
@@ -47,6 +47,11 @@ def handler(event, context) -> tuple[int, dict]:
             if attribute is None:
                 return 400, {"detail": f"Invalid attributeId: {id_}"}
 
+    start_date = (
+        datetime.strptime(valid_input.startDate, "%Y-%m-%d").date()
+        if valid_input.startDate else None
+    )
+    valid_input.startDate = None
 
     lines = reports.get_trial_balance_detail(valid_input.__dict__)
 
@@ -70,30 +75,32 @@ def handler(event, context) -> tuple[int, dict]:
                     "lineItems": [],
                 }
 
-            accounts_[line["accountId"]]["totalAmount"] += line["amount"]
-            accounts_[line["accountId"]]["lineItems"].append(
-                {
-                    "ledgerName": line["ledgerName"],
-                    "ledgerId": line["ledgerId"],
-                    "accountId": line["accountId"],
-                    "entityId": line["entityId"],
-                    "journalEntryNum": line["journalEntryNum"],
-                    "date": line["journalEntryDate"],
-                    "adjustingJournalEntry": bool(line["adjustingJournalEntry"]),
-                    "memo": line["memo"],
-                    "state": line["journalEntryState"],
-                    "amount": line["amount"],
-                }
-            )
+            journal_date = line["journalEntryDate"]
+
+            if not start_date or journal_date > start_date:
+                accounts_[line["accountId"]]["totalAmount"] += line["amount"]
+                accounts_[line["accountId"]]["lineItems"].append(
+                    {
+                        "ledgerName": line["ledgerName"],
+                        "ledgerId": line["ledgerId"],
+                        "accountId": line["accountId"],
+                        "entityId": line["entityId"],
+                        "journalEntryNum": line["journalEntryNum"],
+                        "date": journal_date,
+                        "adjustingJournalEntry": bool(line["adjustingJournalEntry"]),
+                        "memo": line["memo"],
+                        "state": line["journalEntryState"],
+                        "amount": line["amount"],
+                    }
+                )
 
         all_accounts = get_all_associated_accounts(list(accounts_.values()))
 
         for account in all_accounts:
-            account["startBalance"] = reports.get_start_balance(account["accountId"], valid_input.startDate)
+            account["startBalance"] = reports.get_start_balance(account["accountId"], str(start_date))
             account["endBalance"] = reports.get_end_balance(account["accountId"], valid_input.endDate)
 
         report["accounts"] = build_parent_hierarchy(all_accounts, "parentAccountId", "accountId")
-
     return 200, {"data": report}
 
 def get_all_associated_accounts(accounts_list):
@@ -116,7 +123,6 @@ def get_all_associated_accounts(accounts_list):
             )
 
             input_ids.append(account["accountId"])
-    
     return accounts_list
 
 

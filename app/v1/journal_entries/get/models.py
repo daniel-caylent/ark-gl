@@ -3,6 +3,8 @@ from datetime import datetime
 
 from dataclasses import dataclass, field
 
+from shared.dataclass_validators import validate_str, validate_bool
+
 
 @dataclass
 class JournalEntry:
@@ -32,3 +34,17 @@ class JournalEntry:
         self.isHidden = bool(self.isHidden)
         self.postDate = None if self.postDate is None else self.postDate.strftime("%Y-%m-%dT%H:%M:%SZ")
         self.date = self.date.strftime("%Y-%m-%d")
+
+@dataclass
+class SortItem:
+    """Validate sort item"""
+    name: str
+    descending: bool
+
+    def __post_init__(self):
+        self.name = validate_str(self.name, "name", allowed=[
+            "fundId", "ledgerName", "journalEntryNum", "date",
+            "debits", "credits", "accountNo",
+            "accountName", "entityId", "state"
+        ])
+        self.descending = validate_bool(self.descending, "descending", strict=True)

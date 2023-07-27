@@ -253,7 +253,7 @@ def bulk_insert(journal_entries):
 def commit_by_id(*args):
     return None
 
-def select_with_filter_paginated(filter, page=None, page_size=None):
+def select_with_filter_paginated(filter, page=None, page_size=None, sort=None):
     return {
         "data": [
             {

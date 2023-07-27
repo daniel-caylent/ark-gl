@@ -29,6 +29,9 @@ app_to_db = {
     "currencyName": "currency",
     "currencyDecimal": "decimals",
     "fundId": "fund_entity_id",
+    "ledgerState": "ledger_state",
+    "accountState": "account_state",
+    "accountId": "account_id"
 }
 
 
@@ -1664,7 +1667,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     finally:
         cursor.close()
 
-def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, offset: int) -> tuple:
+def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, offset: int, sort: list) -> tuple:
     """
     This function creates the select by client query with its parameters.
 
@@ -1683,7 +1686,10 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.is_hidden, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id
+    fe.uuid as fund_entity_id,
+    SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as credits,
+    SUM(IF(li.posting_type="DEBIT", li.amount, 0)) as debits
+
     FROM """
         + db
         + """.journal_entry je
@@ -1693,6 +1699,9 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
     INNER JOIN """
         + db
         + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
@@ -1729,7 +1738,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
 
                 continue
             elif name == "accountIds" and value:
-                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+                query += f' AND acc.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             elif name == "fundIds" and value:
@@ -1745,19 +1754,62 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
 
             params += (value,)
 
-    query += "GROUP BY je.id"
+    query += " GROUP BY je.id "
 
-    if limit and offset:
-        query += " LIMIT %s OFFSET %s"
-        params += (limit, offset, )
+    if sort:
+        query += " ORDER BY "
+
+        sort_list = []
+        for item in sort:
+            name = item["name"]
+            desc = bool(item["descending"])
+
+            if name == "fundId":
+                sort_item = " fe.id "
+            elif name == "ledgerName":
+                sort_item = " le.name "
+            elif name == "journalEntryNum":
+                sort_item = " je.journal_entry_num "
+            elif name == "date":
+                sort_item = " je.date "
+            elif name == "accountNo":
+                sort_item = " CAST(acc.account_no as UNSIGNED) "
+            elif name == "accountName":
+                sort_item = " acc.name "
+            elif name == "entityId":
+                sort_item = " li.entity_id "
+            elif name == "credits":
+                sort_item = " credits "
+            elif name == "debits":
+                sort_item = " debits "
+            elif name == "state":
+                sort_item = " state "
+            else:
+                continue
+
+            if desc:
+                sort_item += " DESC "
+
+            sort_list.append(sort_item)
+
+        query += ",".join(sort_list)
+
+    if limit:
+        query += " LIMIT %s "
+        params += (limit, )
+
+    if offset:
+        query += " OFFSET %s "
+        params += (offset, )
 
     query += ";"
-
     return (query, params)
 
+
 def __get_total_by_filter_query(db: str, filter: dict):
+
     query = (
-        """SELECT COUNT(*) FROM """
+        """SELECT COUNT(DISTINCT je.id) FROM """
         + db
         + """.journal_entry je
     INNER JOIN """
@@ -1766,6 +1818,9 @@ def __get_total_by_filter_query(db: str, filter: dict):
     INNER JOIN """
         + db
         + """.line_item li ON (li.journal_entry_id = je.id)
+    INNER JOIN """
+        + db
+        + """.account acc ON (li.account_id = acc.id)
     INNER JOIN """
         + db
         + """.fund_entity fe ON (le.fund_entity_id = fe.id)
@@ -1789,26 +1844,35 @@ def __get_total_by_filter_query(db: str, filter: dict):
                 query += " AND fe.uuid = %s "
             elif name == "clientId":
                 query += " AND fe.client_id = %s "
-            elif name == "ledgerIds":
+            elif name == "ledgerIds" and value:
                 query += f' AND le.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "entityIds":
-                query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+            elif name == "entityIds" and value:
+                if None in value:
+                    query += f' AND li.entity_id IS NULL '
+                else:
+                    query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
+                    params += tuple(value)
+                continue
+            elif name == "accountIds" and value:
+                query += f' AND acc.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
-            elif name == "accountIds":
-                query += f' AND li.account_id IN ({",".join(["%s"] * len(value))}) '
+            elif name == "fundIds" and value:
+                query += f' AND fe.uuid IN ({",".join(["%s"] * len(value))}) '
+                params += tuple(value)
+                continue
+            elif name == "journalEntryIds" and value:
+                query += f' AND je.uuid IN ({",".join(["%s"] * len(value))}) '
                 params += tuple(value)
                 continue
             else:
                 continue
 
-            params += (value, )
-
-    query += "GROUP BY je.id;"
-
+            params += (value,)
     return (query, params)
+
 
 def select_with_filter_paginated(
     db: str,
@@ -1816,7 +1880,8 @@ def select_with_filter_paginated(
     region_name: str,
     secret_name: str,
     page: int,
-    page_size: int
+    page_size: int,
+    sort: list = None
 ) -> list:
     """
     This function returns the record from the result of the "select by client id" query with its parameters.
@@ -1849,15 +1914,7 @@ def select_with_filter_paginated(
     if page and page_size:
         offset = (page - 1) * page_size
 
-    account_uuids = filter.pop("accountIds", None)
-    if account_uuids:
-        account_ids = []
-        for uuid in account_uuids:
-            account_ids.append(account.get_id_by_uuid(db, uuid, region_name, secret_name))
-
-        filter["accountIds"] = account_ids
-
-    params = __get_query_select_by_filter_paginated(db, filter, page_size, offset)
+    params = __get_query_select_by_filter_paginated(db, filter, page_size, offset, sort)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
@@ -1867,7 +1924,7 @@ def select_with_filter_paginated(
 
     record = (
         db_main.execute_single_record_select(conn, total_params)
-        or {"count": 0}
+        or {"COUNT": 0}
     )
 
     total_records = list(record.values())[0]
@@ -1908,3 +1965,64 @@ def select_numbers_by_ledger_uuid(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return [record["journal_entry_num"] for record in records]
+
+
+def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: list):
+    """
+    Generate a query that will return draft-state ledgers and accounts
+    related to a list of journal entry uuids
+    """
+    query = f"""
+        SELECT l.uuid as ledger_id, l.state as ledger_state, a.uuid as account_id,
+            a.state as account_state, je.uuid
+        FROM {db}.line_item li
+
+        INNER JOIN {db}.account a on a.id = li.account_id 
+        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id 
+        INNER JOIN {db}.ledger l on l.id = je.ledger_id 
+
+        WHERE (a.state != "POSTED" or l.state != "POSTED")
+            AND je.uuid in ({','.join(['%s'] * len(uuid_list))});"
+        GROUP BY je.id;
+    """
+
+    params = tuple(uuid_list)
+    return (query, params)
+
+def select_draft_accounts_and_ledgers_by_id_list(db: str, uuid_list: list, region_name: str, secret_name: str):
+    """
+    This function returns a list of objects to represent DRAFT accounts or ledgers associated with a journal entry
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid_list: string
+    A list of journal entry UUIDs
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing special objects to represent this case:
+    [
+        {
+            ledger_id: ledger uuid,
+            ledger_state: ["UNUSED", "DRAFT", "POSTED"]
+            account_id: account uuid
+            account_state: ["UNUSED", "DRAFT", "POSTED"]
+            uuid: journal entry uuid
+        }
+    ]
+    """
+
+    params = __select_draft_accounts_and_ledgers_by_id_list_query(db, uuid_list)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
