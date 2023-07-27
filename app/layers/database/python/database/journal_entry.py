@@ -29,6 +29,9 @@ app_to_db = {
     "currencyName": "currency",
     "currencyDecimal": "decimals",
     "fundId": "fund_entity_id",
+    "ledgerState": "ledger_state",
+    "accountState": "account_state",
+    "accountId": "account_id"
 }
 
 
@@ -1962,3 +1965,64 @@ def select_numbers_by_ledger_uuid(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return [record["journal_entry_num"] for record in records]
+
+
+def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: list):
+    """
+    Generate a query that will return draft-state ledgers and accounts
+    related to a list of journal entry uuids
+    """
+    query = f"""
+        SELECT l.uuid as ledger_id, l.state as ledger_state, a.uuid as account_id,
+            a.state as account_state, je.uuid
+        FROM {db}.line_item li
+
+        INNER JOIN {db}.account a on a.id = li.account_id 
+        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id 
+        INNER JOIN {db}.ledger l on l.id = je.ledger_id 
+
+        WHERE (a.state != "POSTED" or l.state != "POSTED")
+            AND je.uuid in ({','.join(['%s'] * len(uuid_list))});"
+        GROUP BY je.id;
+    """
+
+    params = tuple(uuid_list)
+    return (query, params)
+
+def select_draft_accounts_and_ledgers_by_id_list(db: str, uuid_list: list, region_name: str, secret_name: str):
+    """
+    This function returns a list of objects to represent DRAFT accounts or ledgers associated with a journal entry
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    uuid_list: string
+    A list of journal entry UUIDs
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+
+    return
+    A list containing special objects to represent this case:
+    [
+        {
+            ledger_id: ledger uuid,
+            ledger_state: ["UNUSED", "DRAFT", "POSTED"]
+            account_id: account uuid
+            account_state: ["UNUSED", "DRAFT", "POSTED"]
+            uuid: journal entry uuid
+        }
+    ]
+    """
+
+    params = __select_draft_accounts_and_ledgers_by_id_list_query(db, uuid_list)
+
+    conn = connection.get_connection(db, region_name, secret_name, "ro")
+
+    records = db_main.execute_multiple_record_select(conn, params)
+
+    return records
