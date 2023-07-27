@@ -53,6 +53,7 @@ class LedgersBulkStateStack(BaseStack):
             name="bulk_state_db",
             exclude=["update*", "state*", "put*", "bulk_state_qldb*"],
             env={
+                "SQS_QUEUE_URL": queue.queue_url,
                 "LOG_LEVEL": "INFO",
             },
         )
@@ -86,7 +87,9 @@ class LedgersBulkStateStack(BaseStack):
             name="bulk_state_qldb",
             description="ledger bulk state qldb",
             exclude=["update*", "state*", "put*", "bulk_state_db*"],
-
+            env={
+                "LOG_LEVEL": "INFO",
+            }
         )
 
         event_source = cdk.aws_lambda_event_sources.SqsEventSource(

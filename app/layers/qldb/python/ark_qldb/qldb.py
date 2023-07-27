@@ -142,13 +142,18 @@ class Driver:
 
 
     def insert_many_accounts(self, documents: []) -> None:
-        """Wrapper around account table for inserting document"""
+        """Wrapper around account table for inserting many documents"""
         self.insert_documents("account", documents)
 
 
     def insert_ledger(self, document: dict) -> None:
         """Wrapper around ledge table for inserting document"""
         self.insert_document("ledger", document)
+
+
+    def insert_many_ledgers(self, documents: []) -> None:
+        """Wrapper around account table for inserting many documents"""
+        self.insert_documents("ledger", documents)
 
 
     def insert_journal_entry(self, document: dict) -> None:
