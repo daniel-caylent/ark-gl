@@ -44,6 +44,11 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if journal_entry is None:
         return 404, {"detail": "No journal entry found."}
 
+    # remove ledger ID from the query if it doesn't change
+    if put.ledgerId == journal_entry["ledger_id"]:
+        put.ledgerId = None
+        del body["ledgerId"]
+
     ledgers_list = []
     if put.ledgerId:
         ledger = ledgers.select_by_id(put.ledgerId, translate=False)
