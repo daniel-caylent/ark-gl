@@ -1727,7 +1727,13 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
                 continue
             elif name == "entityIds" and value:
                 if None in value:
-                    query += f' AND li.entity_id IS NULL '
+                    query += f' AND (li.entity_id IS NULL '
+                    non_null = [v for v in value if v is not None]
+                    if non_null:
+                        query += f' OR li.entity_id IN ({",".join(["%s"] * len(non_null))}) '
+                        params += tuple(non_null)
+
+                    query += ") "
                 else:
                     query += f' AND li.entity_id IN ({",".join(["%s"] * len(value))}) '
                     params += tuple(value)
@@ -1911,6 +1917,8 @@ def select_with_filter_paginated(
         offset = (page - 1) * page_size
 
     params = __get_query_select_by_filter_paginated(db, filter, page_size, offset, sort)
+
+    print("QUERY PARAMS: ", params)
 
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
