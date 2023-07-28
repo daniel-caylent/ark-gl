@@ -6,6 +6,12 @@ def TestBase(paths: list[str]) -> object:
 
         def setup_class(self):
             print('base test setup ...')
+            if sys.modules.get('models'):
+                sys.modules.pop('models')
+            if sys.modules.get('shared'):
+                sys.modules.pop('shared')
+            if sys.modules.get('ark_qldb'):
+                sys.modules.pop('ark_qldb')
             add_to_path(paths)
 
         def teardown_class(self):

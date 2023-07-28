@@ -5,7 +5,6 @@ from . import db_main
 from . import connection
 from . import ledger
 from . import line_item
-from . import account
 from . import attachment
 from pymysql.cursors import Cursor, DictCursor
 from typing import Union

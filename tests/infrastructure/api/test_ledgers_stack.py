@@ -21,8 +21,8 @@ class TestLedgersStack(ApiTestBase):
 
         template = assertions.Template.from_stack(stack)
 
-        template.resource_count_is("AWS::ApiGateway::Resource", 3)
-        template.resource_count_is("AWS::ApiGateway::Method", 6)
-        template.resource_count_is("AWS::IAM::Role", 6)
-        template.resource_count_is("AWS::IAM::Policy", 6)
+        template.resource_count_is("AWS::ApiGateway::Resource", 5)
+        template.resource_count_is("AWS::ApiGateway::Method", 8)
+        template.resource_count_is("AWS::IAM::Role", 8)
+        template.resource_count_is("AWS::IAM::Policy", 8)
 

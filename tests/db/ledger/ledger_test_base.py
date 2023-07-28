@@ -1,8 +1,7 @@
 from pathlib import PurePath
 
 from tests.test_base import TestBase
-from tests.utils import APP_DIR
+from tests.utils import APP_SHARED_LAYER
 
-MODELS = str(PurePath(APP_DIR, 'layers', 'database', 'python', 'database', 'ledger'))
-PATHS = [MODELS]
+PATHS = [APP_SHARED_LAYER]
 LedgerTestBase = TestBase(PATHS)

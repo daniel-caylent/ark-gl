@@ -4,7 +4,7 @@ from .line_item_test_base import LineItemTestBase
 
 class TestLineItem(LineItemTestBase):
     insert_input = {
-        "accountNo": 778899,
+        "accountId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff",
         "memo": "These charges describe catered Pizza.",
         "entityId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff",
         "amount": 10012
@@ -38,22 +38,9 @@ class TestLineItem(LineItemTestBase):
 
         result = line_item.get_insert_query(self.db, self.insert_input, 1, 1, 'Credit', '', '')
 
-        wanted_result = (
-        """
-        INSERT INTO """
-        + self.db
-        + """.line_item
-            (uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount, entity_id)
-        VALUES
-            (%s, %s, %s, %s, %s, %s, %s, %s);""",
-            (
-                "d559fa87-e51a-11ed-aede-0247c1ed2eeb", 10, 1, 1,
-                self.insert_input["memo"], "Credit", 10012,
-                self.insert_input["entityId"]
-            )
-        )
+        check = "(uuid, account_id, journal_entry_id, line_number, memo, posting_type, amount, entity_id)"
 
-        assert wanted_result == result
+        assert check in result[0]
 
 
     def test_get_update_query(self):

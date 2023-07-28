@@ -28,12 +28,11 @@ class TestLambdaRestoreStack(DrTestBase):
             app,
             "cdk",
             bucket=fake_stack.mock_bucket,
-            queue=fake_stack.mock_queue,
             env=self.__class__.cdk_env,
         )
         template = assertions.Template.from_stack(stack)
 
-        template.resource_count_is("AWS::IAM::Policy", 3)
-        template.resource_count_is("AWS::Lambda::Function", 1)
-        template.resource_count_is("AWS::IAM::Role", 1)
+        template.resource_count_is("AWS::IAM::Policy", 7)
+        template.resource_count_is("AWS::Lambda::Function", 2)
+        template.resource_count_is("AWS::IAM::Role", 2)
         template.resource_count_is("AWS::Lambda::EventSourceMapping", 1)

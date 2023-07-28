@@ -20,8 +20,8 @@ class TestAccountsStack(ApiTestBase):
 
         template = assertions.Template.from_stack(stack)
 
-        template.resource_count_is("AWS::ApiGateway::Resource", 4)
-        template.resource_count_is("AWS::ApiGateway::Method", 7)
-        template.resource_count_is("AWS::IAM::Role", 7)
-        template.resource_count_is("AWS::IAM::Policy", 7)
+        template.resource_count_is("AWS::ApiGateway::Resource", 7)
+        template.resource_count_is("AWS::ApiGateway::Method", 10)
+        template.resource_count_is("AWS::IAM::Role", 10)
+        template.resource_count_is("AWS::IAM::Policy", 10)
 

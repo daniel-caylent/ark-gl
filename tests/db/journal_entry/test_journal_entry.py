@@ -17,41 +17,28 @@ class TestJournalEntry(JournalEntryTestBase):
             "documentMemo": "Scanned Receipt for Office Taco Party."
             }
         ],
-        "debitEntries": [
+        "lineItems": [
             {
                 "lineItemNo": 1,
-                "accountNo": 778899,
-                "entryMemo": "These charges describe catered Pizza.",
-                "VendorCustomerPartner": {
-                    "VCPtype": "Vendor",
-                    "VCPId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff"
-                },
-                "amount": 10012
-            }
-        ],
-        "creditEntries": [
+                "accountId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524e321",
+                "memo": "These charges describe catered Pizza.",
+                "entityId": None,
+                "amount": 10012,
+                "type": "CREDIT"
+            },
             {
                 "lineItemNo": 2,
-                "accountNo": 338899,
-                "entryMemo": "These charges describe catered Pizza.",
-                "VendorCustomerPartner": {
-                    "VCPtype": "Vendor",
-                    "VCPId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524ffff"
-                },
-                "amount": 10012
+                "accountId": "fb84c7c6-9f62-11ed-8cf5-0ed8d524e321",
+                "memo": "These charges describe catered Pizza.",
+                "entityId": None,
+                "amount": 10012,
+                "type": "DEBIT"
             }
         ]
     }
 
     update_input = {
-        "ledgerId": "ledger-12345",
-        "debitEntries": [
-            {
-                "lineItemNo": 1,
-                "accountNo": 778899,
-                "entryMemo": "These charges describe catered Burgers."
-            }
-        ]
+        "ledgerId": "ledger-12345"
     }
 
     max_diff = None
@@ -59,17 +46,19 @@ class TestJournalEntry(JournalEntryTestBase):
     db = "ARKGL"
 
     def test_insert(self, monkeypatch):
+
         import app.layers.database.python.database.journal_entry as journal_entry
         import app.layers.database.python.database.line_item as line_item
         import app.layers.database.python.database.connection as connection
-
-        def get_inserted_query(db, debit_entry, journal_entry_id, type, region_name, secret_name):
-            return (None, None)
-
+        import app.layers.database.python.database.account as account
+         
+        def account_get_by_uuid(*args):
+            return 1
+        
         def get_insert_query_journal_entry(db, input, region_name, secret_name):
             return (None, None, 'journal-123456')
 
-        monkeypatch.setattr(line_item, 'get_insert_query', get_inserted_query)
+        monkeypatch.setattr(account, 'get_id_by_uuid', account_get_by_uuid)
         monkeypatch.setattr(journal_entry, '__get_insert_query', get_insert_query_journal_entry)
         monkeypatch.setattr(connection, 'get_connection', Mock())
 
@@ -103,20 +92,23 @@ class TestJournalEntry(JournalEntryTestBase):
         import app.layers.database.python.database.journal_entry as journal_entry
         import app.layers.database.python.database.line_item as line_item
         import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account as account
 
         def select_numbers_by_journal(db, id, region_name, secret_name):
             return [{"line_number": 1, "data": "test"}, {"line_number": 2, "data": "test2"}]
 
-        def get_update_query(db, line_uuid, debit_entry):
-            return (None, None)
-
-        def get_update_query_journal_entry(db, uuid, input):
-            return ('UPDATE', ('1','2'), 'journal-123456')
+        def record_get(*args):
+            return {
+                "journal_entry_num": 1
+            }
+        def account_get_by_uuid(*args):
+            return 1
 
         monkeypatch.setattr(line_item, 'select_numbers_by_journal', select_numbers_by_journal)
-        monkeypatch.setattr(line_item, 'get_update_query', get_update_query)
-        monkeypatch.setattr(journal_entry, '__get_update_query', get_update_query_journal_entry)
+        monkeypatch.setattr(account, 'get_id_by_uuid', account_get_by_uuid)
         monkeypatch.setattr(connection, 'get_connection', Mock())
+        monkeypatch.setattr(db_main, 'execute_single_record_select', record_get)
 
         result = journal_entry.update(self.db, 'journal-123456', self.update_input, '', '')
 

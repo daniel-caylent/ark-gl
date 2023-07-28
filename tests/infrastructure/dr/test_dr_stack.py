@@ -18,8 +18,7 @@ class TestDrStack(DrTestBase):
         template = assertions.Template.from_stack(stack)
 
         template.resource_count_is("AWS::S3::Bucket", 1)
-        template.resource_count_is("AWS::IAM::Policy", 8)
-        template.resource_count_is("AWS::Lambda::Function", 2)
-        template.resource_count_is("AWS::IAM::Role", 3)
-        template.resource_count_is("AWS::SQS::Queue", 1)
+        template.resource_count_is("AWS::IAM::Policy", 4)
+        template.resource_count_is("AWS::Lambda::Function", 1)
+        template.resource_count_is("AWS::IAM::Role", 2)
         template.resource_count_is("AWS::Events::Rule", 1)

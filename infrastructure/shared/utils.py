@@ -19,7 +19,7 @@ LOCAL_LAYERS_DIR = str(PurePath(THIS_DIRECTORY.parent, "shared", "layers"))
 def get_stack_prefix() -> str:
     DEPLOYMENT_ENV = "DEPLOYMENT_ENV"
     return (
-        os.getenv(DEPLOYMENT_ENV) + "-" if os.getenv(DEPLOYMENT_ENV).lower() is not None else ""
+        os.getenv(DEPLOYMENT_ENV).lower() + "-" if os.getenv(DEPLOYMENT_ENV) is not None else ""
     )
 
 
