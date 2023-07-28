@@ -1,5 +1,8 @@
+from pathlib import PurePath
 from pyqldb.cursor.buffered_cursor import BufferedCursor
-from .qldb_test_base import QldbTestBase
+
+from tests.test_base import TestBase
+from tests.utils import APP_ARK_QLDB_LAYER
 
 import app.layers.qldb.python.ark_qldb.qldb as qldb
 
@@ -7,7 +10,7 @@ class MockDriver(qldb.Driver):
     def _Driver__execute_single_query(self, query: str, *args) -> list:
         return [query, *args]
 
-class TestQldb(QldbTestBase):
+class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
     def test_create_table(self, monkeypatch):
         import app.layers.qldb.python.ark_qldb.qldb as qldb

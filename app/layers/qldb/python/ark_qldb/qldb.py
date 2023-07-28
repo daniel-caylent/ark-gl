@@ -8,7 +8,6 @@ from pyqldb.cursor.buffered_cursor import BufferedCursor
 
 logger = getLogger(__name__)
 
-
 class Driver:
     """Driver to handle QLDB Ledgers access"""
     def __init__(

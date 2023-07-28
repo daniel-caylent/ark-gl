@@ -31,7 +31,6 @@ class TestJournalEntriesExport(TestBase(PATHS)):
         monkeypatch.setattr(boto3, "client", lambda service: Boto3Mocked())
 
         result = handler(request, LambdaContext())
-        print(result)
         assert 201 == result['statusCode']
 
 

@@ -48,7 +48,6 @@ def handler(event, context) -> tuple[int, dict]:
                     )
 
         driver = qldb.Driver(ledger_name, region_name=region)
-
         try:
             for doc in docs_to_insert:
                 driver.execute_custom_query(doc["statement"], doc["data"])
