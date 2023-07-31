@@ -22,7 +22,7 @@ def get_journal_entries_shared_layer(context):
         context,
         dir,
         "journal_entries_shared",
-        description="Lambda layer with shared modules for Journal Entries, logging, and error handling",
+        description="Lambda layer with shared modules for Journal Entries",
     )
 
 def get_database_layer(context):

@@ -8,7 +8,7 @@ from arkdb import journal_entries, ledgers, accounts
 from models import BulkJournalEntryPost, BulkLineItemPost, LineItemPost, AttachmentPost, JournalEntryPost
 from validate_new_journal_entry import sum_line_items
 from shared import endpoint, dataclass_error_to_str
-from shared.s3 import download_from_s3
+from shared.s3_utils import download_from_s3
 # pylint: enable=import-error
 
 

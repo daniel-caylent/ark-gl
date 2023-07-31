@@ -8,7 +8,7 @@ from arkdb import accounts
 from models import BulkAccountPost
 from validate_new_account import validate_new_account
 from shared import endpoint, dataclass_error_to_str
-from shared.s3 import download_from_s3
+from shared.s3_utils import download_from_s3
 # pylint: enable=import-error
 
 

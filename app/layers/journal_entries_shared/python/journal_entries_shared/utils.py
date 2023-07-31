@@ -1,4 +1,4 @@
-"""Utility file to perform shared calculations for JournalEntries"""
+"""Utility file for JournalEntries"""
 
 def calculate_attachments(att_list, journal_entry_id):
     return [
