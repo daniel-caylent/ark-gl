@@ -158,3 +158,8 @@ class Driver:
     def insert_journal_entry(self, document: dict) -> None:
         """Wrapper around journal entry table for inserting document"""
         self.insert_document("journal_entry", document)
+
+
+    def insert_many_journal_entries(self, documents: []) -> None:
+        """Wrapper around account table for inserting many documents"""
+        self.insert_documents("journal_entry", documents)

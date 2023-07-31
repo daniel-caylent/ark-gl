@@ -45,6 +45,8 @@ def post_many(table_name: str, contents: []):
         driver.insert_many_accounts(contents)
     if table_name == "ledger":
         driver.insert_many_ledgers(contents)
+    if table_name == "journal-entry":
+        driver.insert_many_journal_entries(contents)
     else:
         raise Exception("Invalid table name.")
 
