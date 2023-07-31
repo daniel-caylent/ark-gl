@@ -7,3 +7,4 @@ from .delete_stack import JournalEntriesDeleteStack
 from .bulk_delete_stack import JournalEntriesBulkDeleteStack
 from .upload_stack import JournalEntriesUploadStack
 from .bulk_export import JournalEntriesBulkExportStack
+from .bulk_state_stack import JournalEntriesBulkStateStack
