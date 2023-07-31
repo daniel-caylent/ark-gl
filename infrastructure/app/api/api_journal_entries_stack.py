@@ -32,6 +32,7 @@ class JournalEntriesStack(BaseStack):
         journal_upload_resource = journal_entry_resource.add_resource("upload")
         journal_delete_resource = journal_entry_resource.add_resource("delete")
         journal_export_resource = journal_entry_resource.add_resource("export")
+        journal_bulk_state_resource = journal_entry_resource.add_resource("state")
         journal_entry_id_resource = journal_entry_resource.add_resource(
             "{journalEntryId}"
         )
@@ -46,6 +47,8 @@ class JournalEntriesStack(BaseStack):
         self.__register_journal_entry_upload_method(journal_upload_resource)
         self.__register_journal_entry_bulk_delete_method(journal_delete_resource)
         self.__register_journal_entry_export_method(journal_export_resource)
+        self.__register_journal_entry_bulk_state_method(journal_bulk_state_resource)
+
 
     def __register_journal_entry_get_by_id_method(self, resource):
         ark_journal_entry_get_function_arn = get_imported_value(
@@ -200,6 +203,7 @@ class JournalEntriesStack(BaseStack):
 
         self.methods.append(method)
 
+
     def __register_journal_entry_upload_method(self, resource):
         ark_journal_entry_upload_function_arn = get_imported_value(
             self.STACK_PREFIX + "ark-journal-entries-upload-function-arn"
@@ -216,5 +220,23 @@ class JournalEntriesStack(BaseStack):
         )
 
         method = resource.add_method("POST", lambda_integration)
+
+        self.methods.append(method)
+
+
+    def __register_journal_entry_bulk_state_method(self, resource):
+        ark_journal_entries_bulk_state_function_arn = get_imported_value(
+            self.STACK_PREFIX + "ark-journal-entries-bulk-state-function-arn"
+        )
+
+        lambda_function = get_lambda_function_from_arn(
+            self, "ark-journal-entries-bulk-state-function-arn", ark_journal_entries_bulk_state_function_arn
+        )
+
+        lambda_integration = build_lambda_integration(
+            self, lambda_function, self.STACK_PREFIX + "journal-entries-bulk-state"
+        )
+
+        method = resource.add_method("PUT", lambda_integration)
 
         self.methods.append(method)
