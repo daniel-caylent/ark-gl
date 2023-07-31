@@ -15,6 +15,15 @@ def get_shared_layer(context):
         description="Lambda layer with code responses, logging, and error handling",
     )
 
+def get_journal_entries_shared_layer(context):
+    dir = str(PurePath(LAYERS_DIR, "journal_entries_shared"))
+
+    return build_lambda_layer(
+        context,
+        dir,
+        "journal_entries_shared",
+        description="Lambda layer with shared modules for Journal Entries, logging, and error handling",
+    )
 
 def get_database_layer(context):
     dir = str(PurePath(LAYERS_DIR, "database"))

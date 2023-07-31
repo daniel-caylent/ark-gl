@@ -10,7 +10,8 @@ from shared.layers import (
     get_shared_layer,
     get_database_layer,
     get_qldb_layer,
-    get_pyqldb_layer
+    get_pyqldb_layer,
+    get_journal_entries_shared_layer
 )
 from shared.utils import JOURNAL_ENTRIES_DIR, get_stack_prefix
 
@@ -22,10 +23,6 @@ CODE_DIR = str(PurePath(JOURNAL_ENTRIES_DIR, "put"))
 class JournalEntriesBulkStateStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
-
-        shared_layer = get_shared_layer(self)
-        pymysql_layer = get_pymysql_layer(self)
-        db_layer = get_database_layer(self)
 
         dead_letter_queue = cdk.aws_sqs.Queue(
             self,
@@ -44,11 +41,16 @@ class JournalEntriesBulkStateStack(BaseStack):
             )
         )
 
+        shared_layer = get_shared_layer(self)
+        pymysql_layer = get_pymysql_layer(self)
+        db_layer = get_database_layer(self)
+        journal_entries_shared_layer = get_journal_entries_shared_layer(self)
+
         lambda_function_state_db = build_lambda_function(
             self,
             CODE_DIR,
             handler="bulk_state_db.handler",
-            layers=[shared_layer, pymysql_layer, db_layer],
+            layers=[shared_layer, pymysql_layer, db_layer, journal_entries_shared_layer],
             description="journal entries bulk state db",
             name="bulk_state_db",
             exclude=["update*", "state*", "put*", "bulk_state_qldb*"],

@@ -1981,9 +1981,9 @@ def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: lis
             a.state as account_state, je.uuid
         FROM {db}.line_item li
 
-        INNER JOIN {db}.account a on a.id = li.account_id 
-        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id 
-        INNER JOIN {db}.ledger l on l.id = je.ledger_id 
+        INNER JOIN {db}.account a on a.id = li.account_id
+        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id
+        INNER JOIN {db}.ledger l on l.id = je.ledger_id
 
         WHERE (a.state != "POSTED" or l.state != "POSTED")
             AND je.uuid in ({','.join(['%s'] * len(uuid_list))});"
@@ -2030,3 +2030,52 @@ def select_draft_accounts_and_ledgers_by_id_list(db: str, uuid_list: list, regio
     records = db_main.execute_multiple_record_select(conn, params)
 
     return records
+
+
+def bulk_state(db: str, ledger_ids: list, region_name: str, secret_name: str) -> None:
+    """
+    This function updates the state and the post_date of a list of ledgers
+
+    db: string
+    This parameter specifies the db name where the query will be executed
+
+    ledger_ids: list
+    This parameter specifies the uuid list of the ledgers that will be commited
+
+    region_name: string
+    This parameter specifies the region where the query will be executed
+
+    secret_name: string
+    This parameter specifies the secret manager key name that will contain all
+    the information for the connection including the credentials
+    """
+
+    input_ = {
+        "state": "",
+        "postDate": "",
+    }
+    params = __get_update_query(db, -1, input_, region_name, secret_name)
+    state_query = params[0]
+
+    conn = connection.get_connection(db, region_name, secret_name)
+    cursor = conn.cursor(DictCursor)
+
+    try:
+        state_query_params = []
+        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for id_ in ledger_ids:
+            state_query_params.append([
+                "POSTED",
+                post_date,
+                id_
+            ])
+
+        cursor.executemany(state_query, state_query_params)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        cursor.close()

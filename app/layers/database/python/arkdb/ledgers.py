@@ -93,5 +93,5 @@ def bulk_state(ledgers_list):
 
 def bulk_delete(ledgers_list):
     """Delete multiple ledgers from a list of UUIDs"""
-    result = __bulk_delete(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)
-    return result
+    __bulk_delete(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)
+

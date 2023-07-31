@@ -8,6 +8,7 @@ from shared.layers import (
     get_pymysql_layer,
     get_shared_layer,
     get_database_layer,
+    get_journal_entries_shared_layer
 )
 from shared.utils import JOURNAL_ENTRIES_DIR
 
@@ -23,12 +24,13 @@ class JournalEntriesGetStack(BaseStack):
         shared_layer = get_shared_layer(self)
         pymysql_layer = get_pymysql_layer(self)
         db_layer = get_database_layer(self)
+        journal_entries_shared_layer = get_journal_entries_shared_layer(self)
 
         lambda_function = build_lambda_function(
             self,
             CODE_DIR,
             handler="get.handler",
-            layers=[shared_layer, pymysql_layer, db_layer],
+            layers=[shared_layer, pymysql_layer, db_layer, journal_entries_shared_layer],
             description="journal entries get",
             exclude=["get_by_id.py"],
         )

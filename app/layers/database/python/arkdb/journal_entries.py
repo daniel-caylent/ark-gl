@@ -20,6 +20,7 @@ from database.journal_entry import (
     update,
     delete,
     commit,
+    bulk_state as __bulk_state
 )
 from database.line_item import (
     app_to_db as line_app_to_db,
@@ -232,3 +233,7 @@ def bulk_delete(ids):
 def select_numbers_in_ledger(uuid):
     numbers = select_numbers_by_ledger_uuid(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
     return numbers
+
+def bulk_state(ledgers_list):
+    """Update the state of multiple journal entries from a list"""
+    __bulk_state(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)

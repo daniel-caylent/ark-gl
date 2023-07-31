@@ -7,6 +7,7 @@ import boto3
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries
+from journal_entries_shared import utils as je_utils
 from shared import endpoint, dataclass_error_to_str, filtering
 # pylint: enable=import-error
 
@@ -41,9 +42,9 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         for journal_entry in data_results:
             journal_entry_id = journal_entry.pop("id")
 
-            journal_entry["lineItems"] = __calculate_line_items(lines_list, journal_entry_id)
+            journal_entry["lineItems"] = je_utils.calculate_line_items(lines_list, journal_entry_id)
 
-            journal_entry["attachments"] = __calculate_attachments(att_list, journal_entry_id)
+            journal_entry["attachments"] = je_utils.calculate_attachments(att_list, journal_entry_id)
 
     s3_bucket = os.getenv("EXPORT_BUCKET_NAME")
     s3_key = f'journal_entries/{str(uuid.uuid4())}.txt'
@@ -61,35 +62,3 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     )
 
     return 201, {"s3SignedUrl": s3_signed_url}
-
-
-def __calculate_attachments(att_list, journal_entry_id):
-    return [
-        {
-            key: value
-            for key, value in entry.items()
-            if key != "journal_entry_id"
-        }
-        for entry in list(
-            filter(
-                lambda att: att["journal_entry_id"] == journal_entry_id,
-                att_list,
-            )
-        )
-    ]
-
-
-def __calculate_line_items(lines_list, journal_entry_id):
-    return [
-        {
-            key: value
-            for key, value in entry.items()
-            if key != "journal_entry_id"
-        }
-        for entry in list(
-            filter(
-                lambda line: line["journal_entry_id"] == journal_entry_id,
-                lines_list,
-            )
-        )
-    ]

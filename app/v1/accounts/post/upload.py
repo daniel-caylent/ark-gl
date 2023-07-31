@@ -4,16 +4,16 @@ This Lambda is responsible for serving the journal entries POST request
 import json
 
  # pylint: disable=import-error; Lambda layer dependency
-from arkdb import account_attributes, accounts
+from arkdb import accounts
 from models import BulkAccountPost
 from validate_new_account import validate_new_account
 from shared import endpoint, dataclass_error_to_str
-from shared.bulk import download_from_s3
+from shared.s3 import download_from_s3
 # pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters 
+def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
     """Handler for the journal entries upload request
 
     event: dict
@@ -21,7 +21,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     cary the POST request as a JSON string
 
     context: LambdaContext
-    Context about the instance of the lambda function 
+    Context about the instance of the lambda function
     """
 
     # validate the request body
@@ -33,19 +33,19 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     s3_url = body.get("signedS3Url")
     if not s3_url:
         return 400, {"detail": "Missing s3 URL."}
-    
+
     # download from s3
     try:
         download = download_from_s3(s3_url)
         if download is None:
             return 400, {"detail": "Unable to download from S3."}
-    except:
+    except Exception:
         return 400, {"detail": "Unable to download from S3."}
-  
+
     # validate json from file
     try:
         json_dict = json.loads(download)
-    except:
+    except Exception:
         return 400, {"detail": "File contains invalid JSON."}
 
     accounts_list = json_dict.get("accounts")
@@ -74,7 +74,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
         if code != 201:
             return code, {"detail": detail}
-        
+
         post_entries.append({**post, "parentAccountName": parent, "fsMappingName": fs_mapping})
 
     # insert the new account
@@ -92,9 +92,9 @@ def __validate_account_names_and_numbers(accounts_list):
     for account in accounts_list:
         if account["fundId"] not in fund_lookup:
             fund_lookup[account["fundId"]] = []
-        
+
         fund_lookup[account["fundId"]] += [account]
-    
+
     for fund in fund_lookup.values():
         name_list = []
         number_list = []
@@ -103,7 +103,7 @@ def __validate_account_names_and_numbers(accounts_list):
                 name_list.append(account["accountName"])
             else:
                 return False, f"Duplicate account name: {account['accountName']}"
-            
+
             if account["accountNo"] not in number_list:
                 number_list.append(account["accountNo"])
             else:

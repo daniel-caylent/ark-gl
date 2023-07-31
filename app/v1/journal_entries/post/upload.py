@@ -8,7 +8,7 @@ from arkdb import journal_entries, ledgers, accounts
 from models import BulkJournalEntryPost, BulkLineItemPost, LineItemPost, AttachmentPost, JournalEntryPost
 from validate_new_journal_entry import sum_line_items
 from shared import endpoint, dataclass_error_to_str
-from shared.bulk import download_from_s3
+from shared.s3 import download_from_s3
 # pylint: enable=import-error
 
 
@@ -43,13 +43,13 @@ def handler(
         download = download_from_s3(s3_url)
         if download is None:
             return 400, {"detail": "Unable to download from S3."}
-    except:
+    except Exception:
         return 400, {"detail": "Unable to download from S3."}
 
     # validate json from file
     try:
         json_dict = json.loads(download)
-    except:
+    except Exception:
         return 400, {"detail": "File contains invalid JSON."}
 
     journal_entries_list = json_dict.get("journalEntries")
@@ -241,7 +241,7 @@ def __add_account_ids_to_line_items(journal_entry_list):
             if account is None:
                 raise Exception(f"Unable to locate account by name: {account_name}")
             new_line_items.append({**item, "accountId": account["uuid"]})
-            
+
             if not return_accounts_dict.get(account["uuid"]):
                 return_accounts_dict[account["uuid"]] = account
         new_list.append({**entry, "lineItems": new_line_items})
