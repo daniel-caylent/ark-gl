@@ -54,6 +54,7 @@ def handler(
                 + ".\nRecord exists in QLDB and not in Aurora",
             )
             processed_success = False
+
         else:
             for current_key in current_row.keys():
                 if current_key not in aurora_record:
@@ -64,6 +65,7 @@ def handler(
                         "Key " + str(current_key) + " does not exist in Aurora",
                     )
                     processed_success = False
+
                 else:
                     if current_key in IGNORE_NAMES:
                         continue
@@ -113,5 +115,8 @@ def handler(
             + " vs QLDB "
             + str(len(processed_list)),
         )
+
+    if not processed_success:
+        return 400, {}
 
     return 200, {}

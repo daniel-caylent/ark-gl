@@ -2,7 +2,7 @@
 import json
 
 # pylint: disable=import-error; Lambda layer dependency
-import ark_qldb
+from ark_qldb.post import post_many
 from shared import endpoint, dataclass_encoder, logging
 # pylint: enable=import-error
 
@@ -21,7 +21,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     for account in body['accounts']:
         encoded_accounts.append(dataclass_encoder.encode(account))
 
-    ark_qldb.post_many("account", encoded_accounts)
+    post_many("account", encoded_accounts)
 
     message_id = event['Records'][0]['messageId']
 

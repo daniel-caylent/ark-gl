@@ -1644,7 +1644,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
     """
-    import ark_qldb
+    from ark_qldb.post import post
     
     input_ = {
         "state": "POSTED",
@@ -1663,7 +1663,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
 
         # Then, inserting into QLDB
         account_ = select_by_uuid_with_cursor(db, id_, cursor)
-        ark_qldb.post("account", dataclass_encoder.encode(account_))
+        post("account", dataclass_encoder.encode(account_))
 
         conn.commit()
     except Exception as e:

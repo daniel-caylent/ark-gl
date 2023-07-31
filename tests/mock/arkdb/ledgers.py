@@ -1,3 +1,5 @@
+import datetime
+
 def select_by_fund_id(fund_id):
     return [
     {
@@ -38,6 +40,21 @@ def select_by_client_id(client_id):
 def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return None
+    elif id == "d9bc1a3f-0bb7-11ee-b49c-0a3efd619f29":
+        return {
+                    "id": 130,
+                    "uuid": "d9bc1a3f-0bb7-11ee-b49c-0a3efd619f29",
+                    "fund_entity_id": "b5e9488f-24cb-4881-87df-b05f76cbe1b9",
+                    "name": "Franco - Parent fdsfdfdas",
+                    "description": "Franco parent, sub sub test",
+                    "post_date": "2023-06-15 20:04:51",
+                    "state": "POSTED",
+                    "is_hidden": 0,
+                    "currency": "USD",
+                    "decimals": 2,
+                    "created_at": datetime.datetime.strptime("2023-06-15 20:04:35", "%Y-%m-%d %H:%M:%S")
+                }
+
     if not translate:
         return {
           "fund_entity_id": "17d67c61-e9de-11ed-9a6e-0a3efd619f29",
@@ -123,3 +140,6 @@ def commit_by_id(*args):
 
 def bulk_delete(ids_):
     return None
+
+def select_count_commited_ledgers():
+    return {"count(*)": 1}
