@@ -87,9 +87,9 @@ def commit_by_id(ledger_uuid) -> None:
     """Commit an existing ledger"""
     commit(DB_NAME, ledger_uuid, REGION_NAME, SECRET_NAME)
 
-def bulk_state(ledgers_list):
+def bulk_state(ledgers_list: [], post_date: str):
     """Update the state of multiple accounts from a list"""
-    __bulk_state(DB_NAME, ledgers_list, REGION_NAME, SECRET_NAME)
+    __bulk_state(DB_NAME, ledgers_list, post_date, REGION_NAME, SECRET_NAME)
 
 def bulk_delete(ledgers_list):
     """Delete multiple ledgers from a list of UUIDs"""

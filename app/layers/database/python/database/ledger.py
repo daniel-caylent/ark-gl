@@ -172,7 +172,7 @@ def __get_by_uuid_query(db: str, uuid: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.post_date, le.state, 
+                le.name, le.description, le.post_date, le.state,
                 le.currency, le.decimals, le.created_at
         FROM """
         + db
@@ -205,7 +205,7 @@ def __get_by_fund_query(db_: str, fund_id: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, 
+                le.name, le.description, le.state,
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -240,7 +240,7 @@ def __get_by_name_query(db_: str, ledger_name: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, 
+                le.name, le.description, le.state,
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -273,7 +273,7 @@ def __get_by_client_id_query(db_: str, client_id: str) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, 
+                le.name, le.description, le.state,
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -727,7 +727,7 @@ def __get_by_multiple_uuids_query(db: str, uuids_list: list) -> tuple:
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, 
+                le.name, le.description, le.state,
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db
@@ -795,7 +795,7 @@ def __get_by_fund_and_name_query(db_: str, fund_uuid: str, ledger_name: str) -> 
     query = (
         """
         SELECT  le.id, le.uuid, fe.uuid as fund_entity_id,
-                le.name, le.description, le.state, 
+                le.name, le.description, le.state,
                 le.currency, le.decimals, le.created_at, le.post_date
         FROM """
         + db_
@@ -965,9 +965,9 @@ def bulk_delete(db: str, ids: list, region_name: str, secret_name: str) -> None:
     except Exception as e:
         conn.rollback()
         raise Exception(f"Unable to delete ledger: {id_}")
-    
 
-def bulk_state(db: str, ledger_ids: list, region_name: str, secret_name: str) -> None:
+
+def bulk_state(db: str, ledger_ids: list, post_date: str, region_name: str, secret_name: str) -> None:
     """
     This function updates the state and the post_date of a list of ledgers
 
@@ -997,7 +997,6 @@ def bulk_state(db: str, ledger_ids: list, region_name: str, secret_name: str) ->
 
     try:
         state_query_params = []
-        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for id_ in ledger_ids:
             state_query_params.append([
                 "POSTED",
