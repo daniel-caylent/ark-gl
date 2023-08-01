@@ -17,8 +17,6 @@ JE_BULK_STATE_BUCKET = os.getenv("JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME")
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
 
-    print(event)
-
     try:
         # This lambda is configured to receive only a single record at time,
         # so it is safe to access [0]

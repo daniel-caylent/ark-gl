@@ -85,9 +85,9 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         except Exception as e:
             return 500, {"detail": f"An error occurred when updating the state of the journal entries: {str(e)}"}
 
-        for idx in enumerate(data_results):
-            data_results[idx]['state'] = 'POSTED'
-            data_results[idx]['post_date'] = post_date
+        for data in data_results:
+            data['state'] = 'POSTED'
+            data['post_date'] = post_date
 
         chunks = [data_results[i:i+40] for i in range(0, len(data_results), 40)]
 

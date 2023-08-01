@@ -46,9 +46,9 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         return 500, {"detail": f"An error occurred when updating the state of the ledgers: {str(e)}"}
 
-    for idx in enumerate(ledger_objects):
-        ledger_objects[idx]['state'] = 'POSTED'
-        ledger_objects[idx]['post_date'] = post_date
+    for data in ledger_objects:
+        data['state'] = 'POSTED'
+        data['post_date'] = post_date
 
     target_queue_url = os.getenv("SQS_QUEUE_URL")
 

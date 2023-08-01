@@ -1922,8 +1922,6 @@ def select_with_filter_paginated(
 
     params = __get_query_select_by_filter_paginated(db, filter, page_size, offset, sort)
 
-    print("QUERY PARAMS: ", params)
-
     conn = connection.get_connection(db, region_name, secret_name, "ro")
 
     records = db_main.execute_multiple_record_select(conn, params)
@@ -1990,7 +1988,7 @@ def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: lis
         INNER JOIN {db}.ledger l on l.id = je.ledger_id
 
         WHERE (a.state != "POSTED" or l.state != "POSTED")
-            AND je.uuid in ({','.join(['%s'] * len(uuid_list))});"
+            AND je.uuid in ({','.join(['%s'] * len(uuid_list))})
         GROUP BY je.id;
     """
 
