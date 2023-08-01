@@ -2,6 +2,7 @@
 import os
 import json
 import boto3
+from datetime import datetime
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import ledgers
@@ -38,11 +39,16 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
         ledger_objects.append(result)
 
+    post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     try:
-        ledgers.bulk_state(ledger_ids)
+        ledgers.bulk_state(ledger_ids, post_date)
     except Exception as e:
         return 500, {"detail": f"An error occurred when updating the state of the ledgers: {str(e)}"}
 
+    for idx in enumerate(ledger_objects):
+        ledger_objects[idx]['state'] = 'POSTED'
+        ledger_objects[idx]['post_date'] = post_date
 
     target_queue_url = os.getenv("SQS_QUEUE_URL")
 
