@@ -239,5 +239,5 @@ def bulk_state(ledgers_list: [], post_date: str):
     """Update the state of multiple journal entries from a list"""
     __bulk_state(DB_NAME, ledgers_list, post_date, REGION_NAME, SECRET_NAME)
 
-def select_draft_accounts_and_ledgers_by_id_list_query(uuid_list: [])
+def select_draft_accounts_and_ledgers_by_id_list_query(uuid_list: []):
     return __select_draft_accounts_and_ledgers_by_id_list(DB_NAME, uuid_list, REGION_NAME, SECRET_NAME)
