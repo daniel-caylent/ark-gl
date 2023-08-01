@@ -214,11 +214,11 @@ def commit_by_id(journal_uuid) -> None:
     commit(DB_NAME, journal_uuid, REGION_NAME, SECRET_NAME)
 
 
-def select_with_filter_paginated(filter, page=None, page_size=None, sort=None):
+def select_with_filter_paginated(filter, page=None, page_size=None, sort=None, translate=True):
     results = __select_with_filter_paginated(DB_NAME, filter, REGION_NAME, SECRET_NAME, page, page_size, sort)
 
     results = {
-        "data": translate_results(results[0], journal_app_to_db),
+        "data": translate_results(results[0], journal_app_to_db) if translate else results[0],
         "current_page": results[1],
         "total_pages": results[2],
         "total_items": results[3]

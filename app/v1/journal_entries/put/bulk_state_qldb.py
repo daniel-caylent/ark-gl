@@ -1,14 +1,23 @@
 """Lambda that will perform inserts for Journal Entries into QLDB"""
+import os
 import json
+
+import boto3
+
 
 # pylint: disable=import-error; Lambda layer dependency
 import ark_qldb
-from shared import endpoint, dataclass_encoder, logging
+from shared import endpoint, dataclass_encoder, logging, s3_utils
 # pylint: enable=import-error
 
+s3 = boto3.client('s3')
+
+JE_BULK_STATE_BUCKET = os.getenv("JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME")
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+
+    print(event)
 
     try:
         # This lambda is configured to receive only a single record at time,
@@ -17,19 +26,25 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         raise RuntimeError("The event does not contain valid json.") from e
 
-    encoded_journal_entries = []
-    for account in body['journalEntries']:
-        encoded_journal_entries.append(dataclass_encoder.encode(account))
+    s3_file_path = body['journalEntriesS3Path']
 
-    ark_qldb.post_many("journal_entry", encoded_journal_entries)
+    records = s3_utils.load_from_s3(s3, s3_file_path)
+    try:
+        encoded_journal_entries = []
+        for journal_entry in records:
+            encoded_journal_entries.append(dataclass_encoder.encode(journal_entry))
 
-    message_id = event['Records'][0]['messageId']
+        ark_qldb.post_many("journal_entry", encoded_journal_entries)
 
-    logging.write_log(
-        context,
-        "Informational",
-        "Journal Entries - QLDB Bulk State",
-        f'Inserted {len(body["journalEntries"])} journal entries in QLDB from message id {message_id}',
-    )
+        message_id = event['Records'][0]['messageId']
+
+        logging.write_log(
+            context,
+            "Informational",
+            "Journal Entries - QLDB Bulk State",
+            f'Inserted {len(records)} journal entries in QLDB from message id {message_id}',
+        )
+    finally:
+        s3_utils.delete_from_s3(s3, s3_file_path)
 
     return 200, {}

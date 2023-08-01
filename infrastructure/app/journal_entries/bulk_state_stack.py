@@ -24,6 +24,35 @@ class JournalEntriesBulkStateStack(BaseStack):
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
+        bucket_name = get_stack_prefix() + ENV['JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME']
+
+        self.bucket = cdk.aws_s3.Bucket(
+            self,
+            "ark-journal-entries-bulk-state-bucket",
+            bucket_name=bucket_name,
+            encryption=cdk.aws_s3.BucketEncryption.S3_MANAGED,
+            block_public_access=cdk.aws_s3.BlockPublicAccess.BLOCK_ALL,
+            versioned=True,
+            enforce_ssl=True,
+        )
+
+        je_bulk_state_actions_statement = cdk.aws_iam.PolicyStatement(
+            actions=[
+                "s3:*",
+            ],
+            resources=[
+                self.bucket.bucket_arn,
+                self.bucket.bucket_arn + "/*",
+            ],
+        )
+
+        je_bucket_policy = cdk.aws_iam.Policy(
+            self,
+            "ark-journal-entries-bulk-state-bucket-policy",
+            policy_name="ark-journal-entries-bulk-state-bucket-policy",
+            statements=[je_bulk_state_actions_statement],
+        )
+
         dead_letter_queue = cdk.aws_sqs.Queue(
             self,
             "ark-sqs-journal-entries-bulk-state-process-dl",
@@ -55,6 +84,7 @@ class JournalEntriesBulkStateStack(BaseStack):
             name="bulk_state_db",
             exclude=["update*", "state*", "put*", "bulk_state_qldb*"],
             env={
+                "JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME": bucket_name,
                 "SQS_QUEUE_URL": queue.queue_url,
                 "LOG_LEVEL": "INFO",
             },
@@ -77,6 +107,7 @@ class JournalEntriesBulkStateStack(BaseStack):
         )
 
         lambda_function_state_db.role.attach_inline_policy(state_policy)
+        lambda_function_state_db.role.attach_inline_policy(je_bucket_policy)
 
         qldb_layer = get_qldb_layer(self)
         qldb_reqs = get_pyqldb_layer(self)
@@ -90,6 +121,7 @@ class JournalEntriesBulkStateStack(BaseStack):
             description="journal entries bulk state qldb",
             exclude=["update*", "state*", "put*", "bulk_state_db*"],
             env={
+                "JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME": bucket_name,
                 "LOG_LEVEL": "INFO",
             }
         )
@@ -101,6 +133,7 @@ class JournalEntriesBulkStateStack(BaseStack):
         )
 
         lambda_function_state_qldb.add_event_source(event_source)
+        lambda_function_state_qldb.role.attach_inline_policy(je_bucket_policy)
 
         ledger_name = ENV["deploy"]["LEDGER_NAME"]
 

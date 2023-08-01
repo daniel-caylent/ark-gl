@@ -14,14 +14,14 @@ from shared import (
     s3_utils
 )
 from journal_entries_shared import utils as je_utils
-from models import JournalEntry
+#from models import JournalEntry
 # pylint: enable=import-error
 
 sqs = boto3.client('sqs')
 s3 = boto3.client('s3')
 
 
-JE_BULK_STATE_BUCKET = os.environ("JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME")
+JE_BULK_STATE_BUCKET = os.getenv("JOURNAL_ENTRIES_BULK_STATE_BUCKET_NAME")
 
 
 def __validate_journal_entries(journal_entry_ids: []):
@@ -41,7 +41,6 @@ def __validate_journal_entries(journal_entry_ids: []):
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
 
-    # validate the request body
     try:
         body = json.loads(event["body"])
     except Exception:
@@ -52,25 +51,25 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
-    results = journal_entries.select_with_filter_paginated(valid_input)
+    results = journal_entries.select_with_filter_paginated(valid_input, translate=False)
 
     data_results = results["data"]
     if data_results:
-        id_list = [str(journal["id"]) for journal in data_results]
 
-        error = __validate_journal_entries(id_list)
+        uuid_list = [str(journal["uuid"]) for journal in data_results]
+        error = __validate_journal_entries(uuid_list)
 
         if error:
             return error
+
+        id_list = [str(journal["id"]) for journal in data_results]
 
         lines_list = journal_entries.select_lines_by_journals(id_list)
         att_list = journal_entries.select_attachments_by_journals(id_list)
 
         for journal_entry in data_results:
             journal_entry_id = journal_entry.pop("id")
-
             journal_entry["lineItems"] = je_utils.calculate_line_items(lines_list, journal_entry_id)
-
             journal_entry["attachments"] = je_utils.calculate_attachments(att_list, journal_entry_id)
 
         try:
@@ -78,20 +77,19 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         except Exception as e:
             return 500, {"detail": f"An error occurred when updating the state of the journal entries: {str(e)}"}
 
-        #journal_entries_ = [JournalEntry(**result) for result in data_results]
-
-        chunks = [data_results['data'][i:i+40] for i in range(0, len(data_results['data']), 40)]
+        chunks = [data_results[i:i+40] for i in range(0, len(data_results), 40)]
 
         s3_filenames = []
 
-        for chunk in chunks:
-            s3_filenames = s3_utils.save_to_s3(s3, chunk, JE_BULK_STATE_BUCKET, context.aws_request_id)
+        for idx, chunk in enumerate(chunks):
+            s3_filename = s3_utils.save_to_s3(s3, chunk, JE_BULK_STATE_BUCKET, context.aws_request_id, str(idx))
+            s3_filenames.append(s3_filename)
 
         target_queue_url = os.getenv("SQS_QUEUE_URL")
 
         for s3_filename in s3_filenames:
             message = {
-                'journalEntries': s3_filename
+                'journalEntriesS3Path': s3_filename,
             }
             try:
                 response = sqs.send_message(
