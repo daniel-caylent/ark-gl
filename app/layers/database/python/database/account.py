@@ -1291,9 +1291,9 @@ def __get_recursive_childs_by_uuids_query(db: str, account_uuids: list) -> tuple
             UNION ALL
 
             SELECT a1.uuid, a1.account_no, a1.name, a1.id, pa1.uuid
-            FROM {db}.account a1  
+            FROM {db}.account a1
             LEFT JOIN account pa1 on pa1.id = a1.parent_id
-            INNER JOIN Children c ON c.id = a1.parent_id 
+            INNER JOIN Children c ON c.id = a1.parent_id
             )
             SELECT * from Children;
     """
@@ -1306,7 +1306,7 @@ def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tupl
     """
     query = f"""
         WITH RECURSIVE Parents(uuid, account_no, name, id, parent_inc_id, parent_id) AS (
-            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid 
+            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid
             FROM {db}.account a
             LEFT JOIN {db}.account pa on pa.id = a.parent_id
             WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
@@ -1314,9 +1314,9 @@ def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tupl
             UNION ALL
 
             SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.parent_id, pa1.uuid
-            FROM {db}.account a1  
+            FROM {db}.account a1
             LEFT JOIN {db}.account pa1 on pa1.id = a1.parent_id
-            INNER JOIN Parents p ON p.parent_inc_id = a1.id 
+            INNER JOIN Parents p ON p.parent_inc_id = a1.id
             )
             SELECT * from Parents;
     """
@@ -1485,7 +1485,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 parent_id = id_lookup.get(parent_name, {}).get("id")
                 if parent_id is None:
                     parent_id = get_id_by_name_and_fund(db, parent_name, fund_entity_uuid, region_name, secret_name)
-                
+
                 if parent_id is None:
                     error_count += 1
                     if error_count > len(input_list):
@@ -1499,7 +1499,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     continue
 
                 input_["parentAccountId"] = parent_id
-            
+
             fs_mapping_name = input_.get("fsMappingName")
             if fs_mapping_name:
                 fs_mapping_id = id_lookup.get(fs_mapping_name, {}).get("uuid")
@@ -1645,7 +1645,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     the information for the connection including the credentials
     """
     import ark_qldb
-    
+
     input_ = {
         "state": "POSTED",
         "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1673,7 +1673,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
         cursor.close()
 
 
-def bulk_state(db: str, account_ids: [], region_name: str, secret_name: str) -> None:
+def bulk_state(db: str, account_ids: [], post_date: str, region_name: str, secret_name: str) -> None:
     """
     This function updates the state and the post_date of a list of accounts
 
@@ -1703,7 +1703,6 @@ def bulk_state(db: str, account_ids: [], region_name: str, secret_name: str) -> 
 
     try:
         state_query_params = []
-        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for id_ in account_ids:
             state_query_params.append([
                 "POSTED",

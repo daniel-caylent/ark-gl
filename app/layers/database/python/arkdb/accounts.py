@@ -110,9 +110,9 @@ def bulk_delete(accounts_list):
     __bulk_delete(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
 
 
-def bulk_state(accounts_list):
+def bulk_state(accounts_list: [], post_date: str):
     """Update the state of multiple accounts from a list"""
-    __bulk_state(DB_NAME, accounts_list, REGION_NAME, SECRET_NAME)
+    __bulk_state(DB_NAME, accounts_list, post_date, REGION_NAME, SECRET_NAME)
 
 
 def get_child_accounts_from_list(uuids, translate=True):
