@@ -24,7 +24,7 @@ def post(table_name: str, contents: dict):
         driver.insert_account(contents)
     elif table_name == "ledger":
         driver.insert_ledger(contents)
-    elif table_name == "journal-entry":
+    elif table_name == "journal_entry":
         driver.insert_journal_entry(contents)
     else:
         raise Exception("Invalid table name.")
@@ -45,7 +45,7 @@ def post_many(table_name: str, contents: []):
         driver.insert_many_accounts(contents)
     if table_name == "ledger":
         driver.insert_many_ledgers(contents)
-    if table_name == "journal-entry":
+    if table_name == "journal_entry":
         driver.insert_many_journal_entries(contents)
     else:
         raise Exception("Invalid table name.")

@@ -1654,7 +1654,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
             db, journal_entry["id"], region_name, secret_name
         )
 
-        ark_qldb.post("journal-entry", dataclass_encoder.encode(journal_entry))
+        ark_qldb.post("journal_entry", dataclass_encoder.encode(journal_entry))
 
         conn.commit()
     except Exception as e:
