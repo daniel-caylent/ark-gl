@@ -73,7 +73,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
             journal_entry["attachments"] = je_utils.calculate_attachments(att_list, journal_entry_id)
 
         try:
-            journal_entries.bulk_state(id_list)
+            journal_entries.bulk_state(uuid_list)
         except Exception as e:
             return 500, {"detail": f"An error occurred when updating the state of the journal entries: {str(e)}"}
 
