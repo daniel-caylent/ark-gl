@@ -1632,7 +1632,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     This parameter specifies the secret manager key name that will contain all
     the information for the connection including the credentials
     """
-    import ark_qldb
+    from ark_qldb.post import post
 
     input_ = {
         "state": "POSTED",
@@ -1658,7 +1658,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
             db, journal_entry["id"], region_name, secret_name
         )
 
-        ark_qldb.post("journal_entry", dataclass_encoder.encode(journal_entry))
+        post("journal_entry", dataclass_encoder.encode(journal_entry))
 
         conn.commit()
     except Exception as e:

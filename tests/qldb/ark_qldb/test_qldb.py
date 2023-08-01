@@ -1,32 +1,28 @@
-from pathlib import PurePath
-from pyqldb.cursor.buffered_cursor import BufferedCursor
-
 from tests.test_base import TestBase
 from tests.utils import APP_ARK_QLDB_LAYER
 
-import app.layers.qldb.python.ark_qldb.qldb as qldb
+from  app.layers.qldb.python.ark_qldb.qldb import Driver
 
-class MockDriver(qldb.Driver):
+class MockDriver(Driver):
     def _Driver__execute_single_query(self, query: str, *args) -> list:
         return [query, *args]
 
 class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
-    def test_create_table(self, monkeypatch):
-        import app.layers.qldb.python.ark_qldb.qldb as qldb
-
+    def test_create_table(self):
+        pass
         test_driver = MockDriver(None, None, None, None, None)
 
         result = test_driver.create_table("testtable")
         assert None == result
 
-    def test_create_index(self, monkeypatch):
+    def test_create_index(self):
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.create_index(table_name="testtable", fields=["id"])
 
         assert None == result
 
-    def test_insert_document(self, monkeypatch):
+    def test_insert_document(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.insert_document(
@@ -35,7 +31,7 @@ class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
         assert None == result
 
-    def test_read_documents(self, monkeypatch):
+    def test_read_documents(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.read_documents(
@@ -44,7 +40,7 @@ class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
         assert ["SELECT * FROM testtable WHERE 1=1"] == result
 
-    def test_read_document_fields(self, monkeypatch):
+    def test_read_document_fields(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.read_document_fields(
@@ -53,7 +49,7 @@ class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
         assert ["SELECT id,name FROM testtable WHERE 1=1"] == result
 
-    def test_execute_custom_query(self, monkeypatch):
+    def test_execute_custom_query(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.execute_custom_query(
@@ -62,21 +58,21 @@ class TestQldb(TestBase([APP_ARK_QLDB_LAYER])):
 
         assert ["UPDATE testtable SET name = ? WHERE id = ?", "test2", "1"] == result
 
-    def test_insert_account(self, monkeypatch):
+    def test_insert_account(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.insert_account(document={"id": 1, "name": "test"})
 
         assert None == result
 
-    def test_insert_ledger(self, monkeypatch):
+    def test_insert_ledger(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.insert_ledger(document={"id": 1, "name": "test"})
 
         assert None == result
 
-    def test_insert_journal_entry(self, monkeypatch):
+    def test_insert_journal_entry(self):
 
         test_driver = MockDriver(None, None, None, None, None)
         result = test_driver.insert_journal_entry(

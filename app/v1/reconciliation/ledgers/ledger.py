@@ -5,7 +5,7 @@ This Lambda is responsible for preforming the reconciliation process of Ledgers
 # pylint: disable=import-error; Lambda layer dependency
 from ark_qldb import qldb
 from arkdb import ledgers
-from shared import logging
+from shared import logging, endpoint
 import os
 from amazon.ion.simple_types import IonPyNull
 
@@ -13,7 +13,7 @@ from amazon.ion.simple_types import IonPyNull
 
 region_name = os.getenv("AWS_REGION")
 
-
+@endpoint
 def handler(
     event, context  # pylint: disable=unused-argument; Required lambda parameters
 ) -> tuple[int, dict]:
@@ -99,5 +99,8 @@ def handler(
             + " vs QLDB "
             + str(len(processed_list)),
         )
+
+    if not processed_success:
+        return 400, {}
 
     return 200, {}

@@ -2,7 +2,7 @@
 from hashlib import sha256
 import os
 
-from .qldb import Driver
+from ark_qldb.qldb import Driver
 
 ledger_name = os.getenv("LEDGER_NAME")
 aws_region = os.getenv("AWS_REGION")
@@ -27,10 +27,10 @@ def post(table_name: str, contents: dict):
     elif table_name == "journal_entry":
         driver.insert_journal_entry(contents)
     else:
-        raise Exception("Invalid table name.")
+        raise Exception(f"Invalid table name: {table_name}")
 
 
-def post_many(table_name: str, contents: []):
+def post_many(table_name: str, contents: list):
     """Submitting a contents dict to QLDB based on table name"""
 
     if not ledger_name:
@@ -43,12 +43,12 @@ def post_many(table_name: str, contents: []):
 
     if table_name == "account":
         driver.insert_many_accounts(contents)
-    if table_name == "ledger":
+    elif table_name == "ledger":
         driver.insert_many_ledgers(contents)
     if table_name == "journal_entry":
         driver.insert_many_journal_entries(contents)
     else:
-        raise Exception("Invalid table name.")
+        raise Exception(f"Invalid table name: {table_name}")
 
 
 def process_contents(contents):

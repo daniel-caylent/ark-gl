@@ -15,7 +15,6 @@ def __divide_chunks(input_list, chunck_size):
     for i in range(0, len(input_list), chunck_size):
         yield input_list[i : i + chunck_size]
 
-
 def handler(
     event, context  # pylint: disable=unused-argument; Required lambda parameters
 ) -> tuple[int, dict]:
@@ -50,4 +49,4 @@ def handler(
             QueueUrl=queue["QueueUrl"], MessageBody=str(current_chunk_item)
         )
 
-    return 200, {}
+    return {"statusCode": 200}
