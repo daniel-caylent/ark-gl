@@ -1,15 +1,19 @@
 """This module provides the Aurora MySQL serverless capabilities for journal entries"""
 
 import math
+
+from typing import Union
+from datetime import datetime
+from pymysql.cursors import Cursor, DictCursor
+
 from . import db_main
 from . import connection
 from . import ledger
 from . import line_item
 from . import attachment
-from pymysql.cursors import Cursor, DictCursor
-from typing import Union
-from datetime import datetime
+
 from shared import dataclass_encoder
+
 
 app_to_db = {
     "id": "id",
@@ -1978,7 +1982,7 @@ def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: lis
     """
     query = f"""
         SELECT l.uuid as ledger_id, l.state as ledger_state, a.uuid as account_id,
-            a.state as account_state, je.uuid
+            a.state as account_state, je.uuid as journal_entry_id
         FROM {db}.line_item li
 
         INNER JOIN {db}.account a on a.id = li.account_id
@@ -2032,7 +2036,7 @@ def select_draft_accounts_and_ledgers_by_id_list(db: str, uuid_list: list, regio
     return records
 
 
-def bulk_state(db: str, ledger_ids: list, region_name: str, secret_name: str) -> None:
+def bulk_state(db: str, ledger_ids: list, post_date: str, region_name: str, secret_name: str) -> None:
     """
     This function updates the state and the post_date of a list of ledgers
 
@@ -2062,7 +2066,6 @@ def bulk_state(db: str, ledger_ids: list, region_name: str, secret_name: str) ->
 
     try:
         state_query_params = []
-        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for id_ in ledger_ids:
             state_query_params.append([
                 "POSTED",
