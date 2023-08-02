@@ -299,35 +299,6 @@ def __get_select_by_fund_query(db: str, fund_id: str) -> tuple:
     return (query, params)
 
 
-def __get_select_by_name_query(db: str, account_name: str) -> tuple:
-    """
-    This function creates the select by name query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_name: string
-    This parameter specifies the account_name that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    account_name = account_name.lower().strip()
-    query = (
-        """
-        SELECT *
-        FROM """
-        + db
-        + """.account
-        where TRIM(LOWER(name)) = %s;"""
-    )
-
-    params = (account_name,)
-
-    return (query, params)
-
-
 def __get_count_with_post_date(db: str) -> tuple:
     """
     This function creates the select query that counts the amount of rows with post_date not null.
@@ -728,26 +699,6 @@ def update(db: str, id_: str, input_: dict, region_name: str, secret_name: str) 
         cursor.close()
 
 
-def __get_by_number_query(db: str, account_number: str) -> tuple:
-    """
-    This function creates the select by account_no query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = "SELECT * FROM " + db + ".account where account_no = %s;"
-
-    params = (account_number,)
-
-    return (query, params)
-
 def __get_by_name_and_fund_query(db: str, account_name: str, fund_id: str) -> tuple:
     """
     This function creates the select by account_no query with its parameters.
@@ -833,68 +784,6 @@ def select_by_name_and_fund(
     record = db_main.execute_single_record_select(conn, params)
 
     return record
-
-
-def select_by_number(
-    db: str, account_number: str, region_name: str, secret_name: str
-) -> dict:
-    """
-    This function returns the record from the result of the "select by number" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    fund_id: string
-    UUID to reference a specific fund
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A dict containing the account that matches with the upcoming account_number
-    """
-    params = __get_by_number_query(db, account_number)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    record = db_main.execute_single_record_select(conn, params)
-
-    return record
-
-
-def get_id_by_number(
-    db: str, account_number: str, region_name: str, secret_name: str
-) -> str:
-    """
-    This function returns the id from an account with a specified account_number.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_number: string
-    This parameter specifies the account_number that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A string representing the id of that Account record with account_no equals to the input
-    """
-    record = select_by_number(db, account_number, region_name, secret_name)
-
-    return record.get("id") if record else None
-
 
 
 def get_id_by_name_and_fund(
@@ -1066,217 +955,6 @@ def select_by_fund(db: str, fund_uuid: str, region_name: str, secret_name: str) 
     return record
 
 
-def select_by_name(
-    db: str, account_name: str, region_name: str, secret_name: str
-) -> dict:
-    """
-    This function returns the record from the result of the "select by name" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_name: string
-    This parameter specifies the account_name that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A dict containing the account that matches with the upcoming name
-    """
-    params = __get_select_by_name_query(db, account_name)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    record = db_main.execute_single_record_select(conn, params)
-
-    return record
-
-
-def __get_childs_by_ids_query(db: str, account_ids: list) -> tuple:
-    """
-    This function creates the select childs by ids query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_ids: list
-    This parameter specifies the account_ids that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    format_strings = ",".join(["%s"] * len(account_ids))
-
-    query = (
-        """SELECT id
-    FROM """
-        + db
-        + f".account where parent_id IN ({format_strings});"
-    )
-
-    params = tuple(account_ids)
-
-    return (query, params)
-
-
-def select_childs_by_ids(
-    db: str, account_ids: list, region_name: str, secret_name: str
-) -> list:
-    """
-    This function returns the record from the result of the "select childs by ids" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_ids: list
-    This parameter specifies the account_ids that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list of dicts containing the child accounts that match with the upcoming account_ids
-    """
-    params = __get_childs_by_ids_query(db, account_ids)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    return records
-
-
-def __get_uuid_by_ids_query(db: str, account_ids: list) -> tuple:
-    """
-    This function creates the select uuid by ids query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_ids: list
-    This parameter specifies the account_ids that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    format_strings = ",".join(["%s"] * len(account_ids))
-
-    query = (
-        """SELECT uuid
-    FROM """
-        + db
-        + f".account where id IN ({format_strings});"
-    )
-
-    params = tuple(account_ids)
-
-    return (query, params)
-
-
-def select_uuid_by_ids(
-    db: str, account_ids: list, region_name: str, secret_name: str
-) -> list:
-    """
-    This function returns the record from the result of the "select uuid by ids" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_ids: list
-    This parameter specifies the account_ids that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list of uuids of the accounts that match with the upcoming account_ids
-    """
-    params = __get_uuid_by_ids_query(db, account_ids)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    records_uuids = [x.get("uuid") for x in records]
-
-    return records_uuids
-
-
-def __get_id_by_uuids_query(db: str, account_uuids: list) -> tuple:
-    """
-    This function creates the select uuid by ids query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_uuids: list
-    This parameter specifies the account_uuids that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    format_strings = ",".join(["%s"] * len(account_uuids))
-
-    query = (
-        """SELECT id
-    FROM """
-        + db
-        + f".account where uuid IN ({format_strings});"
-    )
-
-    params = tuple(account_uuids)
-
-    return (query, params)
-
-
-def select_id_by_uuids(
-    db: str, account_uuids: list, region_name: str, secret_name: str
-) -> list:
-    """
-    This function returns the record from the result of the "select id by uuids" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    account_uuids: list
-    This parameter specifies the account_uuids that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list of ids of the accounts that match with the upcoming account_uuids
-    """
-    params = __get_id_by_uuids_query(db, account_uuids)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    records_ids = [x.get("id") for x in records]
-
-    return records_ids
-
 def __get_recursive_childs_by_uuids_query(db: str, account_uuids: list) -> tuple:
     """
     SQL query to run a recursive lookup for all related child entities
@@ -1291,9 +969,9 @@ def __get_recursive_childs_by_uuids_query(db: str, account_uuids: list) -> tuple
             UNION ALL
 
             SELECT a1.uuid, a1.account_no, a1.name, a1.id, pa1.uuid
-            FROM {db}.account a1
+            FROM {db}.account a1  
             LEFT JOIN account pa1 on pa1.id = a1.parent_id
-            INNER JOIN Children c ON c.id = a1.parent_id
+            INNER JOIN Children c ON c.id = a1.parent_id 
             )
             SELECT * from Children;
     """
@@ -1306,7 +984,7 @@ def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tupl
     """
     query = f"""
         WITH RECURSIVE Parents(uuid, account_no, name, id, parent_inc_id, parent_id) AS (
-            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid
+            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid 
             FROM {db}.account a
             LEFT JOIN {db}.account pa on pa.id = a.parent_id
             WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
@@ -1314,9 +992,9 @@ def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tupl
             UNION ALL
 
             SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.parent_id, pa1.uuid
-            FROM {db}.account a1
+            FROM {db}.account a1  
             LEFT JOIN {db}.account pa1 on pa1.id = a1.parent_id
-            INNER JOIN Parents p ON p.parent_inc_id = a1.id
+            INNER JOIN Parents p ON p.parent_inc_id = a1.id 
             )
             SELECT * from Parents;
     """
@@ -1485,7 +1163,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                 parent_id = id_lookup.get(parent_name, {}).get("id")
                 if parent_id is None:
                     parent_id = get_id_by_name_and_fund(db, parent_name, fund_entity_uuid, region_name, secret_name)
-
+                
                 if parent_id is None:
                     error_count += 1
                     if error_count > len(input_list):
@@ -1499,7 +1177,7 @@ def bulk_insert(db: str, input_list: list, region_name: str, secret_name: str) -
                     continue
 
                 input_["parentAccountId"] = parent_id
-
+            
             fs_mapping_name = input_.get("fsMappingName")
             if fs_mapping_name:
                 fs_mapping_id = id_lookup.get(fs_mapping_name, {}).get("uuid")
@@ -1645,7 +1323,7 @@ def commit(db: str, id_: str, region_name: str, secret_name: str) -> None:
     the information for the connection including the credentials
     """
     from ark_qldb.post import post
-
+    
     input_ = {
         "state": "POSTED",
         "postDate": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

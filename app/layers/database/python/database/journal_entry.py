@@ -351,44 +351,6 @@ def __get_total_by_ledger_uuid_query(db: str, ledger_uuid: str):
     return (query, params)
 
 
-def __get_select_by_ledger_uuid_with_order_query(db: str, ledger_uuid: str, order_list: list) -> tuple:
-    """
-    This function creates the select by ledger query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    ledger_uuid: string
-    This parameter specifies the ledger_uuid that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    format_strings = ",".join(["%s"] * len(order_list))
-
-    query = (
-        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
-    je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id
-    FROM """
-        + db
-        + """.journal_entry je
-    INNER JOIN """
-        + db
-        + """.ledger le ON (je.ledger_id = le.id)
-    INNER JOIN """
-        + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-    where le.uuid = %s ORDER BY %s;"""
-    )
-
-    params = (ledger_uuid, format_strings)
-
-    return (query, params)
-
-
 def __get_select_posted_between_dates_query(
     db: str, start_date: str, end_date: str
 ) -> tuple:
@@ -495,8 +457,6 @@ def select_ids_by_uuid_list(
     lookup = {r['uuid']: r['id'] for r in records}
     return lookup
 
-
-
 def select_by_ledger_uuid(
     db: str, ledger_uuid: str, region_name: str, secret_name: str
 ) -> list:
@@ -526,84 +486,6 @@ def select_by_ledger_uuid(
     records = db_main.execute_multiple_record_select(conn, params)
 
     return records
-
-
-def select_by_ledger_uuid_paginated(
-    db: str,
-    ledger_uuid: str,
-    region_name: str,
-    secret_name: str,
-    page: int,
-    page_size: int
-) -> list:
-    """
-    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    ledger_uuid: string
-    This parameter specifies the ledger_uuid that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list containing the journal entries that match with the upcoming ledger_id
-    """
-    offset = (page - 1) * page_size
-
-    params = __get_select_by_ledger_uuid_query_paginated(db, ledger_uuid, page_size, offset)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    total_params = __get_total_by_ledger_uuid_query(db, ledger_uuid)
-
-    record = db_main.execute_single_record_select(conn, total_params)
-
-    total_records = list(record.values())[0]
-
-    total_pages = math.ceil(total_records / page_size)
-
-    return (records, page, total_pages, total_records)
-
-
-def select_by_ledger_uuid_with_order(
-    db: str, ledger_uuid: str, order_list: list, region_name: str, secret_name: str
-) -> list:
-    """
-    This function returns the record from the result of the "select by ledger uuid" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    ledger_uuid: string
-    This parameter specifies the ledger_uuid that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list containing the journal entries that match with the upcoming ledger_id
-    """
-    params = __get_select_by_ledger_uuid_with_order_query(db, ledger_uuid, order_list)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    return records
-
 
 def select_posted_between_dates(
     db: str, start_date: str, end_date: str, region_name: str, secret_name: str
@@ -1048,81 +930,6 @@ def __get_select_by_fund_id_query(db: str, fund_id: str) -> tuple:
     return (query, params)
 
 
-def __get_select_by_fund_id_query_paginated(
-    db: str,
-    fund_id: str,
-    limit: int,
-    offset: int) -> tuple:
-    """
-    This function creates the select by fund query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    fund_id: string
-    This parameter specifies the fund_id that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = (
-        """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
-    je.date, je.reference, je.memo, je.adjusting_journal_entry,
-    je.state, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id
-    FROM """
-        + db
-        + """.journal_entry je
-    INNER JOIN """
-        + db
-        + """.ledger le ON (je.ledger_id = le.id)
-    INNER JOIN """
-        + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-    WHERE fe.uuid = %s LIMIT %s OFFSET %s;"""
-    )
-
-    params = (fund_id, limit, offset, )
-
-    return (query, params)
-
-
-def __get_total_by_fund_id_query(
-    db: str,
-    fund_id: str) -> tuple:
-    """
-    This function creates the select by fund query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    fund_id: string
-    This parameter specifies the fund_id that will be used for this query
-
-    return
-    A tuple containing the query on the first element, and the params on the second
-    one to avoid SQL Injections
-    """
-    query = (
-        """SELECT COUNT(1)
-    FROM """
-        + db
-        + """.journal_entry je
-    INNER JOIN """
-        + db
-        + """.ledger le ON (je.ledger_id = le.id)
-    INNER JOIN """
-        + db
-        + """.fund_entity fe ON (le.fund_entity_id = fe.id)
-    WHERE fe.uuid = %s;"""
-    )
-
-    params = (fund_id, )
-
-    return (query, params)
-
-
 def select_by_fund_id(
     db: str, fund_id: str, region_name: str, secret_name: str
 ) -> list:
@@ -1153,51 +960,6 @@ def select_by_fund_id(
 
     return records
 
-
-def select_by_fund_id_paginated(
-    db: str,
-    fund_id: str,
-    region_name: str,
-    secret_name: str,
-    page: int,
-    page_size: int
-) -> list:
-    """
-    This function returns the record from the result of the "select by fund id" query with its parameters.
-
-    db: string
-    This parameter specifies the db name where the query will be executed
-
-    fund_id: string
-    This parameter specifies the fund_id that will be used for this query
-
-    region_name: string
-    This parameter specifies the region where the query will be executed
-
-    secret_name: string
-    This parameter specifies the secret manager key name that will contain all
-    the information for the connection including the credentials
-
-    return
-    A list containing the journal entries that match with the upcoming ledger_id
-    """
-    offset = (page - 1) * page_size
-
-    params = __get_select_by_fund_id_query_paginated(db, fund_id, page_size, offset)
-
-    conn = connection.get_connection(db, region_name, secret_name, "ro")
-
-    records = db_main.execute_multiple_record_select(conn, params)
-
-    total_params = __get_total_by_fund_id_query(db, fund_id)
-
-    record = db_main.execute_single_record_select(conn, total_params)
-
-    total_records = list(record.values())[0]
-
-    total_pages = math.ceil(total_records / page_size)
-
-    return (records, page, total_pages, total_records)
 
 
 def __get_select_by_client_id_query(db: str, client_id: str) -> tuple:
@@ -1545,6 +1307,7 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
 
             # Then, insert debit and credit entries
             if "lineItems" in input_:
+                print("LINEITEMS: ", input_["lineItems"])
                 for item in input_["lineItems"]:
                     type_ = item.pop("type")
                     line_number_ = str(input_["lineItems"].index(item) + 1)
@@ -1983,9 +1746,9 @@ def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: lis
             a.state as account_state, je.uuid as journal_entry_id
         FROM {db}.line_item li
 
-        INNER JOIN {db}.account a on a.id = li.account_id
-        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id
-        INNER JOIN {db}.ledger l on l.id = je.ledger_id
+        INNER JOIN {db}.account a on a.id = li.account_id 
+        INNER JOIN {db}.journal_entry je on je.id = li.journal_entry_id 
+        INNER JOIN {db}.ledger l on l.id = je.ledger_id 
 
         WHERE (a.state != "POSTED" or l.state != "POSTED")
             AND je.uuid in ({','.join(['%s'] * len(uuid_list))})

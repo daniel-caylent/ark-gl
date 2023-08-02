@@ -1,28 +1,6 @@
-from .account_attributes_test_base import AccountAttributesTestBase
+from tests.test_base import TestBase
 
-class TestAccountAttributes(AccountAttributesTestBase):
-
-    insert_input = {
-        "accountNo": 778897,
-        "fundId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
-        "parentAccountNo": 1234567,
-        "accountName": "Miscellaneous Expenses.",
-        "accountDescription": "Miscellaneous Expenses is an aggregation account that includes all miscellaneous expenses including pizza and burritos.",
-        "attributeNo": 2,
-        "FSMappingId": "fb84c7c6-9f62-11ed-8cf5-0ed4c7ff8d52",
-        "FSName": "FSMapping is used for reporting purposes.",
-        "isTaxable": True,
-        "isVendorCustomerPartnerRequired": False
-    }
-
-    update_input = {
-        "accountName": "Miscellaneous Expenses UPDATED 123",
-        "FSName": "UPDATED: FSMapping is used for reporting purposes."
-    }
-
-    max_diff = None
-
-    db = "ARKGL"
+class TestAccountAttributes(TestBase([])):
 
     def test_get_id(self, monkeypatch):
 
@@ -37,6 +15,29 @@ class TestAccountAttributes(AccountAttributesTestBase):
 
         monkeypatch.setattr(account_attribute, 'select_by_uuid', mock_select_by_uuid)
 
-        result = account_attribute.get_id(self.db, 'asd-123', '', '')
+        result = account_attribute.get_id("db", 'asd-123', '', '')
 
         assert 123 == result
+
+    def test_select_by_uuid(self, monkeypatch):
+
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account_attribute as account_attribute
+
+        monkeypatch.setattr(connection, "get_connection", lambda *args: None)
+        monkeypatch.setattr(db_main, "execute_single_record_select", lambda *args: None)
+
+        account_attribute.select_by_uuid("db", 'MY_UUID', '', '')
+
+
+    def test_select_all(self, monkeypatch):
+
+        import app.layers.database.python.database.connection as connection
+        import app.layers.database.python.database.db_main as db_main
+        import app.layers.database.python.database.account_attribute as account_attribute
+
+        monkeypatch.setattr(connection, "get_connection", lambda *args: None)
+        monkeypatch.setattr(db_main, "execute_multiple_record_select", lambda *args: [])
+
+        account_attribute.select_all("db", '', '')
