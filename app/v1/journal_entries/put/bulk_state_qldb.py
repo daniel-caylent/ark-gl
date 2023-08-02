@@ -6,7 +6,7 @@ import boto3
 
 
 # pylint: disable=import-error; Lambda layer dependency
-import ark_qldb
+from ark_qldb.post import post_many
 from shared import endpoint, dataclass_encoder, logging, s3_utils
 # pylint: enable=import-error
 
@@ -32,7 +32,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
         for journal_entry in records:
             encoded_journal_entries.append(dataclass_encoder.encode(journal_entry))
 
-        ark_qldb.post_many("journal_entry", encoded_journal_entries)
+        post_many("journal_entry", encoded_journal_entries)
 
         message_id = event['Records'][0]['messageId']
 
