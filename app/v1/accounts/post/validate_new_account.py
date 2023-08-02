@@ -1,12 +1,16 @@
 """Validations for Accounts POST"""
 
 # pylint: disable=import-error; Lambda layer dependency
-from arkdb import accounts, account_attributes, funds
+from arkdb import accounts, account_attributes
 from models import AccountPost
 from shared import dataclass_error_to_str
+
 # pylint: enable=import-error
 
+
 def validate_new_account(account: dict) -> tuple[int, str, AccountPost]:
+    """Account validator"""
+
     # Check for missing details
     if account.get("attributeId") is None:
         return 400, "No attribute specified.", None
@@ -46,9 +50,16 @@ def validate_unique_account(account: AccountPost, existing_accounts):
 
     for acct in existing_accounts:
         if acct["accountName"].lower() == account.accountName.lower():
-            return False, f"Account name already exists in this fund: {acct['accountName'].lower() }"
-        elif acct["accountNo"] == account.accountNo:
-            return False, f"Account number already exists in this fund: {acct['accountNo']}"
+            return (
+                False,
+                f"Account name already exists in this fund: {acct['accountName'].lower() }",
+            )
+
+        if acct["accountNo"] == account.accountNo:
+            return (
+                False,
+                f"Account number already exists in this fund: {acct['accountNo']}",
+            )
 
     return True, None
 

@@ -1,8 +1,9 @@
 """Lambda that will perform PUT requests for Accounts / state"""
 import os
 import json
-import boto3
 from datetime import datetime
+
+import boto3
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
@@ -13,7 +14,7 @@ sqs = boto3.client('sqs')
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
-
+    """Bulk state aurora"""
     # validate the request body
     try:
         body = json.loads(event["body"])

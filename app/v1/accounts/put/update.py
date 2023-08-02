@@ -24,6 +24,7 @@ COMMITED_CHANGEABLE = ["fsName", "fsMappingId"]
 def handler(
     event, context
 ) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
+    """Account Update (bulk PUT)"""
     if not event.get("body"):
         return 400, {"detail": "Missing request body."}
 

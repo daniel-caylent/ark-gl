@@ -9,6 +9,7 @@ from models import Account
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+    """Account get by ID"""
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 

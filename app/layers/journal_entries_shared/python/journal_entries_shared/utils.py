@@ -1,6 +1,7 @@
 """Utility file for JournalEntries"""
 
 def calculate_attachments(att_list, journal_entry_id):
+    """Combine attachments and journal entries"""
     return [
         {
             key: value
@@ -17,6 +18,7 @@ def calculate_attachments(att_list, journal_entry_id):
 
 
 def calculate_line_items(lines_list, journal_entry_id):
+    "Combine line_items and journal entries"
     return [
         {
             key: value

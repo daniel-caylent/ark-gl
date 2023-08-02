@@ -8,7 +8,7 @@ ledger_name = os.getenv("LEDGER_NAME")
 aws_region = os.getenv("AWS_REGION")
 
 HASH_NAMES = ["memo", "reference"]
-IGNORE_NAMES = ["fs_name", "fs_mapping_id", "is_taxable", "is_entity_required"]
+IGNORE_NAMES = ["fs_name", "fs_mapping_id", "fs_mapping_status", "is_taxable", "is_entity_required"]
 
 
 def post(table_name: str, contents: dict):

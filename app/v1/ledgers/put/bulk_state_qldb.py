@@ -9,7 +9,7 @@ from shared import endpoint, dataclass_encoder, logging
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
-
+    """Ledger bulk State, QLDB"""
     try:
         # This lambda is configured to receive only a single record at time,
         # so it is safe to access [0]

@@ -3,9 +3,16 @@ This Lambda is responsible for serving the journal entries POST request
 """
 import json
 
+# pylint: disable=too-many-statements; Lambda layer dependency
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries, ledgers, accounts
-from models import BulkJournalEntryPost, BulkLineItemPost, LineItemPost, AttachmentPost, JournalEntryPost
+from models import (
+    BulkJournalEntryPost,
+    BulkLineItemPost,
+    LineItemPost,
+    AttachmentPost,
+    JournalEntryPost,
+)
 from validate_new_journal_entry import sum_line_items
 from shared import endpoint, dataclass_error_to_str
 from shared.s3_utils import download_from_s3
@@ -65,13 +72,17 @@ def handler(
 
     # extract and replace ledger name with ID
     try:
-        journal_entries_list, ledger_lookup = __add_ledger_ids_to_journals(journal_entries_list)
+        journal_entries_list, ledger_lookup = __add_ledger_ids_to_journals(
+            journal_entries_list
+        )
     except Exception as e:
         return 400, {"detail": str(e)}
 
     # extract and transform account name to ID
     try:
-        journal_entries_list, accounts_lookup = __add_account_ids_to_line_items(journal_entries_list)
+        journal_entries_list, accounts_lookup = __add_account_ids_to_line_items(
+            journal_entries_list
+        )
     except Exception as e:
         return 400, {"detail": str(e)}
 
@@ -94,7 +105,9 @@ def handler(
         # validate the POST contents
         try:
             post = JournalEntryPost(**journal_entry)
-        except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+        except (
+            Exception
+        ) as e:  # pylint: disable=broad-exception-caught; Unhandled exception not allowed
             return 400, {"detail": dataclass_error_to_str(e)}
 
         if len(post.lineItems) == 0:
@@ -104,11 +117,15 @@ def handler(
         if post.journalEntryNum is not None:
             existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
             if existing_nums is None:
-                ledger_journal_entry_num_lookup[ledger["uuid"]] = journal_entries.select_numbers_in_ledger(ledger["uuid"])
+                ledger_journal_entry_num_lookup[
+                    ledger["uuid"]
+                ] = journal_entries.select_numbers_in_ledger(ledger["uuid"])
                 existing_nums = ledger_journal_entry_num_lookup.get(ledger["uuid"])
 
             if post.journalEntryNum in existing_nums:
-                return 400, {"detail": f"Journal entry number is not unique: {post.journalEntryNum}"}
+                return 400, {
+                    "detail": f"Journal entry number is not unique: {post.journalEntryNum}"
+                }
 
         type_safe_line_items = []
         line_item_no = 0
@@ -119,7 +136,9 @@ def handler(
                 type_safe_line_items.append(
                     {"lineItemNo": line_item_no, **line_item_post.__dict__}
                 )
-            except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+            except (
+                Exception
+            ) as e:  # pylint: disable=broad-exception-caught; Unhandled exception not allowed
                 return 400, {"detail": dataclass_error_to_str(e)}
 
         post.lineItems = type_safe_line_items
@@ -129,13 +148,17 @@ def handler(
             try:
                 attachment = AttachmentPost(**attachment)
                 type_safe_attachments.append(attachment.__dict__)
-            except Exception as e: # pylint: disable=broad-exception-caught; Unhandled exception not allowed
+            except (
+                Exception
+            ) as e:  # pylint: disable=broad-exception-caught; Unhandled exception not allowed
                 return 400, {"detail": dataclass_error_to_str(e)}
 
         post.attachments = type_safe_attachments
 
         if sum_line_items(type_safe_line_items) != 0:
-            return 400, {"detail": f"Line items do not sum to 0 for journal entry number: {post.journalEntryNum}"}
+            return 400, {
+                "detail": f"Line items do not sum to 0 for journal entry number: {post.journalEntryNum}"
+            }
 
         post_entries.append({"state": "DRAFT", **post.__dict__})
 
@@ -145,7 +168,6 @@ def handler(
     __update_draft_accounts(accounts_lookup.values())
     __update_draft_ledgers(ledger_lookup.values())
     return 201, {"journalEntryIds": result}
-
 
 
 def __update_draft_accounts(accounts_: list):
@@ -161,10 +183,8 @@ def __update_draft_ledgers(ledgers_: list):
     for ledger in ledgers_:
         journal_entries_ = journal_entries.select_by_ledger_id(ledger["id"])
         if len(journal_entries_) > 0 and ledger["state"] not in ["POSTED", "DRAFT"]:
-            ledgers.update_by_id(
-                ledger["uuid"],
-                {"state": "DRAFT"}
-            )
+            ledgers.update_by_id(ledger["uuid"], {"state": "DRAFT"})
+
 
 def __add_ledger_ids_to_journals(journal_entry_list):
     """Retrieve ledgerIds from db for journal entries"""
@@ -173,17 +193,17 @@ def __add_ledger_ids_to_journals(journal_entry_list):
     new_list = []
     for entry in journal_entry_list:
         fund = entry.get("fundId")
-        ledgerName = entry.pop("ledgerName")
+        ledger_name = entry.pop("ledgerName")
         entry.pop("clientId")
 
-        ledger_key = f"{fund}+{ledgerName}"
+        ledger_key = f"{fund}+{ledger_name}"
         ledger = ledgers_dict.get(ledger_key)
         if not ledger:
-            ledger = ledgers.select_by_fund_and_name(fund, ledgerName, translate=False)
+            ledger = ledgers.select_by_fund_and_name(fund, ledger_name, translate=False)
 
             if ledger is None:
                 raise Exception(
-                    f"Cannot find ledger name ({ledgerName}) in fund: {fund}"
+                    f"Cannot find ledger name ({ledger_name}) in fund: {fund}"
                 )
             ledgers_dict[ledger_key] = ledger
             return_ledgers_dict[ledger["uuid"]] = ledger
@@ -263,7 +283,7 @@ def __validate_bulk_line_items(journal_entries_list):
                 type_safe_line_item.pop("decimals")
                 modified_line_items.append(type_safe_line_item)
             except Exception as e:
-                raise Exception(dataclass_error_to_str(e))
+                raise Exception(dataclass_error_to_str(e)) from e
         entry["lineItems"] = modified_line_items
         modified_journal_entries.append(entry)
 

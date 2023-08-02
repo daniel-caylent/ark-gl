@@ -7,6 +7,7 @@ from shared import (
     endpoint,
     validate_uuid,
 )
+
 # pylint: enable=import-error
 
 
@@ -14,7 +15,9 @@ VALID_STATES = ["POSTED"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+def handler(
+    event, context
+) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Handler for ledgers PUT state request
 
     event: dict
@@ -50,13 +53,13 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if ledger is None:
         return 404, {"detail": "No ledger found."}
 
-    original_state = ledger['state']
+    original_state = ledger["state"]
     if original_state == "POSTED":
-        return 400, {'detail': "Ledger is already POSTED."}
+        return 400, {"detail": "Ledger is already POSTED."}
 
     if state not in VALID_STATES:
         return 400, {"detail": "State is invalid."}
-    
+
     try:
         ledgers.commit_by_id(ledger_id)
     except Exception as e:

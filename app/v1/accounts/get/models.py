@@ -1,10 +1,11 @@
 """Models for Accounts GET"""
-
+from datetime import datetime
 from dataclasses import dataclass
 
 
 @dataclass
 class Account:
+    """Get account model"""
     # pylint: disable=invalid-name; API standard
     accountNo: str
     accountName: str
@@ -18,7 +19,7 @@ class Account:
     attributeId: str
     accountId: str
     fundId: str
-    postDate: str
+    postDate: datetime
     fsMappingStatus: str
     # pylint: enable=invalid-name
 

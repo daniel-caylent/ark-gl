@@ -9,6 +9,8 @@ from models import Attribute
 
 @endpoint
 def handler(event, context): # pylint: disable=unused-argument; Required lambda parameters
+    """Account attributes GET"""
+
     response = account_attributes.select_all()
     attributes = [Attribute(**attr) for attr in response]
 

@@ -1,8 +1,8 @@
 """Models for JournalEntries GET"""
 from datetime import datetime
 
+# pylint: disable=import-error; Lambda layer dependency
 from dataclasses import dataclass, field
-
 from shared.dataclass_validators import validate_str, validate_bool
 
 
@@ -19,7 +19,7 @@ class JournalEntry:
     adjustingJournalEntry: bool
     state: str
     date: datetime
-    postDate: str
+    postDate: datetime
     currencyName: str
     currencyDecimal: int
     fundId: str

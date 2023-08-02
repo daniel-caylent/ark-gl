@@ -14,6 +14,7 @@ from shared.dataclass_validators import (
 
 @dataclass
 class AccountPut:
+    """Model for account PUT"""
 
     # pylint: disable=invalid-name; API standard
     accountNo: str = None
@@ -25,6 +26,7 @@ class AccountPut:
     attributeId: str = None
     isEntityRequired: bool = None
     isTaxable: bool = None
+    fsMappingStatus: str = None
     # pylint: enable=invalid-name
 
     def __post_init__(self):
@@ -67,6 +69,7 @@ class AccountPut:
         )
 
     def update_fs(self):
+        """Update the fsMappingStatus based on input uuid"""
         if self.fsMappingId == "00000000-0000-0000-0000-000000000000":
             self.fsMappingStatus = "SELF-MAPPED"
             self.fsMappingId = None

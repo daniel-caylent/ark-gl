@@ -6,6 +6,8 @@ from typing import Literal
 
 @dataclass
 class Attribute:
+    """Account attribute model"""
+
     # pylint: disable=invalid-name; API standard
     attributeId: str
     accountType: Literal[

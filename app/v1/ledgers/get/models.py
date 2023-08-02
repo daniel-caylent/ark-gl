@@ -1,4 +1,5 @@
 """Models for Ledgers GET"""
+from datetime import datetime
 
 from dataclasses import dataclass
 
@@ -15,7 +16,7 @@ class Ledger:
     state: str
     currencyName: str
     currencyDecimal: int
-    postDate: str
+    postDate: datetime
     # pylint: enable=invalid-name
 
     def __post_init__(self):

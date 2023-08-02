@@ -1,7 +1,7 @@
 """Validations for Ledgers POST"""
 
 # pylint: disable=import-error; Lambda layer dependency
-from arkdb import funds, ledgers
+from arkdb import ledgers
 from models import LedgerPost
 from shared import dataclass_error_to_str
 # pylint: enable=import-error

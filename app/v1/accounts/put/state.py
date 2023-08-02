@@ -4,13 +4,17 @@ import json
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
 from shared import endpoint, validate_uuid
+
 # pylint: enable=import-error
 
 VALID_STATES = ["POSTED"]
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+def handler(
+    event, context
+) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
+    """Account state"""
     if not event.get("pathParameters"):
         return 400, {"detail": "Missing path parameters"}
 
@@ -36,13 +40,13 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     if acct is None:
         return 404, {"detail": "No account found."}
 
-    original_state = acct['state']
+    original_state = acct["state"]
     if original_state == "POSTED":
-        return 400, {'detail': "Account is already POSTED."}
+        return 400, {"detail": "Account is already POSTED."}
 
     if state not in VALID_STATES:
         return 400, {"detail": "State is invalid."}
-    
+
     try:
         accounts.commit_by_id(account_id)
     except Exception as e:

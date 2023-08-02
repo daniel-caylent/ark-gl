@@ -9,6 +9,7 @@ from models import Account
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+    """Accounts GET"""
     if not event.get("queryStringParameters"):
         return 400, {"detail": "Missing query string parameters"}
 
@@ -26,6 +27,8 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
 
     results = accounts.select_by_fund_id(fund_id)
     accts = [Account(**account).__dict__ for account in results]
-    [acct.pop("fsMappingStatus") for acct in accts]
+
+    for acct in accts:
+        acct.pop("fsMappingStatus")
 
     return 200, {"data": accts}

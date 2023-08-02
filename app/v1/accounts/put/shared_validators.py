@@ -1,3 +1,6 @@
+"""Shared validators for accounts PUT"""
+
+# pylint: disable=import-error; Lambda layer dependency
 from models import AccountPut
 
 def validate_unique_account(account_id: str, account: AccountPut, existing_accounts):

@@ -13,6 +13,7 @@ from shared.dataclass_validators import (
 
 @dataclass
 class AccountPost:
+    """Account POST model"""
 
     # pylint: disable=invalid-name; API standard
     fundId: str
@@ -68,6 +69,7 @@ class AccountPost:
 
 @dataclass
 class BulkAccountPost:
+    """Model for bulk account POST"""
 
     # pylint: disable=invalid-name; API standard
     fundId: str

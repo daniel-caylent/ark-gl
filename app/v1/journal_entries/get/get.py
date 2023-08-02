@@ -3,18 +3,17 @@ import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from arkdb import journal_entries
-from shared import (
-    endpoint,
-    filtering,
-    dataclass_error_to_str
-)
+from shared import endpoint, filtering, dataclass_error_to_str
 from journal_entries_shared import utils as je_utils
 from models import JournalEntry, SortItem
+
 # pylint: enable=import-error
 
 
 @endpoint
-def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
+def handler(
+    event, context
+) -> tuple[int, dict]:  # pylint: disable=unused-argument; Required lambda parameters
     """Get journal entries by ledgerId"""
 
     try:
@@ -45,7 +44,9 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
     except Exception as e:
         return 400, {"detail": dataclass_error_to_str(e)}
 
-    results = journal_entries.select_with_filter_paginated(valid_input, page, page_size, sort)
+    results = journal_entries.select_with_filter_paginated(
+        valid_input, page, page_size, sort
+    )
 
     data_results = results["data"]
     if data_results:
@@ -56,9 +57,13 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         for journal_entry in data_results:
             journal_entry_id = journal_entry.pop("id")
 
-            journal_entry["lineItems"] = je_utils.calculate_line_items(lines_list, journal_entry_id)
+            journal_entry["lineItems"] = je_utils.calculate_line_items(
+                lines_list, journal_entry_id
+            )
 
-            journal_entry["attachments"] = je_utils.calculate_attachments(att_list, journal_entry_id)
+            journal_entry["attachments"] = je_utils.calculate_attachments(
+                att_list, journal_entry_id
+            )
 
     journal_entries_ = [JournalEntry(**result) for result in data_results]
 
@@ -68,4 +73,3 @@ def handler(event, context) -> tuple[int, dict]:  # pylint: disable=unused-argum
         "totalItems": results["total_items"],
         "currentPage": results["current_page"],
     }
-

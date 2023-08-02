@@ -3,7 +3,7 @@ This Lambda is responsible for serving the journal entries POST request
 """
 import json
 
- # pylint: disable=import-error; Lambda layer dependency
+# pylint: disable=import-error; Lambda layer dependency
 from arkdb import accounts
 from models import BulkAccountPost
 from validate_new_account import validate_new_account
@@ -27,7 +27,7 @@ def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argume
     # validate the request body
     try:
         body = json.loads(event["body"])
-    except Exception: # pylint: disable=broad-exception-caught; Unhandled exception is not allowed
+    except Exception:  # pylint: disable=broad-exception-caught; Unhandled exception is not allowed
         return 400, {"detail": "Body does not contain valid json."}
 
     s3_url = body.get("signedS3Url")

@@ -9,6 +9,7 @@ from shared import endpoint, dataclass_encoder, logging
 
 @endpoint
 def handler(event, context) -> tuple[int, dict]: # pylint: disable=unused-argument; Required lambda parameters
+    """Bulk state insert into QLDB"""
 
     try:
         # This lambda is configured to receive only a single record at time,

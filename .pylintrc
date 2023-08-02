@@ -435,6 +435,9 @@ disable=raw-checker-failed,
         duplicate-code,
         broad-exception-caught, # Unhandled exceptions are not allowed in this application
         broad-exception-raised, # The application was not designed to have custom exceptions, the logging is standardized instead
+        too-many-locals,
+        too-many-branches,
+        unused-argument
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
