@@ -24,10 +24,10 @@ CREATE TABLE IF NOT EXISTS ARKGL.ledger  (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	`uuid` CHAR(36),
 	fund_entity_id INT NOT NULL,
-	name VARCHAR(255),
-	description VARCHAR(255),
+	name VARCHAR(256),
+	description VARCHAR(256),
 	state VARCHAR(30),
-	currency VARCHAR(255),
+	currency VARCHAR(256),
 	decimals INT,
 	post_date TIMESTAMP,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS ARKGL.journal_entry  (
 	`uuid` CHAR(36),
 	ledger_id INT NOT NULL,
 	`date` date,
-	reference VARCHAR(255),
-	memo VARCHAR(255),
+	reference VARCHAR(256),
+	memo VARCHAR(256),
 	adjusting_journal_entry BOOL,
 	state VARCHAR(30),
 	post_date TIMESTAMP,
@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS ARKGL.account_attribute (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	number int,
 	`uuid` CHAR(36),
-	account_type VARCHAR(255),
-	detail_type VARCHAR(255),
+	account_type VARCHAR(256),
+	detail_type VARCHAR(256),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS ARKGL.account (
 	fund_entity_id INT NOT NULL,
 	account_attribute_id INT NOT NULL,
 	parent_id INT,
-	name VARCHAR(255),
-	description VARCHAR(255),
+	name VARCHAR(256),
+	description VARCHAR(256),
 	fs_mapping_id CHAR(36),
 	fs_mapping_status VARCHAR(15),
 	state VARCHAR(30),
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS ARKGL.line_item (
 	account_id INT NOT NULL,
 	journal_entry_id INT NOT NULL,
 	line_number INT,
-	memo VARCHAR(255),
+	memo VARCHAR(256),
     entity_id CHAR(36),	
 	posting_type VARCHAR(30),
 	amount BIGINT,
@@ -108,13 +108,13 @@ CREATE TABLE IF NOT EXISTS ARKGL.attachment (
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	`uuid` CHAR(36),
 	journal_entry_id INT NOT NULL,
-	memo VARCHAR(255),
+	memo VARCHAR(256),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (journal_entry_id) REFERENCES journal_entry(id)
 );
 
 CREATE TABLE IF NOT EXISTS ARKGL.FS (
 	fs_mapping_id CHAR(36) PRIMARY KEY,
-	fs_name VARCHAR(255),
+	fs_name VARCHAR(256),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
