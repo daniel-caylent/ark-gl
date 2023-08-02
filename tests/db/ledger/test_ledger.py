@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from tests.mock.db import MockConn, MockCursor
 
 from .ledger_test_base import LedgerTestBase
@@ -152,7 +152,7 @@ class TestLedger(LedgerTestBase):
         monkeypatch.setattr(db_main, 'execute_multiple_record_select', lambda *args: [MOCK_RECORD])
 
         ledger.select_by_multiple_uuids("db", "clientId", '', '')
-    
+
     def test_select_by_fund_and_name(self, monkeypatch):
         import app.layers.database.python.database.ledger as ledger
         import app.layers.database.python.database.connection as connection
@@ -190,7 +190,9 @@ class TestLedger(LedgerTestBase):
 
         monkeypatch.setattr(connection, 'get_connection', lambda *args: MockConn())
 
-        ledger.bulk_state("db", ["id"], '', '')
+        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        ledger.bulk_state("db", ["id"], post_date, '', '')
 
 
 

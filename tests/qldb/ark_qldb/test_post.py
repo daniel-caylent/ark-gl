@@ -27,24 +27,24 @@ class TestQldbPost(TestBase([MOCK_DIR], env)):
     def test_journal_entry_post(self):
         import app.layers.qldb.python.ark_qldb.post as post
 
-        post.post("journal-entry", {"some": "contents"})
+        post.post("journal_entry", {"some": "contents"})
 
 
     def test_invalid_post(self):
         import app.layers.qldb.python.ark_qldb.post as post
         with pytest.raises(Exception):
             post.post("invalid", {"some": "contents"})
-    
+
     def test_post_many_account(self):
         from app.layers.qldb.python.ark_qldb.post import post_many
 
         post_many("account", [{"some": "contents"}])
-    
+
     def test_post_many_ledger(self):
         from app.layers.qldb.python.ark_qldb.post import post_many
 
         post_many("ledger", [{"some": "contents"}])
-    
+
     def test_post_many_ledger(self):
         from app.layers.qldb.python.ark_qldb.post import post_many
 

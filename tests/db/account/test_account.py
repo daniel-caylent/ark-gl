@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from tests.mock.db import MockCursor, MockConn
 
 from .accounts_test_base import AccountsTestBase
@@ -275,5 +277,6 @@ class TestAccount(AccountsTestBase):
         monkeypatch.setattr(connection, 'get_connection', lambda *args: MockConn())
         monkeypatch.setattr(db_main, 'execute_single_record_select', lambda *args: MOCK_ACCOUNT_RECORD)
 
-        account.bulk_state("db", ["ID1", "ID2"], '', '')
-    
+        post_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        account.bulk_state("db", ["ID1", "ID2"], post_date, '', '')

@@ -4,10 +4,10 @@ from tests.app.data import (
     LambdaContext
 )
 from tests.test_base import TestBase
-from tests.utils import APP_DIR, APP_SHARED_LAYER, MOCK_DIR
+from tests.utils import APP_DIR, APP_SHARED_LAYER, MOCK_DIR, APP_JOURNAL_ENTRIES_SHARED_LAYER
 
 MODELS = str(PurePath(APP_DIR, 'journal_entries', 'post'))
-PATHS = [MODELS, APP_SHARED_LAYER, MOCK_DIR]
+PATHS = [MODELS, APP_SHARED_LAYER, MOCK_DIR, APP_JOURNAL_ENTRIES_SHARED_LAYER]
 
 
 class Boto3Mocked:

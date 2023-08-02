@@ -12,6 +12,7 @@ APP_DIR = str(PurePath(ROOT_DIR, 'app', 'v1'))
 LAYERS_DIR = str(PurePath(ROOT_DIR, 'app', 'layers'))
 APP_ARK_QLDB_LAYER = str(PurePath(LAYERS_DIR, "qldb", "python"))
 APP_SHARED_LAYER = str(PurePath(LAYERS_DIR, 'shared', 'python'))
+APP_JOURNAL_ENTRIES_SHARED_LAYER = str(PurePath(LAYERS_DIR, 'journal_entries_shared', 'python'))
 INFRASTRUCTURE_DIR = str(PurePath(ROOT_DIR, 'infrastructure'))
 
 ORIGINAL_PATH = sys.path
