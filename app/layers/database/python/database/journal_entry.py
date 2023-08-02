@@ -1995,6 +1995,7 @@ def __select_draft_accounts_and_ledgers_by_id_list_query(db: str, uuid_list: lis
     params = tuple(uuid_list)
     return (query, params)
 
+
 def select_draft_accounts_and_ledgers_by_id_list(db: str, uuid_list: list, region_name: str, secret_name: str):
     """
     This function returns a list of objects to represent DRAFT accounts or ledgers associated with a journal entry
