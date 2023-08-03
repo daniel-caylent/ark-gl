@@ -1,4 +1,4 @@
-aws-cdk-lib==2.69.0
+aws-cdk-lib==2.89.0
 constructs>=10.0.0,<11.0.0
 pymysql==1.0.3
 boto3==1.26.143

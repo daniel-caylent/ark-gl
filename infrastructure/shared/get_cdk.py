@@ -87,7 +87,7 @@ def build_lambda_function(
         handler=handler,
         vpc=vpc,
         vpc_subnets=cdk.aws_ec2.SubnetSelection(subnets=subnets),
-        runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
+        runtime=cdk.aws_lambda.Runtime.PYTHON_3_11,
         security_groups=[security_group],
         memory_size=memory_size,
         timeout=cdk.Duration.seconds(timeout),
@@ -256,7 +256,7 @@ def build_lambda_layer(context, code_dir, name="layer", **kwargs):
         context,
         name,
         code=cdk.aws_lambda.Code.from_asset(code_dir),
-        compatible_runtimes=[cdk.aws_lambda.Runtime.PYTHON_3_9],
+        compatible_runtimes=[cdk.aws_lambda.Runtime.PYTHON_3_11],
         **kwargs,
     )
 

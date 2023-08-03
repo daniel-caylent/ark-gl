@@ -35,7 +35,7 @@ class LambdaTriggerStack(BaseStack):
             self,
             get_stack_prefix() + "ark-qldb-trigger-lambda",
             function_name=get_stack_prefix() + "ark-qldb-trigger-lambda",
-            runtime=cdk.aws_lambda.Runtime.PYTHON_3_9,
+            runtime=cdk.aws_lambda.Runtime.PYTHON_3_11,
             handler="qldb_tables.handler",
             code=cdk.aws_lambda.Code.from_asset(CODE_DIR),
             timeout=cdk.Duration.seconds(60),

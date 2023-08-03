@@ -14,21 +14,21 @@ class FakeStack(core.Stack):
             "mock-f1",
             code=core.aws_lambda.Code.from_inline("print('a')"),
             handler="",
-            runtime=core.aws_lambda.Runtime.PYTHON_3_9,
+            runtime=core.aws_lambda.Runtime.PYTHON_3_11,
         )
         self.mock_f2 = core.aws_lambda.Function(
             self,
             "mock-f2",
             code=core.aws_lambda.Code.from_inline("print('a')"),
             handler="",
-            runtime=core.aws_lambda.Runtime.PYTHON_3_9,
+            runtime=core.aws_lambda.Runtime.PYTHON_3_11,
         )
         self.mock_f3 = core.aws_lambda.Function(
             self,
             "mock-f3",
             code=core.aws_lambda.Code.from_inline("print('a')"),
             handler="",
-            runtime=core.aws_lambda.Runtime.PYTHON_3_9,
+            runtime=core.aws_lambda.Runtime.PYTHON_3_11,
         )
 
 
