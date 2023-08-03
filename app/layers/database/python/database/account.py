@@ -28,6 +28,8 @@ app_to_db = {
     "fsName": "fs_name",
     "postDate": "post_date",
     "fsMappingStatus": "fs_mapping_status",
+    "detailType": "detail_type",
+    "accountType": "account_type"
 }
 
 
@@ -960,17 +962,27 @@ def __get_recursive_childs_by_uuids_query(db: str, account_uuids: list) -> tuple
     SQL query to run a recursive lookup for all related child entities
     """
     query = f"""
-        WITH RECURSIVE Children(uuid, account_no, name, id, parent_id) AS (
-            SELECT a.uuid, a.account_no, a.name, a.id, pa.uuid
+        WITH RECURSIVE Children(uuid, account_no, name, id, state, is_taxable,
+                is_entity_required, post_date, fs_mapping_id, fs_name, account_attribute_id,
+                account_type, detail_type, parent_id) AS (
+            SELECT a.uuid, a.account_no, a.name, a.id, a.state, a.is_taxable,
+            a.is_entity_required, a.post_date, fs.fs_mapping_id, fs.fs_name,
+            att.uuid, att.account_type, att.detail_type, pa.uuid
             FROM {db}.account a
-            LEFT JOIN account pa on pa.id = a.parent_id
+            LEFT JOIN {db}.account_attribute att on att.id = a.account_attribute_id
+            LEFT JOIN {db}.FS fs on fs.fs_mapping_id = a.fs_mapping_id
+            LEFT JOIN {db}.account pa on pa.id = a.parent_id
             WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
 
             UNION ALL
 
-            SELECT a1.uuid, a1.account_no, a1.name, a1.id, pa1.uuid
+            SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.state, a1.is_taxable,
+            a1.is_entity_required, a1.post_date, fs1.fs_mapping_id, fs1.fs_name,
+            att1.uuid, att1.account_type, att1.detail_type, pa1.uuid
             FROM {db}.account a1  
-            LEFT JOIN account pa1 on pa1.id = a1.parent_id
+            LEFT JOIN {db}.account_attribute att1 on att1.id = a1.account_attribute_id
+            LEFT JOIN {db}.FS fs1 on fs1.fs_mapping_id = a1.fs_mapping_id
+            LEFT JOIN {db}.account pa1 on pa1.id = a1.parent_id
             INNER JOIN Children c ON c.id = a1.parent_id 
             )
             SELECT * from Children;
@@ -983,16 +995,26 @@ def __get_recursive_parents_by_uuids_query(db: str, account_uuids: list) -> tupl
     SQL query to run a recursive lookup for all related child entities
     """
     query = f"""
-        WITH RECURSIVE Parents(uuid, account_no, name, id, parent_inc_id, parent_id) AS (
-            SELECT a.uuid, a.account_no, a.name, a.id, a.parent_id, pa.uuid 
+        WITH RECURSIVE Parents(uuid, account_no, name, id, state, is_taxable,
+                is_entity_required, post_date, fs_mapping_id, fs_name, account_attribute_id,
+                account_type, detail_type, parent_id, parent_inc_id) AS (
+            SELECT a.uuid, a.account_no, a.name, a.id, a.state, a.is_taxable,
+            a.is_entity_required, a.post_date, fs.fs_mapping_id, fs.fs_name,
+            att.uuid, att.account_type, att.detail_type, pa.uuid, pa.id
             FROM {db}.account a
+            LEFT JOIN {db}.account_attribute att on att.id = a.account_attribute_id
+            LEFT JOIN {db}.FS fs on fs.fs_mapping_id = a.fs_mapping_id
             LEFT JOIN {db}.account pa on pa.id = a.parent_id
             WHERE a.uuid IN ({",".join(["%s"] * len(account_uuids))})
 
             UNION ALL
 
-            SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.parent_id, pa1.uuid
+            SELECT a1.uuid, a1.account_no, a1.name, a1.id, a1.state, a1.is_taxable,
+            a1.is_entity_required, a1.post_date, fs1.fs_mapping_id, fs1.fs_name,
+            att1.uuid, att1.account_type, att1.detail_type, pa1.uuid, pa1.id
             FROM {db}.account a1  
+            LEFT JOIN {db}.account_attribute att1 on att1.id = a1.account_attribute_id
+            LEFT JOIN {db}.FS fs1 on fs1.fs_mapping_id = a1.fs_mapping_id
             LEFT JOIN {db}.account pa1 on pa1.id = a1.parent_id
             INNER JOIN Parents p ON p.parent_inc_id = a1.id 
             )

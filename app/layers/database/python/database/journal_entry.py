@@ -1307,7 +1307,6 @@ def bulk_insert(db: str, input_list: dict, region_name: str, secret_name: str) -
 
             # Then, insert debit and credit entries
             if "lineItems" in input_:
-                print("LINEITEMS: ", input_["lineItems"])
                 for item in input_["lineItems"]:
                     type_ = item.pop("type")
                     line_number_ = str(input_["lineItems"].index(item) + 1)
