@@ -6,11 +6,9 @@ from database.journal_entry import (
     select_by_uuid,
     select_count_with_post_date,
     select_by_ledger_uuid,
-    select_by_ledger_uuid_paginated,
     select_by_client_id as __select_by_client_id,
     select_by_fund_id as __select_by_fund_id,
     select_by_fund_id as __select_by_fund_id,
-    select_by_fund_id_paginated as __get_select_by_fund_id_query_paginated,
     select_by_client_id_paginated as __select_by_client_id_paginated,
     bulk_insert as __bulk_insert,
     bulk_delete as __bulk_delete,
@@ -67,39 +65,11 @@ def select_by_ledger_id(uuid: str) -> dict:
     return results
 
 
-def select_by_ledger_id_paginated(uuid: str, page: int, page_size: int) -> dict:
-    """Select a list of journal entries by ledger ID paginated"""
-    results = select_by_ledger_uuid_paginated(DB_NAME, uuid, REGION_NAME, SECRET_NAME, page, page_size)
-
-    results = {
-        "data": translate_results(results[0], journal_app_to_db),
-        "current_page": results[1],
-        "total_pages": results[2],
-        "total_items": results[3]
-    }
-
-    return results
-
-
 def select_by_fund_id(uuid: str) -> dict:
     """Select a list of journal entries by fund ID"""
     results = __select_by_fund_id(DB_NAME, uuid, REGION_NAME, SECRET_NAME)
 
     results = translate_results(results, journal_app_to_db)
-
-    return results
-
-
-def select_by_fund_id_paginated(uuid: str, page: int, page_size: int) -> dict:
-    """Select a list of journal entries by fund ID paginated"""
-    results = __get_select_by_fund_id_query_paginated(DB_NAME, uuid, REGION_NAME, SECRET_NAME, page, page_size)
-
-    results = {
-        "data": translate_results(results[0], journal_app_to_db),
-        "current_page": results[1],
-        "total_pages": results[2],
-        "total_items": results[3]
-    }
 
     return results
 
