@@ -40,7 +40,18 @@ def __validate_journal_entries(journal_entry_uuids: []):
     records = journal_entries.select_draft_accounts_and_ledgers_by_id_list_query(journal_entry_uuids)
 
     if records:
-        return 400, {"detail": f"The following Accounts and/or Ledgers are not in the POSTED state: {json.dumps(records, indent=2)}"}
+        accounts = list(set([record["account_id"] for record in records if record["account_state"] != "POSTED"]))
+        ledgers = list(set([record["ledger_id"] for record in records if record["ledger_state"] != "POSTED"]))
+
+        additional_information = ""
+
+        if accounts:
+            additional_information += f"accountIds [{','.join(accounts)}], "
+
+        if ledgers:
+            additional_information += f"ledgerIds [{','.join(ledgers)}] "
+
+        return 400, {"detail": f"The following Accounts and/or Ledgers are not in the POSTED state: {additional_information}"}
 
     return None
 
