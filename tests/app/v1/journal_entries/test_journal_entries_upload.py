@@ -9,22 +9,13 @@ from tests.app.data import (
 )
 from tests.test_base import TestBase
 from tests.utils import APP_DIR, APP_SHARED_LAYER
+from tests.mock.urlopen import urlopen
 
 MODELS = str(PurePath(APP_DIR, 'journal_entries', 'post'))
 PATHS = [MODELS, APP_SHARED_LAYER]
 
 DATA_DIR =  str(PurePath(os.path.dirname(__file__), "data"))
 
-
-def mock_urlopen(url, *args, **kwargs):
-    class Response:
-        file = url
-        def read(self, *args, **kwargs):
-            with open(self.file, 'r') as f:
-                text = f.read()
-            return text.encode()
-        
-    return Response()
 
 class TestJournalEntriesUpload(TestBase(PATHS)):
 
@@ -39,7 +30,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 201 == result['statusCode']
@@ -55,7 +46,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -72,7 +63,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -89,7 +80,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
 
@@ -106,7 +97,7 @@ class TestJournalEntriesUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
 

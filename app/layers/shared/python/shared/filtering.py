@@ -71,6 +71,10 @@ class FilterInput:
             for id_ in self.fundIds:
                 check_uuid(id_, f"fundIds: {id_}")
 
+        if self.journalEntryIds and (
+            self.fundId or self.accountIds or self.ledgerIds or self.fundIds
+            or self.startDate or self.endDate or self.journalEntryState or self.fundIds):
+            raise Exception("journalEntryIds cannot be used in conjunction with other search criteria.")
 
     def get_dict(self):
         fields = self.__dict__

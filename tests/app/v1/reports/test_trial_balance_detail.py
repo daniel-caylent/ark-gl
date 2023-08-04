@@ -38,7 +38,7 @@ class TestTrialBalance(ReportsTestBase):
         }
 
         result = handler(event, LambdaContext)
-
+        print(result)
         assert 200 == result["statusCode"]
 
     def test_good_many_params(self):

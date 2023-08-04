@@ -109,11 +109,7 @@ class BulkJournalEntryPost:
             self.adjustingJournalEntry, "adjustingJournalEntry"
         )
         self.date = validate_date(self.date, "date", "%Y-%m-%d")
-        self.journalEntryNum = (
-            None
-            if self.journalEntryNum is None
-            else validate_int(self.journalEntryNum, "journalEntryNum")
-        )
+        self.journalEntryNum = None
 
 
 @dataclass

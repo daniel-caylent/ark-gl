@@ -5,6 +5,7 @@ def select_by_ledger_id(id):
     return [
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "ab72493c-eb7c-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 1,
@@ -22,6 +23,7 @@ def select_by_ledger_id(id):
         },
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
@@ -45,6 +47,7 @@ def select_by_fund_id(id):
     return [
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "ab72493c-eb7c-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 1,
@@ -62,6 +65,7 @@ def select_by_fund_id(id):
         },
         {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
@@ -173,6 +177,7 @@ def select_by_id(id, translate=True):
     if id == "a92bde1e-7825-429d-aaae-909f2d7a8df2":
         return {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
@@ -191,6 +196,7 @@ def select_by_id(id, translate=True):
 
     return {
             "ledgerId": "ab353519-eb7c-11ed-9a6e-0a3efd619f29",
+            "ledgerName": "test",
             "fundId": 1,
             "journalEntryId": "33c20245-fb52-11ed-9a6e-0a3efd619f29",
             "journalEntryNum": 2,
@@ -264,6 +270,7 @@ def select_with_filter_paginated(filter, page=None, page_size=None, sort=None):
                 'journalEntryId':
                 '3b184ece-a05b-4caf-8bd9-1607281b9fb4',
                 'ledgerId': 'a4c789c6-219b-11ee-b49c-0a3efd619f29',
+                "ledgerName": "test",
                 'date': datetime.date.today(),
                 'reference': '',
                 'memo': 'This is a memo',

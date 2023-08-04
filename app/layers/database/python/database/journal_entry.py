@@ -33,7 +33,8 @@ app_to_db = {
     "fundId": "fund_entity_id",
     "ledgerState": "ledger_state",
     "accountState": "account_state",
-    "accountId": "account_id"
+    "accountId": "account_id",
+    "ledgerName": "ledger_name"
 }
 
 
@@ -207,7 +208,7 @@ def __get_select_by_uuid_query(db: str, uuid: str) -> tuple:
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id
+    le.name as ledger_name, fe.uuid as fund_entity_id
     FROM """
         + db
         + """.journal_entry je
@@ -1448,7 +1449,7 @@ def __get_query_select_by_filter_paginated(db: str, filter: dict, limit: int, of
         """SELECT je.id, je.journal_entry_num, je.uuid, le.uuid as ledger_id,
     je.date, je.reference, je.memo, je.adjusting_journal_entry,
     je.state, je.post_date, je.created_at, le.currency, le.decimals,
-    fe.uuid as fund_entity_id,
+    le.name as ledger_name, fe.uuid as fund_entity_id,
     SUM(IF(li.posting_type="CREDIT", li.amount, 0)) as credits,
     SUM(IF(li.posting_type="DEBIT", li.amount, 0)) as debits
 

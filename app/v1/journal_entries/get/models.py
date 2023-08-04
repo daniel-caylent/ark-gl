@@ -12,6 +12,7 @@ class JournalEntry:
 
     # pylint: disable=invalid-name; API standard
     ledgerId: str
+    ledgerName: str
     journalEntryId: str
     journalEntryNum: str
     reference: str

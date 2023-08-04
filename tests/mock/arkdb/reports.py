@@ -22,6 +22,15 @@ def get_trial_balance_detail(filter):
           "amount": 100,
           "entityId": "entity_id",
           "ledgerName": "ledger_name",
+          "accountState": "DRAFT",
+          "fsMappingId": None,
+          "fsName": None,
+          "fsMappingStatus": None,
+          "isTaxable": False,
+          "isEntityRequired": False,
+          "accountType": None,
+          "detailType": None,
+          "accountPostDate": None
         }
     ]
 

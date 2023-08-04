@@ -9,22 +9,12 @@ from tests.app.data import (
 )
 from tests.test_base import TestBase
 from tests.utils import APP_DIR, APP_SHARED_LAYER
+from tests.mock.urlopen import urlopen
 
 MODELS = str(PurePath(APP_DIR, 'accounts', 'post'))
 PATHS = [MODELS, APP_SHARED_LAYER]
 
 DATA_DIR =  str(PurePath(os.path.dirname(__file__), "data"))
-
-
-def mock_urlopen(url, *args, **kwargs):
-    class Response:
-        file = url
-        def read(self, *args, **kwargs):
-            with open(self.file, 'r') as f:
-                text = f.read()
-            return text.encode()
-        
-    return Response()
 
 class TestAccountsUpload(TestBase(PATHS)):
 
@@ -38,9 +28,11 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
+
+        print(result)
         assert 201 == result['statusCode']
 
     def test_malformed(self):
@@ -53,7 +45,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
@@ -68,7 +60,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
@@ -84,7 +76,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
@@ -100,7 +92,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 201 == result['statusCode']
@@ -116,7 +108,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 201 == result['statusCode']
@@ -132,7 +124,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
@@ -147,7 +139,7 @@ class TestAccountsUpload(TestBase(PATHS)):
         }
 
         mp = pytest.MonkeyPatch()
-        mp.setattr("urllib.request.urlopen", mock_urlopen)
+        mp.setattr("urllib.request.urlopen", urlopen)
 
         result = handler(request, LambdaContext())
         assert 400 == result['statusCode']
