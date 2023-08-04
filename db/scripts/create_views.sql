@@ -1,3 +1,5 @@
+-- TODO: Remove any unused views
+
 CREATE OR REPLACE VIEW BALANCE_SHEET_VW AS 
 SELECT fe.uuid fund_uuid,
 fe.client_id,
@@ -112,8 +114,18 @@ acc.uuid account_uuid,
 je.journal_entry_num,
 acc.name account_name,
 acc.account_no,
+acc.is_taxable,
+acc.is_entity_required,
+acc.post_date account_post_date,
+acc.state account_state,
+acc.fs_mapping_status,
+fs.fs_mapping_id,
+fs.fs_name,
 concat(acc.name, ' ', acc.account_no) account_app_name,
 acc_att.uuid attribute_uuid,
+acc_att.account_type,
+acc_att.detail_type,
+li.id line_item_id,
 li.line_number,
 li.memo,
 li.entity_id,
@@ -126,20 +138,16 @@ je.adjusting_journal_entry,
 je.state journal_entry_state,
 je.date journal_entry_date,
 parent_acc.uuid parent_uuid,
-case when li.posting_type = 'CREDIT' then li.amount else li.amount*(-1)  end as "amount"
-from 
-line_item li 
-inner join journal_entry je on li.journal_entry_id  = je.id
- inner join ledger le on le.id = je.ledger_id  
- inner join fund_entity fe on le.fund_entity_id = fe.id
- inner join account acc on acc.id = li.account_id 
- inner join account_attribute acc_att on acc_att.id = acc.account_attribute_id
- left join account parent_acc on parent_acc.id = acc.parent_id 
--- and fe.client_id = ?
--- and le.uuid = ?
--- and fe.fund_id = ?
--- and account.post_date between ? and ?
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13;
+CASE WHEN li.posting_type = 'CREDIT' THEN li.amount ELSE li.amount*(-1)  END AS "amount"
+FROM line_item li 
+INNER JOIN journal_entry je on li.journal_entry_id  = je.id
+ INNER JOIN ledger le on le.id = je.ledger_id  
+ INNER JOIN fund_entity fe on le.fund_entity_id = fe.id
+ INNER JOIN account acc on acc.id = li.account_id
+ LEFT JOIN FS fs on acc.fs_mapping_id = fs.fs_mapping_id
+ INNER JOIN account_attribute acc_att on acc_att.id = acc.account_attribute_id
+ LEFT JOIN account parent_acc on parent_acc.id = acc.parent_id
+GROUP BY line_item_id;
 
 
 CREATE OR REPLACE VIEW DETAILED_1099_VW AS

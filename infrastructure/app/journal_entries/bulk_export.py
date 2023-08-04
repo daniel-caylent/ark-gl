@@ -29,6 +29,7 @@ class JournalEntriesBulkExportStack(BaseStack):
             bucket_name=export_bucket_name,
             encryption=cdk.aws_s3.BucketEncryption.S3_MANAGED,
             block_public_access=cdk.aws_s3.BlockPublicAccess.BLOCK_ALL,
+            removal_policy=cdk.RemovalPolicy.DESTROY,
             versioned=True,
             enforce_ssl=True,
         )

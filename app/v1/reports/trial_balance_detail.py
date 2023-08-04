@@ -4,7 +4,7 @@ from datetime import datetime
 from arkdb import reports, ledgers, accounts, account_attributes
 from shared import endpoint, dataclass_error_to_str
 
-from models import ReportInputs
+from models import ReportInputs, TrialBalanceAccount
 
 
 @endpoint
@@ -65,15 +65,25 @@ def handler(event, context) -> tuple[int, dict]:
         accounts_ = {}
         for line in lines:
             if not accounts_.get(line["accountId"]):
-                accounts_[line["accountId"]] = {
-                    "accountId": line["accountId"],
-                    "totalAmount": 0,
-                    "accountName": line["accountName"],
-                    "accountNo": line["accountNo"],
-                    "parentAccountId": line["parentAccountId"],
-                    "fundId": line["fundId"],
-                    "lineItems": [],
-                }
+                accounts_[line["accountId"]] = TrialBalanceAccount(
+                    **{
+                        "accountId": line["accountId"],
+                        "accountName": line["accountName"],
+                        "accountNo": line["accountNo"],
+                        "parentAccountId": line["parentAccountId"],
+                        "state": line["accountState"],
+                        "fsMappingId": line["fsMappingId"],
+                        "fsName": line["fsName"],
+                        "isTaxable": line["isTaxable"],
+                        "isEntityRequired": line["isEntityRequired"],
+                        "attributeId": line["attributeId"],
+                        "accountType": line["accountType"],
+                        "detailType": line["detailType"],
+                        "postDate": line["accountPostDate"],
+                        "fundId": line["fundId"],
+                        "fsMappingStatus": line["fsMappingStatus"]
+                    }
+                ).__dict__
 
             journal_date = line["journalEntryDate"]
 
@@ -115,11 +125,9 @@ def get_all_associated_accounts(accounts_list):
     for account in parent_accounts + child_accounts:
         if account["accountId"] not in input_ids:
             accounts_list.append(
-                {
-                    **account,
-                    "totalAmount": 0,
-                    "lineItems": []
-                }
+                TrialBalanceAccount(
+                    **account
+                ).__dict__
             )
 
             input_ids.append(account["accountId"])

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from shared.dataclass_validators import validate_date, validate_list, validate_str, check_uuid
 
 @dataclass
@@ -42,3 +42,30 @@ class ReportInputs:
 
         if not (self.ledgerIds or self.accountIds):
             raise Exception("Search criteria is too broad. Include one of: accountIds or ledgerIds")
+
+@dataclass
+class TrialBalanceAccount:
+    accountId: str
+    accountName: str
+    accountNo: str
+    parentAccountId: str
+    state: str
+    fsMappingId: str
+    fsName: str
+    isTaxable: bool
+    isEntityRequired: bool
+    attributeId: str
+    accountType: str
+    detailType: str
+    postDate: str
+    fundId: str
+    fsMappingStatus: str
+    totalAmount: int = 0
+    lineItems: list = field(default_factory=lambda: [])
+
+    def __post_init__(self):
+        self.isTaxable = bool(self.isTaxable)
+        self.isEntityRequired = bool(self.isEntityRequired)
+
+        if self.fsMappingStatus == "SELF-MAPPED":
+            self.fsMappingId = self.accountId
