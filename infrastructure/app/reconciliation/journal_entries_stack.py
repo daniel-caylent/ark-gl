@@ -2,6 +2,7 @@ import aws_cdk as cdk
 from pathlib import PurePath
 
 from constructs import Construct
+from shared.utils import get_stack_prefix
 
 from shared.base_stack import BaseStack
 
@@ -39,7 +40,7 @@ class JournalEntriesReconciliationStack(BaseStack):
             description="journal entries reconciliation",
             env={
                 "sqs_name": self.STACK_PREFIX + ENV["sqs_name"],
-                "LOG_LEVEL": "INFO",
+                "LOG_LEVEL": "INFO"
             },
             cdk_env=kwargs["env"],
         )

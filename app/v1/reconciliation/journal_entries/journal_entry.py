@@ -1,11 +1,12 @@
 """
 This Lambda is responsible for preforming the reconciliation process of JournalEntries
 """
+import json
 
 # pylint: disable=import-error; Lambda layer dependency
 from ark_qldb import qldb
 from arkdb import journal_entries
-from shared import logging, endpoint
+from shared import logging, s3_utils
 import os
 from amazon.ion.simple_types import IonPyNull
 
@@ -167,7 +168,7 @@ def __process_buffer(
             processed_success = False
     return processed_success
 
-@endpoint
+@logging.use_logging
 def handler(event, context) -> tuple[int, dict]:
     """
     Lambda entry point
@@ -185,38 +186,37 @@ def handler(event, context) -> tuple[int, dict]:
     # Defining driver for qldb
     driver = qldb.Driver("ARKGL", region_name=region_name)
 
-    # Reading from SQS queue
-    for record in event["Records"]:
-        journal_uuids = record["body"]
+    journal_uuids = json.loads(s3_utils.download_from_s3(event["url"]))
 
-        buffered_cursor = driver.read_documents(
-            "journal_entry", "uuid IN (" + (",").join(journal_uuids) + ")"
-        )
-        processed_list = []
-        processed_succesfully = []
-        processed_failure = []
 
-        processed_success = __process_buffer(
+    buffered_cursor = driver.read_documents(
+        "journal_entry", "uuid IN (" + (",").join(journal_uuids) + ")"
+    )
+    processed_list = []
+    processed_succesfully = []
+    processed_failure = []
+
+    processed_success = __process_buffer(
+        context,
+        buffered_cursor,
+        processed_list,
+        processed_succesfully,
+        processed_failure,
+    )
+
+    journal_count = journal_entries.select_count_commited_journals()
+    if journal_count["count(*)"] != len(processed_list):
+        logging.write_log(
             context,
-            buffered_cursor,
-            processed_list,
-            processed_succesfully,
-            processed_failure,
+            "Error",
+            "Reconciliation error",
+            "Error on amount of records on Aurora "
+            + str(journal_count["count(*)"])
+            + " vs QLDB "
+            + str(len(processed_list)),
         )
 
-        journal_count = journal_entries.select_count_commited_journals()
-        if journal_count["count(*)"] != len(processed_list):
-            logging.write_log(
-                context,
-                "Error",
-                "Reconciliation error",
-                "Error on amount of records on Aurora "
-                + str(journal_count["count(*)"])
-                + " vs QLDB "
-                + str(len(processed_list)),
-            )
-
-            processed_success = False
+        processed_success = False
     
     if not processed_success:
         return 400, {}

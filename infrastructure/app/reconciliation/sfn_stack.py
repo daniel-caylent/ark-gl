@@ -15,6 +15,7 @@ class StepFunctionStack(BaseStack):
         accounts_reconciliation_lambda: cdk.aws_lambda.Function,
         ledgers_reconciliation_lambda: cdk.aws_lambda.Function,
         journals_loadbalancer_lambda: cdk.aws_lambda.Function,
+        journals_reconciliation_lambda: cdk.aws_lambda.Function,
         **kwargs
     ) -> None:
         super().__init__(scope, id, **kwargs)
@@ -41,8 +42,23 @@ class StepFunctionStack(BaseStack):
             output_path="$.Payload",
         )
 
-        sfn_definition = accounts_recon_task.next(ledgers_recon_task).next(
-            je_lb_recon_task
+        journals_recon_task = cdk.aws_stepfunctions_tasks.LambdaInvoke(
+            self,
+            get_stack_prefix() + "ark-je-recon-task",
+            lambda_function=journals_reconciliation_lambda,
+            output_path="$.Payload",
+        )
+
+        fan_out = cdk.aws_stepfunctions.Map(
+            self, get_stack_prefix() + "ark-journal-recon-map",
+            max_concurrency=10,
+        ).iterator(journals_recon_task)
+
+        sfn_definition = (
+            accounts_recon_task
+            .next(ledgers_recon_task)
+            .next(je_lb_recon_task)
+            .next(fan_out)
         )
 
         state_machine = cdk.aws_stepfunctions.StateMachine(
@@ -59,6 +75,11 @@ class StepFunctionStack(BaseStack):
                 level=cdk.aws_stepfunctions.LogLevel.ALL,
             ),
         )
+
+        accounts_reconciliation_lambda.log_group.grant_write(state_machine)
+        ledgers_reconciliation_lambda.log_group.grant_write(state_machine)
+        journals_loadbalancer_lambda.log_group.grant_write(state_machine)
+        journals_reconciliation_lambda.log_group.grant_write(state_machine)
 
         eventbridge_cron = cdk.aws_events.Rule(
             self,

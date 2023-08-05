@@ -52,6 +52,7 @@ step_function_stack = StepFunctionStack(
     accounts_reconciliation_lambda=accounts_reconciliation_stack.lambda_function,
     ledgers_reconciliation_lambda=ledgers_reconciliation_stack.lambda_function,
     journals_loadbalancer_lambda=load_balancer_reconciliation_stack.lambda_function,
+    journals_reconciliation_lambda=journals_reconciliation_stack.lambda_function,
     env=cdk_env,
 )
 step_function_stack.add_dependency(vpc_stack)
